@@ -9,6 +9,11 @@ class Cursos extends Model
 {
     use HasFactory;
 
-    //Relación uno a muchos
+    // public function scopeCicloYNombre($query, $nombre, $ciclo)
+    // {   
+    //     if($nombre){
+    //         return $query->where('curso_nombre', 'LIKE' , "%$nombre%");
+    //     }
+    // }
     
 }

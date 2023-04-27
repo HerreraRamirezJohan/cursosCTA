@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CursosController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,3 +33,11 @@ Route::middleware([
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
+
+// Route::get('/mostrar', function () {
+//     return view('cursos.mostrar');
+// })->name('mostrar');
+
