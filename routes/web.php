@@ -36,6 +36,10 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
+Route::get('/crear', [CursosController::class, 'create'])->name('crear');
+Route::post('/guardar', [CursosController::class, 'store'])->name('guardar');
+
+
 
 // Route::get('/mostrar', function () {
 //     return view('cursos.mostrar');

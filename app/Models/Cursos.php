@@ -9,11 +9,17 @@ class Cursos extends Model
 {
     use HasFactory;
 
-    // public function scopeCicloYNombre($query, $nombre, $ciclo)
-    // {   
-    //     if($nombre){
-    //         return $query->where('curso_nombre', 'LIKE' , "%$nombre%");
-    //     }
-    // }
+    protected $fillable = [
+        'nrc',
+        'curso_nombre',
+        'ciclo',
+        'observaciones',
+        'departamento',
+        'alumnos_registrados',
+        'activo',
+        'nivel',
+        'profesor',
+        'codigo',
+    ];
     
 }

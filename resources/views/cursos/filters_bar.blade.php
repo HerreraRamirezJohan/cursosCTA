@@ -1,7 +1,7 @@
 <form class="row" action="{{ route('mostrar') }}">
 
     {{-- Inicio Selects [Departamento, Sede y Estatus] --}}
-    <div class="row row-cols-lg-auto g-3 align-items-center justify-content-center">
+    <div class="row row-cols-lg-auto g-3 align-items-center justify-content-center mt-0">
 
         {{-- [Nombre del curso] --}}
         <div>
@@ -52,7 +52,7 @@
                 <option>Sabado</option>
             </select>
         </div>
-
+{{-- 
         <div>
             <label for="estatus" class="validationDefault04">Horario</label>
             <select id="validationDefault04" class="form-select" name="horario">
@@ -61,6 +61,12 @@
                     <option>{{ $item }}</option>
                 @endforeach
             </select>
+        </div> --}}
+
+        {{-- InputTime para buscar por hora de inicio del curso --}}
+        <div>
+            <label for="horario" class="validationDefault04">Inicio de Curso</label>
+            <input id="validationDefault04" type="time" name="hora_inicio" class="form-control" min="07:00" max="21:00">
         </div>
     </div>
 
@@ -71,7 +77,7 @@
     {{-- Final Selects [Departamento, Sede y Estatus] --}}
 
     {{-- Boton de filtros --}}
-    <div class="col-sm-12 col-md-1 mx-auto">
+    <div class="col-sm-12 col-md-12 col-lg-1 mx-auto">
       <button type="submit" class="w-100 btn btn-primary mt-3 w-2">Filtrar</button>  
     </div>
     

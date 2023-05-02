@@ -16,8 +16,11 @@ class CreateHorariosTable extends Migration
         Schema::create('horarios', function (Blueprint $table) {
             $table->id();
             $table->enum('dia', ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado']);
-            $table->string('horario', 30)->type;
-            
+
+            /* Se añadieron los campos de hora inicio y final de los cursos */
+            $table->time('hora_inicio', $precision = 0);
+            $table->time('hora_final', $precision  = 0);
+
             $table->unsignedBigInteger('id_curso')->nullable();
             $table->unsignedBigInteger('id_area')->nullable();
 
@@ -27,8 +30,6 @@ class CreateHorariosTable extends Migration
 
 
             $table->timestamps();
-
-
         });
     }
 

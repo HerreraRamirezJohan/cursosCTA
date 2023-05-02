@@ -33,12 +33,39 @@ class CursosController extends Controller
 
     public function create()
     {
-        //
+        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
+            ->distinct()->pluck('departamento');
+
+        $curso = new Cursos();
+
+        return view('cursos.create', compact(['cursos_departamento', 'curso']));
     }
 
     public function store(Request $request)
     {
-        //
+        Cursos::create([
+            'nrc' => $request->nrc,              
+            'curso_nombre' => $request->nombre,
+            'ciclo' => $request->ciclo,
+            'observaciones' => $request->observaciones,
+            'departamento' => $request->departamento,
+            'alumnos_registrados' => $request->alumnos_registrados,
+            'nivel' => $request->nivel,
+            'profesor' => $request->profesor,
+            'codigo' => $request->codigo,
+        ]);
+        return redirect()->route('inicio');
+        // return redirect('inicio')->with('msg', 'Empleado agregado exitosamente.');
+
+
+        // $curso = new Cursos();
+        // dd($curso);
+        // $curso->fill($request->all());
+        // if ($curso->save()) {
+        //     return redirect()->route('cursos.index')->with('msg', 'Curso agregado exitosamente');
+        // } else {
+        //     return redirect()->route('cursos.create');
+        // }
     }
 
     public function show(Request $request)
@@ -47,42 +74,54 @@ class CursosController extends Controller
         $validarDatos = $request->validate($rules);
 
 
-        $nombre = $request->get('curso_nombre');
-        $departamento = $request->get('departamento');
-        $sede = $request->get('sede');
-        $ciclo = $request->get('ciclo');
-        $dia = $request->get('dia');
-        $horario = $request->get('horario');
+        // $nombre = $request->get('curso_nombre');
+        // $departamento = $request->get('departamento');
+        // $sede = $request->get('sede');
+        // $ciclo = $request->get('ciclo');
+        // $dia = $request->get('dia');
+        // $horario = $request->get('horario');
+
+        $filtros = [
+            'nombre' => $request->get('curso_nombre'),
+            'departamento' => $request->get('departamento'),
+            'sede' => $request->get('sede'),
+            'ciclo' => $request->get('ciclo'),
+            'dia' => $request->get('dia'),
+            'horario' => $request->get('hora_inicio')
+        ];
 
 
         $cursos = Cursos::select('cursos.*', 'areas.*', 'horarios.*')
             ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
             ->join('areas', 'horarios.id_area', '=', 'areas.id')
-            ->when($nombre, function ($query, $nombre) {
-                return $query->where('curso_nombre', 'LIKE', "%".$nombre."%");
+            ->when($filtros['nombre'], function ($query, $nombre) {
+                return $query->where('curso_nombre', 'LIKE', "%" . $nombre . "%");
             })
-            ->when($departamento, function ($query, $departamento) {
+            ->when($filtros['departamento'], function ($query, $departamento) {
                 return $query->where('departamento', $departamento);
             })
-            ->when($sede, function ($query, $sede) {
+            ->when($filtros['sede'], function ($query, $sede) {
                 return $query->where('sede', $sede);
             })
-            ->when($ciclo, function ($query, $ciclo) {
+            ->when($filtros['ciclo'], function ($query, $ciclo) {
                 return $query->where('ciclo', $ciclo);
             })
-            ->when($dia, function ($query, $dia) {
+            ->when($filtros['dia'], function ($query, $dia) {
                 return $query->where('dia', $dia);
             })
-            ->when($horario, function ($query, $horario) {
-                return $query->where('horario', $horario);
+            ->when($filtros['horario'], function ($query, $horario) {
+                return $query->where('hora_inicio', '>=', $horario);
             })
-            // ->toSql();
-            ->get();
+            ->paginate(15);
+
+        // ->get();
+        // ->toSql();
 
 
 
         // return $cursos;
-        return view('cursos.mostrar', compact('cursos'));
+        // return view('cursos.mostrar', compact('cursos')); 
+        return view('cursos.mostrar', compact('cursos', 'filtros'));
     }
 
     public function edit($id)
