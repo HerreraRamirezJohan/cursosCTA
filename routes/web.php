@@ -39,6 +39,11 @@ Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
 Route::get('/crear', [CursosController::class, 'create'])->name('crear');
 Route::post('/guardar', [CursosController::class, 'store'])->name('guardar');
 
+Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar');
+Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar');
+
+
+
 
 
 // Route::get('/mostrar', function () {

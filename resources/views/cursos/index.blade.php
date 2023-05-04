@@ -14,7 +14,7 @@
                     <h1>{{ __('Cursos') }}</h1>
                 </div>
                 <div class="d-flex justify-content-end gap-2 mt-4 mx-3">
-                    <a href="{{ route('crear') }}" class="btn btn-success text-light align-bottom"> AGREGAR </a>
+                    <a href="{{ route('crear') }}" class="btn btn-success text-light align-bottom"> AGREGAR CURSO </a>
 
                 </div>
                 <div class="card-body">

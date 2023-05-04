@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Areas;
 use App\Models\Cursos;
+use App\Models\Horarios;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -14,6 +15,7 @@ class CursosController extends Controller
 
     public function index()
     {
+
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
 
@@ -33,44 +35,97 @@ class CursosController extends Controller
 
     public function create()
     {
+
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
 
+        $cursos_areas = Areas::select('id','sede', 'edificio', 'area')
+            ->orWhere(function ($query) {
+                $query->where('sede', 'La Normal')
+                    ->orWhere('sede', 'Belenes');
+            })
+            ->orWhere(function ($query) {
+                $query->where('tipo_espacio', 'Laboratorio')
+                    ->orWhere('tipo_espacio', 'Aula');
+            })->distinct()
+            ->get();
+
+
+        // ->toSql();
+
+        // return $cursos_area;
+
         $curso = new Cursos();
 
-        return view('cursos.create', compact(['cursos_departamento', 'curso']));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_areas'));
     }
 
     public function store(Request $request)
     {
-        Cursos::create([
-            'nrc' => $request->nrc,              
-            'curso_nombre' => $request->nombre,
-            'ciclo' => $request->ciclo,
-            'observaciones' => $request->observaciones,
-            'departamento' => $request->departamento,
-            'alumnos_registrados' => $request->alumnos_registrados,
-            'nivel' => $request->nivel,
-            'profesor' => $request->profesor,
-            'codigo' => $request->codigo,
+
+        $rules = [
+            'nrc' => 'required',
+            'curso_nombre' => 'required',
+            'ciclo' => 'required',
+            'observaciones' => 'required',
+            'departamento' => 'required',
+            'alumnos_registrados' => 'required',
+            'nivel' => 'required',
+            'profesor' => 'required',
+            'codigo' => 'required'
+        ];
+        $validarDatos = $request->validate($rules);
+
+        // dd($request);
+        $horario_disponible = Cursos::select(DB::raw('count(*) as total'))
+                                    ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+                                    ->join('areas', 'horarios.id_area', '=', 'areas.id')
+                                    ->where('dia', $request->dia)
+                                    ->where('ciclo', $request->ciclo)
+                                    ->where('area', $request->id)
+                                    ->where(function($query) use ($request) {
+                                        $query->where([
+                                            ['hora_inicio', '<=',  $request->hora_inicio],
+                                            ['hora_final', '>=',  $request->hora_final],
+                                        ])->orWhere(function($query) use ($request) {
+                                            $query->where([
+                                                ['hora_inicio', '<=',  $request->hora_inicio],
+                                                ['hora_final', '>=', $request->hora_final],
+                                            ]);
+                                        });
+                                    })->get();
+
+                                    dd($horario_disponible);
+// return $horario_disponible;
+
+        $curso = Cursos::create([
+            'nrc'                   => $request->nrc,
+            'curso_nombre'          => $request->curso_nombre,
+            'ciclo'                 => $request->ciclo,
+            'observaciones'         => $request->observaciones,
+            'departamento'          => $request->departamento,
+            'alumnos_registrados'   => $request->alumnos_registrados,
+            'nivel'                 => $request->nivel,
+            'profesor'              => $request->profesor,
+            'codigo'                => $request->codigo,
         ]);
+
+        $curso->horarios()->create([
+            'dia' => $request->dia,
+            'hora_inicio' => $request->hora_inicio,
+            'hora_final' => $request->hora_final,
+        ]);
+
         return redirect()->route('inicio');
         // return redirect('inicio')->with('msg', 'Empleado agregado exitosamente.');
 
 
-        // $curso = new Cursos();
-        // dd($curso);
-        // $curso->fill($request->all());
-        // if ($curso->save()) {
-        //     return redirect()->route('cursos.index')->with('msg', 'Curso agregado exitosamente');
-        // } else {
-        //     return redirect()->route('cursos.create');
-        // }
     }
 
     public function show(Request $request)
     {
         $rules = ['ciclo' => 'required'];
+
         $validarDatos = $request->validate($rules);
 
 
@@ -111,7 +166,7 @@ class CursosController extends Controller
             })
             ->when($filtros['horario'], function ($query, $horario) {
                 return $query->where('hora_inicio', '>=', $horario);
-            })
+            })->orderBy('curso_nombre')
             ->paginate(15);
 
         // ->get();
@@ -124,14 +179,26 @@ class CursosController extends Controller
         return view('cursos.mostrar', compact('cursos', 'filtros'));
     }
 
-    public function edit($id)
+    public function edit(Cursos $curso, Horarios $horario)
     {
-        //
+        // $curso = Cursos::findOrFail($id);
+        // return view('cursos.edit', compact('curso'));
+
+        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
+            ->distinct()->pluck('departamento');
+
+        $cursos_area = Areas::select('area')->orderBy('area', 'asc')
+            ->distinct()->pluck('area');
+
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'horario', 'cursos_area'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Cursos $curso, Horarios $horario)
     {
-        //
+        $curso->update($request->all());
+        $horario->update($request->all());
+
+        return redirect()->route('inicio');
     }
 
     public function destroy($id)
