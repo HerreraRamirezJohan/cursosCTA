@@ -16,9 +16,12 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [CursosController::class,'index'])->name('index');
+
 
 Route::middleware([
     'auth:sanctum',

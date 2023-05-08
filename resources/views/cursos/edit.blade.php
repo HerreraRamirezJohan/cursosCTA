@@ -73,7 +73,7 @@
                             <label for="Nivel" class="validationDefault04">Nivel:</label>
                             <select id="validationDefault04" class="form-select" name="nivel" class="form-control"
                                 required>
-                                <option selected disabled>{{ old('nivel', $curso->nivel) }}</option>
+                                <option  selected disabled >{{ old('nivel', $curso->nivel) }}</option>
                                 <option>Licenciatura</option>
                                 <option>Maestría</option>
                                 <option>Doctorado</option>
@@ -131,3 +131,4 @@
         </div>
     </div>
 @endsection
+    

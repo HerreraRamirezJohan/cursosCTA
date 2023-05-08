@@ -39,7 +39,9 @@ class CursosController extends Controller
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
 
-        $cursos_areas = Areas::select('id','sede', 'edificio', 'area')
+        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+
+        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
             ->orWhere(function ($query) {
                 $query->where('sede', 'La Normal')
                     ->orWhere('sede', 'Belenes');
@@ -47,7 +49,7 @@ class CursosController extends Controller
             ->orWhere(function ($query) {
                 $query->where('tipo_espacio', 'Laboratorio')
                     ->orWhere('tipo_espacio', 'Aula');
-            })->distinct()
+            })->distinct()->orderBy('sede')->orderBy('edificio')
             ->get();
 
 
@@ -57,13 +59,13 @@ class CursosController extends Controller
 
         $curso = new Cursos();
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_areas'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo'));
     }
 
     public function store(Request $request)
     {
 
-        $rules = [
+        $validarDatos = $request->validate([
             'nrc' => 'required',
             'curso_nombre' => 'required',
             'ciclo' => 'required',
@@ -73,30 +75,30 @@ class CursosController extends Controller
             'nivel' => 'required',
             'profesor' => 'required',
             'codigo' => 'required'
-        ];
-        $validarDatos = $request->validate($rules);
+        ]);
 
         // dd($request);
-        $horario_disponible = Cursos::select(DB::raw('count(*) as total'))
-                                    ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
-                                    ->join('areas', 'horarios.id_area', '=', 'areas.id')
-                                    ->where('dia', $request->dia)
-                                    ->where('ciclo', $request->ciclo)
-                                    ->where('area', $request->id)
-                                    ->where(function($query) use ($request) {
-                                        $query->where([
-                                            ['hora_inicio', '<=',  $request->hora_inicio],
-                                            ['hora_final', '>=',  $request->hora_final],
-                                        ])->orWhere(function($query) use ($request) {
-                                            $query->where([
-                                                ['hora_inicio', '<=',  $request->hora_inicio],
-                                                ['hora_final', '>=', $request->hora_final],
-                                            ]);
-                                        });
-                                    })->get();
+        // $horario_disponible = Cursos::select(DB::raw('count(*) as total'))
+        // $horario_disponible = Cursos::select(DB::raw('count(*) as total'))      
+        //                             ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+        //                             ->join('areas', 'horarios.id_area', '=', 'areas.id')
+        //                             ->where('dia', $request->dia)
+        //                             ->where('ciclo', $request->ciclo)
+        //                             ->where('area', $request->id)
+        //                             ->where(function($query) use ($request) {
+        //                                 $query->where([
+        //                                     ['hora_inicio', '<=',  $request->hora_inicio],
+        //                                     ['hora_final', '>=',  $request->hora_final],
+        //                                 ])->orWhere(function($query) use ($request) {
+        //                                     $query->where([
+        //                                         ['hora_inicio', '<=',  $request->hora_inicio],
+        //                                         ['hora_final', '>=', $request->hora_final],
+        //                                     ]);
+        //                                 });
+        //                             })->get();
 
-                                    dd($horario_disponible);
-// return $horario_disponible;
+        //                             dd($horario_disponible);
+        // return $horario_disponible;
 
         $curso = Cursos::create([
             'nrc'                   => $request->nrc,
@@ -110,12 +112,22 @@ class CursosController extends Controller
             'codigo'                => $request->codigo,
         ]);
 
-        $curso->horarios()->create([
-            'dia' => $request->dia,
-            'hora_inicio' => $request->hora_inicio,
-            'hora_final' => $request->hora_final,
-        ]);
 
+        $curso->horarios()->create([
+            'dia' => $request->dia[0],
+            'hora_inicio' => $request->hora_inicio[0],
+            'hora_final' => $request->hora_final[0],
+            'id_area' => $request->area,
+        ]);
+        // if ($request->dia2 != null && $request->hora_inicio2 != null && $request->hora_final2 != null) {
+        if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
+            $curso->horarios()->create([
+                'id_curso'  => $curso->id,  
+                'dia' => $request->dia[1],
+                'hora_inicio' => $request->hora_inicio[1],
+                'hora_final' => $request->hora_final[1],
+            ]);
+        }
         return redirect()->route('inicio');
         // return redirect('inicio')->with('msg', 'Empleado agregado exitosamente.');
 
@@ -135,6 +147,7 @@ class CursosController extends Controller
         // $ciclo = $request->get('ciclo');
         // $dia = $request->get('dia');
         // $horario = $request->get('horario');
+
 
         $filtros = [
             'nombre' => $request->get('curso_nombre'),
@@ -179,7 +192,7 @@ class CursosController extends Controller
         return view('cursos.mostrar', compact('cursos', 'filtros'));
     }
 
-    public function edit(Cursos $curso, Horarios $horario)
+    public function edit(Cursos $curso)
     {
         // $curso = Cursos::findOrFail($id);
         // return view('cursos.edit', compact('curso'));
@@ -190,7 +203,7 @@ class CursosController extends Controller
         $cursos_area = Areas::select('area')->orderBy('area', 'asc')
             ->distinct()->pluck('area');
 
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'horario', 'cursos_area'));
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
