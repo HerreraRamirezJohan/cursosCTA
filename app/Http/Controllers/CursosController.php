@@ -200,16 +200,39 @@ class CursosController extends Controller
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
 
-        $cursos_area = Areas::select('area')->orderBy('area', 'asc')
-            ->distinct()->pluck('area');
+        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
+            ->orWhere(function ($query) {
+                $query->where('sede', 'La Normal')
+                    ->orWhere('sede', 'Belenes');
+            })
+            ->orWhere(function ($query) {
+                $query->where('tipo_espacio', 'Laboratorio')
+                    ->orWhere('tipo_espacio', 'Aula');
+            })->distinct()->orderBy('sede')->orderBy('edificio')
+            ->get();
 
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area'));
+        /* Solicitamos los horarios que tenga el curso */
+        $horariosDelCurso = Horarios::select('horarios.*')
+            ->where('id_curso', $curso->id)
+            ->get();
+
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
     {
         $curso->update($request->all());
-        $horario->update($request->all());
+
+        /* Realizamos un loop para actualizar cada horario
+            en caso de que tenga mas de uno. */
+        foreach($request->horariosId as $key => $value){
+            $horario->where('id', $value)
+                    ->update([
+                        'dia' => $request->dia[$key],
+                        'hora_inicio' => $request->hora_inicio[$key],
+                        'hora_final' => $request->hora_final[$key]
+                    ]);
+        }
 
         return redirect()->route('inicio');
     }

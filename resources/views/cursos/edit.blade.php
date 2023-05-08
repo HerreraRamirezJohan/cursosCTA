@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 
 <script>
@@ -43,9 +42,10 @@
                         <div class="mb-3">
                             <label for="Area">Area:</label>
                             <select id="area" class="form-select js-example-basic-single" name="area" class="form-control">
-                                <option selected disabled>Elegir</option>
-                                @foreach ($cursos_area as $item)
-                                    <option va>{{ $item }}</option>
+                                @foreach ($cursos_area as $area)
+                                    <option value="{{ $area->id }}" {{$horariosDelCurso[0]->id_area === $area->id ? 'selected' : ''}}>
+                                        {{ $area->sede . ' - ' . $area->edificio . ' - ' . $area->area }}
+                                    </option>
                                     {{-- Datos del DB --}}
                                 @endforeach
                             </select>
@@ -55,9 +55,10 @@
                             <label for="Departamento" class="validationDefault04">Departamento:</label>
                             <select id="validationDefault04" class="form-select" name="departamento" class="form-control"
                                 required>
-                                <option selected disabled>{{ old('departamento', $curso->departamento) }}</option>
                                 @foreach ($cursos_departamento as $item)
-                                    <option>{{ $item }}</option>
+                                    <option {{$item === $curso->departamento ? 'selected' : ''}}>
+                                        {{ $item }}
+                                    </option>
                                     {{-- Datos del DB --}}
                                 @endforeach
                             </select>
@@ -73,52 +74,60 @@
                             <label for="Nivel" class="validationDefault04">Nivel:</label>
                             <select id="validationDefault04" class="form-select" name="nivel" class="form-control"
                                 required>
-                                <option  selected disabled >{{ old('nivel', $curso->nivel) }}</option>
-                                <option>Licenciatura</option>
-                                <option>Maestría</option>
-                                <option>Doctorado</option>
+                                <option disabled>Selecciona un nivel</option>
+                                {{-- Usamos operador ternario para saber cual es el elemento seleccionado --}}
+                                <option {{ $curso->nivel === 'Licenciatura' ? 'selected' : '' }}>Licenciatura</option>
+                                <option {{ $curso->nivel === 'Maestría' ? 'selected' : '' }}>Maestría</option>
+                                <option {{ $curso->nivel === 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
                             </select>
                         </div>
 
 
                         <div class="mb-3">
                             <label for="Profesor" class="">Profesor:</label>
-                            <input type="text" name="profesor" value="{{ old('profesor', $curso->profesor) }}"
+                            <input type="text" name="profesor" value="{{$curso->profesor}}"
                                 id="profesor" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="Codigo" class="">Codigo:</label>
-                            <input type="text" name="codigo" value="{{ old('codigo', $curso->codigo) }}" id="codigo"
+                            <input type="text" name="codigo" value="{{$curso->codigo}}" id="codigo"
                                 class="form-control" required>
                         </div>
+                        
+                        {{-- Extraemos los horarios del curso --}}
+                        <h3>Horarios</h3>                                
+                        @foreach($horariosDelCurso as $horario) 
+                            {{-- iteramos los horarios que tenga --}}
+                            <input type="text" name="horariosId[]" hidden readonly value="{{$horario->id}}">
+                            <div class="mb-3">
+                                <div class="mb-3">
+                                    <label for="estatus">Día</label>
+                                    <select id="estatus" class="form-select text-capitalize" name="dia[]">
+                                        {{-- Generamos un array de los option y mediante un operador ternario validamos cual 
+                                            dia se encuentra en la DB para colocar el texto 'selected' para despues colocar el dia--}}
+                                        @foreach(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $dia)
+                                            <option value="{{ $dia }}" {{ $horario->dia === $dia ? 'selected' : '' }}>
+                                                {{ $dia }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                        <div class="mb-3">
-                            <label for="estatus">Día</label>
-                            <select id="estatus" class="form-select" name="dia" required>
-                                <option selected disabled>Elegir</option>
-                                <option>Lunes</option>
-                                <option>Martes</option>
-                                <option>Miercoles</option>
-                                <option>Jueves</option>
-                                <option>Viernes</option>
-                                <option>Sabado</option>
-                            </select>
-                        </div>
+                                <div class="mb-3">
+                                    <label for="horario" class="validationDefault04">Inicio de Curso</label>
+                                    <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
+                                        min="07:00" max="21:00" value="{{$horario->hora_inicio}}">
+                                </div>
 
-
-                        <div class="mb-3">
-                            <label for="horario" class="validationDefault04">Fin de Curso</label>
-                            <input id="hora_final" type="time" name="hora_final" class="form-control" min="07:00"
-                                max="21:00" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="horario" class="validationDefault04">Fin de Curso</label>
-                            <input id="hora_final" type="time" name="hora_final" class="form-control" min="07:00"
-                                max="21:00" required>
-                        </div>
-
+                                <div class="mb-3">
+                                    <label for="horario" class="validationDefault04">Fin de Curso</label>
+                                    <input id="hora_final" type="time" name="hora_final[]" class="form-control"
+                                        min="07:00" max="21:00" value="{{$horario->hora_final}}">
+                                </div>
+                            </div>
+                            {{-- Segundo horario Final --}}
+                        @endforeach
 
 
                         <div class="d-flex justify-content-center">

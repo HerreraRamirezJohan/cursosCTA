@@ -147,6 +147,7 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- Segundo horario Final --}}
                         <div class="d-flex justify-content-center">
                             <button type="submit" class="btn btn-primary mx-2">Agregar</button>
                             <a href="{{ route('inicio') }}" class="btn btn-danger mx-2">Cancelar</a>
