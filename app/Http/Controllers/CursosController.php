@@ -62,8 +62,51 @@ class CursosController extends Controller
         return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo'));
     }
 
+    /* Metodo que devuelve un mensaje con la validacion del formulario cursos con JS*/
+    public static function validateForm(Request $request){
+        //return $request;
+        // $horaios = Horarios::with('curso','area')
+        //                     // ->where('id_area', $request->)
+        //                     ->get();
+        
+        $horario_disponible = Cursos::select(DB::raw('count(*) as total, cursos.id'))
+                                    ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+                                    ->join('areas', 'horarios.id_area', '=', 'areas.id')
+                                    ->where('dia', $request->dia)
+                                    ->where('ciclo', $request->ciclo)
+                                    ->where('area', $request->id)
+                                    ->where('id', $request->area)
+                                    ->where(function($query) use ($request) {
+                                        $query->where([
+                                            ['hora_inicio', '<=',  $request->hora_inicio],
+                                            ['hora_final', '>=',  $request->hora_final],
+                                            ['hora_final', '>=',  $request->hora_inicio],
+                                        ])->orWhere(function($query) use ($request) {
+                                            $query->where([
+                                                ['hora_inicio', '<=',  $request->hora_inicio],
+                                                ['hora_inicio', '<=',  $request->hora_final],
+                                                ['hora_final', '>=', $request->hora_final],
+                                            ]);
+                                        });
+                                    })->first();
+        return $horario_disponible;
+        if(!$horario_disponible->total){
+            return true; //Esta libre el horario para almacenarlo.
+        }else{
+            $curso_solapado = Cursos::select('cursos.*', 'areas.*', 'horarios.*')
+            ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+            ->join('areas', 'horarios.id_area', '=', 'areas.id')
+            ->where('cursos.id', $horario_disponible->id)
+            ->first();
+
+        // dd($horario_disponible);
+        // return $horario_disponible;
+        return $curso_solapado; //No esta libre y mandamos el curso que esta ocupando ese horario.
+        }
+    }
     public function store(Request $request)
     {
+        
         $curso = Cursos::create([
             'nrc'                   => $request->nrc,
             'curso_nombre'          => $request->curso_nombre,
@@ -100,19 +143,11 @@ class CursosController extends Controller
 
     public function show(Request $request)
     {
+        /* Validaciones */
         $rules = ['ciclo' => 'required'];
-
         $validarDatos = $request->validate($rules);
-
-
-        // $nombre = $request->get('curso_nombre');
-        // $departamento = $request->get('departamento');
-        // $sede = $request->get('sede');
-        // $ciclo = $request->get('ciclo');
-        // $dia = $request->get('dia');
-        // $horario = $request->get('horario');
-
-
+        
+        /* Areglo que define los aributos mandados */
         $filtros = [
             'nombre' => $request->get('curso_nombre'),
             'departamento' => $request->get('departamento'),
@@ -122,35 +157,36 @@ class CursosController extends Controller
             'horario' => $request->get('hora_inicio')
         ];
 
-        // $horaios = Horarios::with('curso','area')->get();
+        $conditions = [
+            ['column' => 'ciclo', 'value' => request('ciclo')],
+            ['column' => 'departamento', 'value' => request('departamento')],
+            ['column' => 'dia', 'value' => request('dia')],
+        ];
         
-        $cursos = Cursos::join('horarios', 'cursos.id', '=', 'horarios.id_curso')
-            ->join('areas', 'horarios.id_area', '=', 'areas.id')
-            ->select('cursos.*', 'areas.*', 'horarios.*')
-            ->when($filtros['nombre'], function ($query, $nombre) {
-                return $query->where('curso_nombre', 'LIKE', "%" . $nombre . "%");
-            })
-            ->when($filtros['departamento'], function ($query, $departamento) {
-                return $query->where('departamento', $departamento);
-            })
-            ->when($filtros['sede'], function ($query, $sede) {
-                return $query->where('sede', $sede);
-            })
-            ->when($filtros['ciclo'], function ($query, $ciclo) {
-                return $query->where('ciclo', $ciclo);
-            })
-            ->when($filtros['dia'], function ($query, $dia) {
-                return $query->where('dia', $dia);
-            })
-            ->when($filtros['horario'], function ($query, $horario) {
-                return $query->where('hora_inicio', '>=', $horario);
-            })->orderBy('curso_nombre')
-            ->paginate(15);
-
-        // ->get();
-        // ->toSql();
-
-        // return view('cursos.mostrar', compact('cursos')); 
+        $cursos = Horarios::with('curso', 'area');
+        
+        foreach ($conditions as $condition) {
+            if ($condition['value']) {
+                $cursos->whereHas('curso', function ($query) use ($condition) {
+                    $query->where($condition['column'], $condition['value']);
+                });
+            }
+        }
+        /* Verificamos si el usuario ingreso un sede y se  aplica el filtro where */
+        if($request['sede']){
+            $cursos->whereHas('area', function ($query) use ($request) {
+                $query->where('sede', $request['sede']);
+            });
+        }
+        /* Verificamos si el usuario ingreso un nombre y se  aplica el filtro where */
+        if($request['curso_nombre']){
+            $cursos->whereHas('curso', function ($query) use ($request) {
+                $query->where('curso_nombre', 'LIKE', '%' . $request->curso_nombre . '%');
+            });
+        }
+        
+        
+        $cursos = $cursos->paginate(15);
         return view('cursos.mostrar', compact('cursos', 'filtros'));
     }
 
@@ -182,7 +218,7 @@ class CursosController extends Controller
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
-    {
+    {  
         $curso->update($request->all());
 
         /* Realizamos un loop para actualizar cada horario
@@ -195,6 +231,10 @@ class CursosController extends Controller
                         'hora_final' => $request->hora_final[$key]
                     ]);
         }
+        $horario->where('id', $value)
+        ->update([
+            'id_area' => $request->area,
+        ]);
 
         return redirect()->route('inicio');
     }

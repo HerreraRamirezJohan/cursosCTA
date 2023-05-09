@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
     <div class="container">
         <div class="row">
@@ -25,21 +24,22 @@
                     @endauth
                 </div>
 
+                {{-- Inicio creando Tarjetas de Cursos --}}
                 <div class="row">
                     @foreach ($cursos as $curso)
                         <div class="col-md-4 mb-5">
                             <div class="card h-100">
                                 <div class="div card-body">
                                     <h5 class="card-title text-center mb-3">
-                                        {{ $curso->curso_nombre }}
+                                        {{ $curso->curso->curso_nombre }}
                                     </h5>
                                     <p class="card-text text-muted"></p>
                                 </div>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">{{ $curso->departamento }}</li>
-                                    <li class="list-group-item">{{ $curso->sede }}</li>
+                                    <li class="list-group-item">{{ $curso->curso->departamento }}</li>
+                                    <li class="list-group-item">{{ isset($curso->area->sede) ? $curso->area->sede : 'Sede no asignado' }}</li>
                                     <li class="list-group-item d-flex justify-content-around">
-                                        <h5><span class="badge bg-primary">{{ $curso->ciclo }}</span></h5>
+                                        <h5><span class="badge bg-primary">{{ $curso->curso->ciclo }}</span></h5>
                                         <h5><span class="badge bg-success text-capitalize">{{ $curso->dia }}</span></h5>
                                         {{-- Utilizamos metodo data de PHP para obtener el formato de HH:MM::SS a solo HH:MM --}}
                                         <h5><span
@@ -51,7 +51,7 @@
                                     <div class="row align-items-center justify-content-center my-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                                             fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                            <a href="{{ route('editar', $curso->id) }}" class="text-reset p-5">
+                                            <a href="{{ route('editar', $curso->curso->id) }}" class="text-reset p-5">
                                                 <path
                                                     d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                                 <path fill-rule="evenodd"
@@ -67,11 +67,12 @@
                         </div>
                     @endforeach
                 </div>
+                {{-- Final creando Tarjetas de Cursos --}}
             </div>
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-end">
-                    {{-- {{$cursos->appends('ciclo' => $ciclo)->links()}} --}}
-                    {{-- {!! $cursos->appends(['ciclo' => $ciclo]) !!} --}}
+                    {{-- Regresamos los filtros para que se mantenga la misma consulta
+                        anterior solo cambiendo de pagina. --}}
                     {!! $cursos->appends($filtros) !!}
                 </ul>
             </nav>
