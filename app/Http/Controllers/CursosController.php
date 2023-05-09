@@ -60,44 +60,43 @@ class CursosController extends Controller
         return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_areas'));
     }
 
-    public function store(Request $request)
-    {
-
-        $rules = [
-            'nrc' => 'required',
-            'curso_nombre' => 'required',
-            'ciclo' => 'required',
-            'observaciones' => 'required',
-            'departamento' => 'required',
-            'alumnos_registrados' => 'required',
-            'nivel' => 'required',
-            'profesor' => 'required',
-            'codigo' => 'required'
-        ];
-        $validarDatos = $request->validate($rules);
-
-        // dd($request);
-        $horario_disponible = Cursos::select(DB::raw('count(*) as total'))
+    /* Metodo que devuelve un mensaje con la validacion del formulario cursos con JS*/
+    public static function validateForm(Request $request){
+        $horario_disponible = Cursos::select(DB::raw('count(*) as total, cursos.id'))
                                     ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
                                     ->join('areas', 'horarios.id_area', '=', 'areas.id')
                                     ->where('dia', $request->dia)
                                     ->where('ciclo', $request->ciclo)
-                                    ->where('area', $request->id)
+                                    ->where('areas.id', $request->area)
                                     ->where(function($query) use ($request) {
                                         $query->where([
                                             ['hora_inicio', '<=',  $request->hora_inicio],
-                                            ['hora_final', '>=',  $request->hora_final],
+                                            ['hora_final', '>=',  $request->hora_inicio],
                                         ])->orWhere(function($query) use ($request) {
                                             $query->where([
-                                                ['hora_inicio', '<=',  $request->hora_inicio],
+                                                ['hora_inicio', '<=',  $request->hora_final],
                                                 ['hora_final', '>=', $request->hora_final],
                                             ]);
                                         });
-                                    })->get();
+                                    })
+                                    // ->toSql();
+                                    ->first();
+        
+        if(!$horario_disponible->total){
+            return true; //Esta libre el horario para almacenarlo.
+        }else{
+            $curso_solapado = Cursos::select('cursos.*', 'areas.*', 'horarios.*')
+            ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+            ->join('areas', 'horarios.id_area', '=', 'areas.id')
+            ->where('cursos.id', $horario_disponible->id)
+            ->first();
 
-                                    dd($horario_disponible);
-// return $horario_disponible;
+            return $curso_solapado; //No esta libre y mandamos el curso que esta ocupando ese horario.
+        }
 
+    }
+    public function store(Request $request)
+    {
         $curso = Cursos::create([
             'nrc'                   => $request->nrc,
             'curso_nombre'          => $request->curso_nombre,
