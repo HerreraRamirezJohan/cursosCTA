@@ -158,10 +158,11 @@ class CursosController extends Controller
             'horario' => $request->get('hora_inicio')
         ];
 
-
-        $cursos = Cursos::select('cursos.*', 'areas.*', 'horarios.*')
-            ->join('horarios', 'cursos.id', '=', 'horarios.id_curso')
+        // $horaios = Horarios::with('curso','area')->get();
+        
+        $cursos = Cursos::join('horarios', 'cursos.id', '=', 'horarios.id_curso')
             ->join('areas', 'horarios.id_area', '=', 'areas.id')
+            ->select('cursos.*', 'areas.*', 'horarios.*')
             ->when($filtros['nombre'], function ($query, $nombre) {
                 return $query->where('curso_nombre', 'LIKE', "%" . $nombre . "%");
             })
@@ -185,9 +186,6 @@ class CursosController extends Controller
         // ->get();
         // ->toSql();
 
-
-
-        // return $cursos;
         // return view('cursos.mostrar', compact('cursos')); 
         return view('cursos.mostrar', compact('cursos', 'filtros'));
     }

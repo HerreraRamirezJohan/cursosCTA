@@ -19,13 +19,13 @@ class Horarios extends Model
 
 
     // Relaciones inversas
-    public function cursos()
+    public function curso()
     {
-        return $this->belongsTo(Cursos::class);   
+        return $this->belongsTo(Cursos::class,'id_curso');   
     }
 
-    public function areas()
+    public function area()
     {
-        return $this->belongsTo(Areas::class);   
+        return $this->belongsTo(Areas::class,'id_area');   
     }
 }
