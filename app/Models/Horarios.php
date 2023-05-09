@@ -17,13 +17,15 @@ class Horarios extends Model
         'id_area'
     ];
 
-    public function cursos()
+
+    // Relaciones inversas
+    public function curso()
     {
-        return $this->belongsTo(Cursos::class);   
+        return $this->belongsTo(Cursos::class,'id_curso');   
     }
 
-    public function areas()
+    public function area()
     {
-        return $this->belongsTo(Areas::class);   
+        return $this->belongsTo(Areas::class,'id_area');   
     }
 }
