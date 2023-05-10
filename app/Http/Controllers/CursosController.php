@@ -71,21 +71,20 @@ class CursosController extends Controller
             ->where('id_area', $request->area)
             ->where('dia', $request->dia)
             ->where(function ($query) use ($request) {
-                $query->whereBetween('hora_inicio', [$request->hora_inicio[0], $request->hora_final[0]]);
+                $query->whereBetween('hora_inicio', [$request->hora_inicio[0], $request->hora_final[0]])
+                    ->whereBetween('hora_inicio', [$request->hora_inicio[1], $request->hora_final[1]]);
                 // ->orWhereBetween('hora_final', ['09:00:00', '12:00:00']);
             })
             ->first();
         // dd($existingCourse);
 
         /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas*/
-        if ($existingCourse){
+        if ($existingCourse) {
             // devuelve un error diciendo que ya hay un curso en el horario y área especificados
             // Error 422 para que el servidor entienda la peticion pero no la procese
             return response()->json(['message' => 'Ya hay un curso en este horario y área'], 422);
-        
         }
-        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/
-        else{
+        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/ else {
             $curso = Cursos::create([
                 'nrc'                   => $request->nrc,
                 'curso_nombre'          => $request->curso_nombre,
@@ -111,6 +110,8 @@ class CursosController extends Controller
                     'dia' => $request->dia[1],
                     'hora_inicio' => $request->hora_inicio[1],
                     'hora_final' => $request->hora_final[1],
+                    'id_area' => $request->area,
+
                 ]);
             }
             return "No existe un curso similar, por lo que el curso se ha creado con exito.";
