@@ -20,7 +20,7 @@ class Horarios extends Model
 
     // Relaciones inversas
     public function curso()
-    {
+    {   
         
         return $this->belongsTo(Cursos::class,'id_curso');   
     }

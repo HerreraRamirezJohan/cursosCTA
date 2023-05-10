@@ -30,7 +30,7 @@
                         <div class="mb-3">
                             <label for="Ciclo" class="">Ciclo:</label>
                             <input type="text" name="ciclo" value="{{ old('ciclo', $curso->ciclo) }}" id="ciclo"
-                                class="form-control" required>
+                                class="form-control" required readOnly>
                         </div>
                         <div class="mb-3">
                             <label for="Observaciones" class="">Observaciones:</label>

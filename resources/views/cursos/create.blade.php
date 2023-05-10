@@ -30,7 +30,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="Ciclo">Ciclo:</label>
-                            <input id="ciclo" class="form-control" value="2022B{{-- {{ $cursos_ciclo }} --}}" name="ciclo" readOnly>
+                            <input id="ciclo" class="form-control" value="{{ $cursos_ciclo }}" name="ciclo" readOnly>
                             {{-- <label for="">*Nota: Solo puedes asignar un ciclo cuando es el primer curso.</label> --}}
                         </div>
                         <div class="mb-3">
@@ -176,36 +176,5 @@
             }
         }
         btn.addEventListener('click', cambio, true);
-
-
-        let form = document.querySelector('#guardarCurso');
-        /* Hacer esto solo si existe el formulario en el DOM */
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                let url = "{{route('validar')}}";
-                console.log(url);
-                const dataFormulario = new FormData(form);
-            
-                data = await fetch(url,{
-                    method:"POST",
-                    body:dataFormulario,
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                    return (data);
-                })
-                .catch((error) => {
-                    return (error);
-                });
-                
-                
-                if(data === 1){
-                    //Hacemos que haga la accion por default para guardar el curso\
-                    console.log(data)
-                }else{
-                    console.log(data)
-                    //imprimimos en patalla la tarjeta del curso que aparece
-                }
-            });
     </script>
 @endsection
