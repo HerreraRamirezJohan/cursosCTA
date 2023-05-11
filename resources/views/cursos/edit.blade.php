@@ -1,12 +1,11 @@
 @extends('layouts.app')
 @section('content')
-
-<script>
-    // In your Javascript (external .js resource or <script> tag)
-    $(document).ready(function() {
-        $('.js-example-basic-single').select2();
-    });
-</script>
+    <script>
+        // In your Javascript (external .js resource or <script> tag)
+        $(document).ready(function() {
+            $('.js-example-basic-single').select2();
+        });
+    </script>
 
     <div class="container">
         <div class="row">
@@ -41,9 +40,11 @@
 
                         <div class="mb-3">
                             <label for="Area">Area:</label>
-                            <select id="area" class="form-select js-example-basic-single" name="area" class="form-control">
+                            <select id="area" class="form-select js-example-basic-single" name="area"
+                                class="form-control">
                                 @foreach ($cursos_area as $area)
-                                    <option value="{{ $area->id }}" {{$horariosDelCurso[0]->id_area === $area->id ? 'selected' : ''}}>
+                                    <option value="{{ $area->id }}"
+                                        {{ $horariosDelCurso[0]->id_area === $area->id ? 'selected' : '' }}>
                                         {{ $area->sede . ' - ' . $area->edificio . ' - ' . $area->area }}
                                     </option>
                                     {{-- Datos del DB --}}
@@ -56,7 +57,7 @@
                             <select id="validationDefault04" class="form-select" name="departamento" class="form-control"
                                 required>
                                 @foreach ($cursos_departamento as $item)
-                                    <option {{$item === $curso->departamento ? 'selected' : ''}}>
+                                    <option {{ $item === $curso->departamento ? 'selected' : '' }}>
                                         {{ $item }}
                                     </option>
                                     {{-- Datos del DB --}}
@@ -85,29 +86,30 @@
 
                         <div class="mb-3">
                             <label for="Profesor" class="">Profesor:</label>
-                            <input type="text" name="profesor" value="{{$curso->profesor}}"
-                                id="profesor" class="form-control" required>
+                            <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor"
+                                class="form-control" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="Codigo" class="">Codigo:</label>
-                            <input type="text" name="codigo" value="{{$curso->codigo}}" id="codigo"
+                            <input type="text" name="codigo" value="{{ $curso->codigo }}" id="codigo"
                                 class="form-control" required>
                         </div>
-                        
+
                         {{-- Extraemos los horarios del curso --}}
-                        <h3>Horarios</h3>                                
-                        @foreach($horariosDelCurso as $horario) 
+                        <h3>Horarios</h3>
+                        @foreach ($horariosDelCurso as $horario)
                             {{-- iteramos los horarios que tenga --}}
-                            <input type="text" name="horariosId[]" hidden readonly value="{{$horario->id}}">
+                            <input type="text" name="horariosId[]" hidden readonly value="{{ $horario->id }}">
                             <div class="mb-3">
                                 <div class="mb-3">
                                     <label for="estatus">Día</label>
                                     <select id="estatus" class="form-select text-capitalize" name="dia[]">
                                         {{-- Generamos un array de los option y mediante un operador ternario validamos cual 
-                                            dia se encuentra en la DB para colocar el texto 'selected' para despues colocar el dia--}}
-                                        @foreach(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $dia)
-                                            <option value="{{ $dia }}" {{ $horario->dia === $dia ? 'selected' : '' }}>
+                                            dia se encuentra en la DB para colocar el texto 'selected' para despues colocar el dia --}}
+                                        @foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $dia)
+                                            <option value="{{ $dia }}"
+                                                {{ $horario->dia === $dia ? 'selected' : '' }}>
                                                 {{ $dia }}
                                             </option>
                                         @endforeach
@@ -117,17 +119,53 @@
                                 <div class="mb-3">
                                     <label for="horario" class="validationDefault04">Inicio de Curso</label>
                                     <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
-                                        min="07:00" max="21:00" value="{{$horario->hora_inicio}}">
+                                        min="07:00" max="21:00" value="{{ $horario->hora_inicio }}">
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="horario" class="validationDefault04">Fin de Curso</label>
                                     <input id="hora_final" type="time" name="hora_final[]" class="form-control"
-                                        min="07:00" max="21:00" value="{{$horario->hora_final}}">
+                                        min="07:00" max="21:00" value="{{ $horario->hora_final }}">
                                 </div>
+
+                                {{-- Segundo horario Final --}}
+                                @if ($validacion_horario == 1)
+                                    {{-- Segundo horario --}}
+                                    <div class="mb-3">
+                                        <input class="mb-3" type="button" value="Agregar nuevo horario"
+                                            id="btn">
+                                        <div id="formulario" style="display: none">
+
+                                            <div class="mb-3">
+                                                <label for="estatus">Día</label>
+                                                <select id="estatus" class="form-select" name="dia[]">
+                                                    <option selected disabled>Elegir</option>
+                                                    <option>Lunes</option>
+                                                    <option>Martes</option>
+                                                    <option>Miercoles</option>
+                                                    <option>Jueves</option>
+                                                    <option>Viernes</option>
+                                                    <option>Sabado</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="horario" class="validationDefault04">Inicio de Curso</label>
+                                                <input id="hora_inicio" type="time" name="hora_inicio[]"
+                                                    class="form-control" min="07:00" max="21:00">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="horario" class="validationDefault04">Fin de Curso</label>
+                                                <input id="hora_final" type="time" name="hora_final[]"
+                                                    class="form-control" min="07:00" max="21:00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
-                            {{-- Segundo horario Final --}}
                         @endforeach
+
 
 
                         <div class="d-flex justify-content-center">
@@ -139,5 +177,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        //Formulario extra de horario
+        var btn = document.getElementById('btn'),
+            formulario = document.getElementById('formulario');
+        contador = 1;
+
+        function cambio() {
+            if (contador == 0) {
+                formulario.style.display = "none";
+                btn.value = "Agregar horario";
+                contador = 1;
+            } else {
+                formulario.style.display = "block";
+                btn.value = "Quitar horario";
+                contador = 0;
+            }
+        }
+        btn.addEventListener('click', cambio, true);
+    </script>
 @endsection
-    

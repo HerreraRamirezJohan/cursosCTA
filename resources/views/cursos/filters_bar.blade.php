@@ -24,9 +24,8 @@
             <label for="sede">Sede</label>
             <select id="sede" class="form-select" name="sede">
                 <option selected disabled>Elegir</option>
-                @foreach ($cursos_sede as $item)
-                    <option>{{ $item }}</option>
-                @endforeach
+                    <option value="Belenes">Belenes</option>
+                    <option value="La Normal">La Normal</option>
             </select>
         </div>
         {{-- [Estatus] --}}

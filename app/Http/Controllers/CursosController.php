@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Areas;
 use App\Models\Cursos;
 use App\Models\Horarios;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -25,12 +26,14 @@ class CursosController extends Controller
         $cursos_sede = Areas::select('sede')->orderBy('sede', 'asc')
             ->distinct()->pluck('sede');
 
-        $horarios = [];
-        for ($i = 7; $i <= 20; $i++) {
-            $horarios[] = str_pad($i, 2, '0', STR_PAD_LEFT) . '00-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT) . '00';
-        }
 
-        return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_sede', 'horarios']));
+        /*Imprimir los horarios (loop hecho antes de tener hora inicio y final)*/
+        // $horarios = [];
+        // for ($i = 7; $i <= 20; $i++) {
+        //     $horarios[] = str_pad($i, 2, '0', STR_PAD_LEFT) . '00-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT) . '00';
+        // }
+
+        return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_sede']));
     }
 
     public function create()
@@ -61,8 +64,6 @@ class CursosController extends Controller
 
         return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo'));
     }
-
-    /* Metodo que devuelve un mensaje con la validacion del formulario cursos con JS*/
 
     public function store(Request $request)
     {
@@ -142,12 +143,15 @@ class CursosController extends Controller
         ];
 
         $conditions = [
-            ['column' => 'ciclo', 'value' => request('ciclo')],
             ['column' => 'departamento', 'value' => request('departamento')],
             ['column' => 'dia', 'value' => request('dia')],
         ];
 
-        $cursos = Horarios::with('curso', 'area');
+        /*Valida de que se mande un ciclo cada que se intente filtrar*/ 
+        $cursos = Horarios::with('curso', 'area')->whereHas('curso',
+            function($query) use ($request){
+                $query->where('ciclo', $request->ciclo);
+            });
 
         foreach ($conditions as $condition) {
             if ($condition['value']) {
@@ -169,6 +173,11 @@ class CursosController extends Controller
             });
         }
 
+        /* Verificamos si el usuario ingreso una hora de inicio  y se  aplica el filtro where */
+        if ($request['hora_inicio']) {    
+            $cursos->where('hora_inicio', '>=', $request->hora_inicio);
+        }
+        
 
         $cursos = $cursos->paginate(15);
         return view('cursos.mostrar', compact('cursos', 'filtros'));
@@ -198,11 +207,16 @@ class CursosController extends Controller
             ->where('id_curso', $curso->id)
             ->get();
 
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso'));
+        /*Hacemos un count para ver si tiene un horario en el mismo curso*/
+        $validacion_horario = Horarios::where('id_curso', $curso->id)->count();
+        // dd($validacion_horario);
+
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
     {
+
         $curso->update($request->all());
 
         /* Realizamos un loop para actualizar cada horario

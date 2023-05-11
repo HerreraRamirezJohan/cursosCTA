@@ -69,15 +69,15 @@
                                 class="form-control">
                         </div>
 
-                    <div class="mb-3">
-                        <label for="Nivel">Nivel:</label>
-                        <select id="nivel" class="form-select" name="nivel" class="form-control">
-                            <option selected disabled>Elegir</option>
-                            <option>Licenciatura</option>
-                            <option>Maestría</option>
-                            <option>Doctorado</option>
-                        </select>
-                    </div>
+                        <div class="mb-3">
+                            <label for="Nivel">Nivel:</label>
+                            <select id="nivel" class="form-select" name="nivel" class="form-control">
+                                <option selected disabled>Elegir</option>
+                                <option>Licenciatura</option>
+                                <option>Maestría</option>
+                                <option>Doctorado</option>
+                            </select>
+                        </div>
 
 
                         <div class="mb-3">
@@ -156,12 +156,10 @@
         </div>
     </div>
 
-    <script >
-        //Input de ciclo inhabilitado
-        // document.getElementById('ciclo').readOnly = true
+    <script>
         //Formulario extra de horario
         var btn = document.getElementById('btn'),
-        formulario = document.getElementById('formulario');
+            formulario = document.getElementById('formulario');
         contador = 1;
 
         function cambio() {
