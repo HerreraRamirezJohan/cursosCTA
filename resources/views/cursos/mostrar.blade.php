@@ -1,11 +1,11 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container">
+    <div class="container text-center">
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Cursos encontrados</h1>
 
-                  
+
                 <div class="d-flex justify-content-end gap-2 mb-4">
                     @auth
                         <a href="{{ route('inicio') }}" class="btn btn-primary text-light align-bottom"><svg
@@ -26,44 +26,73 @@
 
                 {{-- Inicio creando Tarjetas de Cursos --}}
                 <div class="row">
-                    @foreach ($cursos as $curso)
-                        <div class="col-md-4 mb-5">
-                            <div class="card h-100">
-                                <div class="div card-body">
-                                    <h5 class="card-title text-center mb-3">
-                                        {{ $curso->curso->curso_nombre }}
-                                    </h5>
-                                    <p class="card-text text-muted"></p>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">{{ $curso->curso->departamento }}</li>
-                                    <li class="list-group-item">{{ isset($curso->area->sede) ? $curso->area->sede : 'Sede no asignado' }}</li>
-                                    <li class="list-group-item d-flex justify-content-around">
-                                        <h5><span class="badge bg-primary">{{ $curso->curso->ciclo }}</span></h5>
-                                        <h5><span class="badge bg-success text-capitalize">{{ $curso->dia }}</span></h5>
-                                        {{-- Utilizamos metodo data de PHP para obtener el formato de HH:MM::SS a solo HH:MM --}}
-                                        <h5><span
-                                                class="badge bg-danger">{{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}</span>
-                                        </h5>
-                                    </li>
-                                </ul>
-                                @auth
-                                    <div class="row align-items-center justify-content-center my-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                            fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                            <a href="{{ route('editar', $curso->curso->id) }}" class="text-reset p-5">
-                                                <path
-                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                        </svg></a>
-                                    </div>
-                                @endauth
-                                {{-- <div class="card-body d-grid gap-2 col-10 mx-auto">
-                                <a class="btn btn-primary text-light">Edit</a>
-                            </div> --}}
+                    {{-- @php
+                        $repeatedKeys = [];
+                    @endphp
 
-                            </div>
+                    @for ($i = 0; $i < count($cursos); $i++)
+                        @for ($j = $i + 1; $j < count($cursos); $j++)
+                            @if ($cursos[$i]->curso->id_curso == $cursos[$j]->curso->id_curso)
+                                @php
+                                    $repeatedKeys[] = $j;
+                                @endphp
+                            @endif
+                        @endfor
+                    @endfor
+
+                    @if (count($repeatedKeys) > 0)
+                        <p>Los siguientes cursos están repetidos:</p>
+                        <ul>
+                            @foreach ($repeatedKeys as $key)
+                                <li>{{ $key }}</li>
+                            @endforeach
+                        </ul>
+                    @endif --}}
+                    @foreach ($cursos as $curso)
+                        <div class="col-6">
+                            <table class="table table-bordered border-dark">
+                                <tr>
+                                    <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
+                                        {{ $curso->curso->curso_nombre }}
+                                    </td>
+                                    <td colspan="2"><span class="fw-semibold">Area:</span>
+                                        {{ isset($curso->area->area) ? $curso->area->area : 'No registrada' }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2"><span class="fw-semibold">Ciclo:</span> {{ $curso->curso->ciclo }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2"><span class="fw-semibold">Departamento:</span>
+                                        {{ $curso->curso->departamento }}</td>
+                                    <td class="align-middle text-capitalize">{{ $curso->dia }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2"><span class="fw-semibold">Sede:</span>
+                                        {{ isset($curso->area->sede) ? $curso->area->sede : 'No asignada' }}</td>
+                                    <td>{{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    @auth
+                                        <td colspan="4">
+                                            <div class="row align-items-center justify-content-center my-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                                                    fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <a href="{{ route('editar', $curso->curso->id) }}" class="text-reset p-5">
+                                                        <path
+                                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                        <path fill-rule="evenodd"
+                                                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                                </svg></a>
+                                            </div>
+                                        </td>
+                                    @endauth
+                                </tr>
+                            </table>
                         </div>
                     @endforeach
                 </div>
@@ -78,3 +107,28 @@
             </nav>
         </div>
     @endsection
+    {{-- <div class="col-6">
+        <table class="table table-bordered border-dark">
+            <tr>
+                <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
+                    {{$curso->curso->curso_nombre}}
+                </td>
+                <td colspan="2"><span class="fw-semibold">Area:</span> {{isset($curso->area->area) ? $curso->area->area : 'No registrada'}}</td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><span class="fw-semibold">Ciclo:</span> {{$curso->curso->ciclo}}</td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><span class="fw-semibold">Departamento:</span> {{$curso->curso->departamento}}</td>
+                {{-- Si el curso ya existe en el json --}}
+    {{-- <td class="align-middle text-capitalize">{{$curso->dia}}</td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><span class="fw-semibold">Sede:</span> {{isset($curso->area->sede) ? $curso->area->sede : 'No asignada'}}</td>
+                <td>{{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}</td>
+            </tr>
+        </table>
+    </div>  --}}

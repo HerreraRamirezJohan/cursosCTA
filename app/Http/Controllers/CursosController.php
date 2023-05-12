@@ -8,6 +8,7 @@ use App\Models\Horarios;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -45,13 +46,11 @@ class CursosController extends Controller
         $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
 
         $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
-            ->orWhere(function ($query) {
-                $query->where('sede', 'La Normal')
-                    ->orWhere('sede', 'Belenes');
+            ->Where(function ($query) {
+                $query->whereIn('sede', ['La Normal' , 'Belenes']);
             })
-            ->orWhere(function ($query) {
-                $query->where('tipo_espacio', 'Laboratorio')
-                    ->orWhere('tipo_espacio', 'Aula');
+            ->Where(function ($query) {
+                $query->whereIn('tipo_espacio', ['Laboratorio','Aula']);
             })->distinct()->orderBy('sede')->orderBy('edificio')
             ->get();
 
@@ -67,61 +66,111 @@ class CursosController extends Controller
 
     public function store(Request $request)
     {
-        /* Obtenemos el curso que interfiere */
-        $existingCourse = Horarios::with('curso', 'area')
+        $validationRules = [
+            'curso_nombre' => 'required',
+            'nrc' => 'required|unique:cursos,nrc',
+            'ciclo' => 'required',
+            'area' => 'required',
+            'departamento' => 'required',
+            'alumnos_registrados' => 'required',
+            'nivel' => 'required',
+            'profesor' => 'required',
+            'codigo' => 'required',
+        ];
+        $customMessages = [
+            'curso_nombre.required' => 'El :attribute es obligatorio',
+            'nrc.required' => 'El :attribute es obligatorio',
+            'ciclo.required' => 'El :attribute es obligatorio',
+            'area.required' => 'El :attribute es obligatorio',
+            'departamento.required' => 'El :attribute es obligatorio',
+            'alumnos_registrados.required' => 'El :attribute es obligatorio',
+            'nivel.required' => 'El :attribute es obligatorio',
+            'profesor.required' => 'El :attribute es obligatorio',
+            'codigo.required' => 'El :attribute es obligatorio',
+        ];
+
+        $request->validate($validationRules, $customMessages);
+        /* Obtenemos el curso que interfiere con el horario 1*/
+        $existingCourse1 = Horarios::with('curso', 'area')
             ->where('id_area', $request->area)
-            ->where('dia', $request->dia)
+            ->where('dia', $request->dia[0])
             ->where(function ($query) use ($request) {
-                $query->whereBetween('hora_inicio', [$request->hora_inicio[0], $request->hora_final[0]])
-                    ->whereBetween('hora_inicio', [$request->hora_inicio[1], $request->hora_final[1]]);
-                // ->orWhereBetween('hora_final', ['09:00:00', '12:00:00']);
+                $query->where([
+                    ['hora_inicio', '<=',  $request->hora_inicio[0]],
+                    ['hora_final', '>=',  $request->hora_inicio[0]],
+                ])->orWhere(function($query) use ($request) {
+                    $query->where([
+                        ['hora_inicio', '<=',  $request->hora_final[0]],
+                        ['hora_final', '>=', $request->hora_final[0]],
+                    ]);
+                });
             })
             ->first();
-        // dd($existingCourse);
-
-        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas*/
-        if ($existingCourse) {
-            // devuelve un error diciendo que ya hay un curso en el horario y área especificados
-            // Error 422 para que el servidor entienda la peticion pero no la procese
-            return response()->json(['message' => 'Ya hay un curso en este horario y área'], 422);
+        // dd($existingCourse1);
+        /* Validamos el 2do horario en caso que lo haya */
+        $existingCourse2 = null;
+        if(count($request->dia) > 1){
+            $existingCourse2 = Horarios::with('curso', 'area')
+                ->where('id_area', $request->area)
+                ->where('dia', $request->dia[1])
+                ->where(function ($query) use ($request) {
+                    $query->where([
+                        ['hora_inicio', '<=',  $request->hora_inicio[1]],
+                        ['hora_final', '>=',  $request->hora_inicio[1]],
+                    ])->orWhere(function($query) use ($request) {
+                        $query->where([
+                            ['hora_inicio', '<=',  $request->hora_final[1]],
+                            ['hora_final', '>=', $request->hora_final[1]],
+                        ]);
+                    });
+                })
+                ->first();
         }
-        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/ else {
-            $curso = Cursos::create([
-                'nrc'                   => $request->nrc,
-                'curso_nombre'          => $request->curso_nombre,
-                'ciclo'                 => $request->ciclo,
-                'observaciones'         => $request->observaciones,
-                'departamento'          => $request->departamento,
-                'alumnos_registrados'   => $request->alumnos_registrados,
-                'nivel'                 => $request->nivel,
-                'profesor'              => $request->profesor,
-                'codigo'                => $request->codigo,
-            ]);
+        // dd($existingCourse2);
+        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas
+            las introducimos en un array para mandar el mensaje de error*/
+        $cursos = [];
+        array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
+        array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
+        //dd($cursos);
+        foreach($cursos as $curso)
+            if($curso !== null)
+                return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
+                // return response()->json($cursos);
+        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/ 
+        $curso = Cursos::create([
+            'nrc'                   => $request->nrc,
+            'curso_nombre'          => $request->curso_nombre,
+            'ciclo'                 => $request->ciclo,
+            'observaciones'         => $request->observaciones,
+            'departamento'          => $request->departamento,
+            'alumnos_registrados'   => $request->alumnos_registrados,
+            'nivel'                 => $request->nivel,
+            'profesor'              => $request->profesor,
+            'codigo'                => $request->codigo,
+        ]);
 
+        $curso->horarios()->create([
+            'dia' => $request->dia[0],
+            'hora_inicio' => $request->hora_inicio[0],
+            'hora_final' => $request->hora_final[0],
+            'id_area' => $request->area,
+        ]);
+        // if ($request->dia2 != null && $request->hora_inicio2 != null && $request->hora_final2 != null) {
+        if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
             $curso->horarios()->create([
-                'dia' => $request->dia[0],
-                'hora_inicio' => $request->hora_inicio[0],
-                'hora_final' => $request->hora_final[0],
+                'id_curso'  => $curso->id,
+                'dia' => $request->dia[1],
+                'hora_inicio' => $request->hora_inicio[1],
+                'hora_final' => $request->hora_final[1],
                 'id_area' => $request->area,
+
             ]);
-            // if ($request->dia2 != null && $request->hora_inicio2 != null && $request->hora_final2 != null) {
-            if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-                $curso->horarios()->create([
-                    'id_curso'  => $curso->id,
-                    'dia' => $request->dia[1],
-                    'hora_inicio' => $request->hora_inicio[1],
-                    'hora_final' => $request->hora_final[1],
-                    'id_area' => $request->area,
-
-                ]);
-            }
-            return "No existe un curso similar, por lo que el curso se ha creado con exito.";
-
             // return response()->json(['curso' => $curso], 200);
         }
 
 
-        // return redirect()->route('inicio');
+        return redirect()->route('inicio');
 
 
     }
@@ -180,6 +229,7 @@ class CursosController extends Controller
         
 
         $cursos = $cursos->paginate(15);
+        // return $cursos;
         return view('cursos.mostrar', compact('cursos', 'filtros'));
     }
 
