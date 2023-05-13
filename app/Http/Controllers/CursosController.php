@@ -47,10 +47,10 @@ class CursosController extends Controller
 
         $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
             ->Where(function ($query) {
-                $query->whereIn('sede', ['La Normal' , 'Belenes']);
+                $query->whereIn('sede', ['La Normal', 'Belenes']);
             })
             ->Where(function ($query) {
-                $query->whereIn('tipo_espacio', ['Laboratorio','Aula']);
+                $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
             })->distinct()->orderBy('sede')->orderBy('edificio')
             ->get();
 
@@ -98,7 +98,7 @@ class CursosController extends Controller
                 $query->where([
                     ['hora_inicio', '<=',  $request->hora_inicio[0]],
                     ['hora_final', '>=',  $request->hora_inicio[0]],
-                ])->orWhere(function($query) use ($request) {
+                ])->orWhere(function ($query) use ($request) {
                     $query->where([
                         ['hora_inicio', '<=',  $request->hora_final[0]],
                         ['hora_final', '>=', $request->hora_final[0]],
@@ -109,7 +109,7 @@ class CursosController extends Controller
         // dd($existingCourse1);
         /* Validamos el 2do horario en caso que lo haya */
         $existingCourse2 = null;
-        if(count($request->dia) > 1){
+        if (count($request->dia) > 1) {
             $existingCourse2 = Horarios::with('curso', 'area')
                 ->where('id_area', $request->area)
                 ->where('dia', $request->dia[1])
@@ -117,7 +117,7 @@ class CursosController extends Controller
                     $query->where([
                         ['hora_inicio', '<=',  $request->hora_inicio[1]],
                         ['hora_final', '>=',  $request->hora_inicio[1]],
-                    ])->orWhere(function($query) use ($request) {
+                    ])->orWhere(function ($query) use ($request) {
                         $query->where([
                             ['hora_inicio', '<=',  $request->hora_final[1]],
                             ['hora_final', '>=', $request->hora_final[1]],
@@ -133,11 +133,11 @@ class CursosController extends Controller
         array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
         array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
         //dd($cursos);
-        foreach($cursos as $curso)
-            if($curso !== null)
+        foreach ($cursos as $curso)
+            if ($curso !== null)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
-                // return response()->json($cursos);
-        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/ 
+        // return response()->json($cursos);
+        /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/
         $curso = Cursos::create([
             'nrc'                   => $request->nrc,
             'curso_nombre'          => $request->curso_nombre,
@@ -171,8 +171,6 @@ class CursosController extends Controller
 
 
         return redirect()->route('inicio');
-
-
     }
 
     public function show(Request $request)
@@ -180,6 +178,15 @@ class CursosController extends Controller
         /* Validaciones */
         $rules = ['ciclo' => 'required'];
         $validarDatos = $request->validate($rules);
+
+        /*Consulta para ver que cursos tienen 2 horarios*/
+        $horarios = Horarios::whereIn('id_curso', function ($query) {
+            $query->select('id_curso')
+                ->from('horarios')
+                ->groupBy('id_curso')
+                ->havingRaw('COUNT(id_curso) = 2');
+        })->get()->toArray();
+
 
         /* Areglo que define los aributos mandados */
         $filtros = [
@@ -196,11 +203,13 @@ class CursosController extends Controller
             ['column' => 'dia', 'value' => request('dia')],
         ];
 
-        /*Valida de que se mande un ciclo cada que se intente filtrar*/ 
-        $cursos = Horarios::with('curso', 'area')->whereHas('curso',
-            function($query) use ($request){
+        /*Valida de que se mande un ciclo cada que se intente filtrar*/
+        $cursos = Horarios::with('curso', 'area')->whereHas(
+            'curso',
+            function ($query) use ($request) {
                 $query->where('ciclo', $request->ciclo);
-            });
+            }
+        );
 
         foreach ($conditions as $condition) {
             if ($condition['value']) {
@@ -223,14 +232,14 @@ class CursosController extends Controller
         }
 
         /* Verificamos si el usuario ingreso una hora de inicio  y se  aplica el filtro where */
-        if ($request['hora_inicio']) {    
+        if ($request['hora_inicio']) {
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
-        
+
 
         $cursos = $cursos->paginate(15);
         // return $cursos;
-        return view('cursos.mostrar', compact('cursos', 'filtros'));
+        return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios'));
     }
 
     public function edit(Cursos $curso)
