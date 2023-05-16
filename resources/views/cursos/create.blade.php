@@ -167,13 +167,13 @@
             </div>{{-- Final contenedor de formulario --}}
             {{-- Inicio de cursos existentes --}}
             @if (session('cursosExistentes'))
-                <div class="alert alert-danger align-items-center">
+                <div class="alert alert-danger align-items-center text-center mt-3">
                     @php
                         $cursos = collect(session('cursosExistentes'));
                     @endphp
 
                     <h3>Los horarios solapados son los siguientes.</h3>
-                    <div class="row">{{-- Contenedor de cursos solapados --}}
+                    <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
                         @foreach ($cursos as $key => $curso)
                         @if (isset($curso)){{-- ¿Existe horario solapado? --}}
                             <div class="col-6">
