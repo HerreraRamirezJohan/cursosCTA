@@ -15,6 +15,78 @@ use Illuminate\Support\Facades\Storage;
 class CursosController extends Controller
 {
 
+    private function validateHorario($request){
+        $validationRules = [
+            'curso_nombre' => 'required',
+            'nrc' => 'required',
+            'ciclo' => 'required',
+            'area' => 'required',
+            'departamento' => 'required',
+            'alumnos_registrados' => 'required',
+            'nivel' => 'required',
+            'profesor' => 'required',
+            'codigo' => 'required',
+        ];
+        $customMessages = [
+            'curso_nombre.required' => 'El :attribute es obligatorio',
+            'nrc.required' => 'El :attribute es obligatorio',
+            'ciclo.required' => 'El :attribute es obligatorio',
+            'area.required' => 'El :attribute es obligatorio',
+            'departamento.required' => 'El :attribute es obligatorio',
+            'alumnos_registrados.required' => 'El :attribute es obligatorio',
+            'nivel.required' => 'El :attribute es obligatorio',
+            'profesor.required' => 'El :attribute es obligatorio',
+            'codigo.required' => 'El :attribute es obligatorio',
+        ];
+
+        $request->validate($validationRules, $customMessages);
+
+        /* Obtenemos el curso que interfiere con el horario 1*/
+        $existingCourse1 = Horarios::with('curso', 'area')
+            ->where('id_area', $request->area)
+            ->where('dia', $request->dia[0])
+            ->where(function ($query) use ($request) {
+                $query->where([
+                    ['hora_inicio', '<=',  $request->hora_inicio[0]],
+                    ['hora_final', '>=',  $request->hora_inicio[0]],
+                ])->orWhere(function ($query) use ($request) {
+                    $query->where([
+                        ['hora_inicio', '<=',  $request->hora_final[0]],
+                        ['hora_final', '>=', $request->hora_final[0]],
+                    ]);
+                });
+            })
+            ->first();
+        // dd($existingCourse1);
+        /* Validamos el 2do horario en caso que lo haya */
+        $existingCourse2 = null;
+        if (count($request->dia) > 1) {
+            $existingCourse2 = Horarios::with('curso', 'area')
+                ->where('id_area', $request->area)
+                ->where('dia', $request->dia[1])
+                ->where(function ($query) use ($request) {
+                    $query->where([
+                        ['hora_inicio', '<=',  $request->hora_inicio[1]],
+                        ['hora_final', '>=',  $request->hora_inicio[1]],
+                    ])->orWhere(function ($query) use ($request) {
+                        $query->where([
+                            ['hora_inicio', '<=',  $request->hora_final[1]],
+                            ['hora_final', '>=', $request->hora_final[1]],
+                        ]);
+                    });
+                })
+                ->first();
+        }
+        // dd($existingCourse2);
+        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas
+            las introducimos en un array para mandar el mensaje de error*/
+        $cursos = [];
+        array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
+        array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
+        //dd($cursos);
+
+        return $cursos;
+    }
     public function index()
     {
 
@@ -66,73 +138,8 @@ class CursosController extends Controller
 
     public function store(Request $request)
     {
-        $validationRules = [
-            'curso_nombre' => 'required',
-            'nrc' => 'required|unique:cursos,nrc',
-            'ciclo' => 'required',
-            'area' => 'required',
-            'departamento' => 'required',
-            'alumnos_registrados' => 'required',
-            'nivel' => 'required',
-            'profesor' => 'required',
-            'codigo' => 'required',
-        ];
-        $customMessages = [
-            'curso_nombre.required' => 'El :attribute es obligatorio',
-            'nrc.required' => 'El :attribute es obligatorio',
-            'ciclo.required' => 'El :attribute es obligatorio',
-            'area.required' => 'El :attribute es obligatorio',
-            'departamento.required' => 'El :attribute es obligatorio',
-            'alumnos_registrados.required' => 'El :attribute es obligatorio',
-            'nivel.required' => 'El :attribute es obligatorio',
-            'profesor.required' => 'El :attribute es obligatorio',
-            'codigo.required' => 'El :attribute es obligatorio',
-        ];
+        $cursos = $this->validateHorario($request);
 
-        $request->validate($validationRules, $customMessages);
-        /* Obtenemos el curso que interfiere con el horario 1*/
-        $existingCourse1 = Horarios::with('curso', 'area')
-            ->where('id_area', $request->area)
-            ->where('dia', $request->dia[0])
-            ->where(function ($query) use ($request) {
-                $query->where([
-                    ['hora_inicio', '<=',  $request->hora_inicio[0]],
-                    ['hora_final', '>=',  $request->hora_inicio[0]],
-                ])->orWhere(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_final[0]],
-                        ['hora_final', '>=', $request->hora_final[0]],
-                    ]);
-                });
-            })
-            ->first();
-        // dd($existingCourse1);
-        /* Validamos el 2do horario en caso que lo haya */
-        $existingCourse2 = null;
-        if (count($request->dia) > 1) {
-            $existingCourse2 = Horarios::with('curso', 'area')
-                ->where('id_area', $request->area)
-                ->where('dia', $request->dia[1])
-                ->where(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_inicio[1]],
-                        ['hora_final', '>=',  $request->hora_inicio[1]],
-                    ])->orWhere(function ($query) use ($request) {
-                        $query->where([
-                            ['hora_inicio', '<=',  $request->hora_final[1]],
-                            ['hora_final', '>=', $request->hora_final[1]],
-                        ]);
-                    });
-                })
-                ->first();
-        }
-        // dd($existingCourse2);
-        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas
-            las introducimos en un array para mandar el mensaje de error*/
-        $cursos = [];
-        array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
-        array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
-        //dd($cursos);
         foreach ($cursos as $curso)
             if ($curso !== null)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
@@ -268,7 +275,7 @@ class CursosController extends Controller
 
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->count();
-        // dd($validacion_horario);
+        //dd($validacion_horario);
 
         return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario'));
     }
@@ -276,22 +283,57 @@ class CursosController extends Controller
     public function update(Request $request, Cursos $curso, Horarios $horario)
     {
 
+        $cursos = $this->validateHorario($request);
+        foreach ($cursos as $item){            
+            if ($item !== null && $item->id_curso !== $curso->id)
+                return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
+        }
+        
         $curso->update($request->all());
+        
 
         /* Realizamos un loop para actualizar cada horario
             en caso de que tenga mas de uno. */
-        foreach ($request->horariosId as $key => $value) {
-            $horario->where('id', $value)
-                ->update([
-                    'dia' => $request->dia[$key],
-                    'hora_inicio' => $request->hora_inicio[$key],
-                    'hora_final' => $request->hora_final[$key]
-                ]);
-        }
-        $horario->where('id', $value)
-            ->update([
-                'id_area' => $request->area,
-            ]);
+            // dd(count($request->dia));
+            if(count($request->horariosId) > 1){
+                foreach ($request->horariosId as $key => $value) {
+                    $horario->where('id', $value)
+                    ->update(
+                        [
+                            'dia' => $request->dia[$key],
+                            'hora_inicio' => $request->hora_inicio[$key],
+                            'hora_final' => $request->hora_final[$key]
+                        ]
+                    );
+                    
+                    $horario->where('id', $value)
+                    ->update([
+                        'id_area' => $request->area,
+                    ]);
+                }
+            }else{/* Actualizamos el primero y creamos el segundo */
+                $horario->where('id', $request->horariosId[0])
+                ->update(
+                    [
+                        'dia' => $request->dia[0],
+                        'hora_inicio' => $request->hora_inicio[0],
+                        'hora_final' => $request->hora_final[0]
+                    ]
+                );
+
+                if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
+                    Horarios::create([
+                        'id_curso'  => $curso->id,
+                        'dia' => $request->dia[1],
+                        'hora_inicio' => $request->hora_inicio[1],
+                        'hora_final' => $request->hora_final[1],
+                        'id_area' => $request->area,
+        
+                    ]);
+                }
+
+            }
+
 
         return redirect()->route('inicio');
     }

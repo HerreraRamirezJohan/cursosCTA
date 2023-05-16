@@ -245,5 +245,10 @@
             }
         }
         btn.addEventListener('click', cambio, true);
+
+        function validateDays(){
+            form = document.querySelector('#guardarCurso');
+            console.log(form);
+        }
     </script>
 @endsection
