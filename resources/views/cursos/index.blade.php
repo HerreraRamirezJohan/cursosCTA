@@ -6,6 +6,12 @@
             {{ Session::get('msg') }}
         </p>
     @endif
+    {{-- @if (session('alert'))
+        <script>
+            alert("{{ session('alert') }}");
+        </script>
+    @endif --}}
+
     <div class="container">
         <div class="row justify-content-center">
             {{-- <div class="col-md-8"> --}}

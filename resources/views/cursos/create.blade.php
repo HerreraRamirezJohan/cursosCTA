@@ -7,15 +7,28 @@
             $('.js-example-basic-single').select2();
         });
     </script>
+    @if ($errors->has('alert'))
+        <script>    
+            alert("{{ $errors->first('alert') }}");
+        </script>
+    @endif
+    {{-- @if ($errors->has('confirm'))
+    <script>
+        if (confirm("{{ $errors->first('confirm') }}")) {
+        } else {
+            window.location.href = "{{ route('inicio') }}";
+        }
+    </script>
+    @endif --}}
 
     <div class="container">
         <div class="row">
-            @if ($errors->any())
-                {{-- @dd($errors) --}}
-                @foreach ($errors->all() as $error)
+            {{-- @if ($errors->any()) --}}
+            {{-- @dd($errors) --}}
+            {{-- @foreach ($errors->all() as $error)
                     {{ $error }}
                 @endforeach
-            @endif
+            @endif --}}
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Crear curso</h1>
                 <div class="col-md-5 mx-auto">
@@ -28,16 +41,34 @@
                             <input type="text" name="curso_nombre" id="nombre" class="form-control"
                                 value="{{ old('curso_nombre') }}">
                         </div>
+                        @if ($errors->has('curso_nombre'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('curso_nombre') }}
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="nrc">Nrc:</label>
                             <input type="text" name="nrc" id="nrc" class="form-control"
                                 value="{{ old('nrc') }}">
                         </div>
+                        @if ($errors->has('nrc'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('nrc') }}
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="Ciclo">Ciclo:</label>
                             <input id="ciclo" class="form-control" value="{{ $cursos_ciclo }}" name="ciclo" readOnly>
                             {{-- <label for="">*Nota: Solo puedes asignar un ciclo cuando es el primer curso.</label> --}}
                         </div>
+                        @if ($errors->has('ciclo'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('ciclo') }}
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="Observaciones">Observaciones:</label>
                             <textarea name="observaciones" id="observaciones" class="form-control">Ninguna</textarea>
@@ -57,6 +88,11 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if ($errors->has('area'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('area') }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="Departamento">Departamento:</label>
@@ -70,11 +106,22 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if ($errors->has('departamento'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('departamento') }}
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="AlumnosR">Alumnos registrados:</label>
                             <input type="number" name="alumnos_registrados" id="alumnos_registrados" min="0"
                                 class="form-control" value="{{ old('alumnos_registrados') }}">
                         </div>
+                        @if ($errors->has('alumnos_registrados'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('alumnos_registrados') }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="Nivel">Nivel:</label>
@@ -85,19 +132,34 @@
                                 <option {{ old('nivel') == 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
                             </select>
                         </div>
-
+                        @if ($errors->has('nivel'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('nivel') }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="Profesor">Profesor:</label>
                             <input type="text" name="profesor" id="profesor" class="form-control"
                                 value="{{ old('profesor') }}">
                         </div>
+                        @if ($errors->has('profesor'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('profesor') }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="Codigo">Codigo:</label>
                             <input type="text" name="codigo" id="codigo" class="form-control"
                                 value="{{ old('codigo') }}">
                         </div>
+                        @if ($errors->has('codigo'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('codigo') }}
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="estatus">Día</label>
                             <select id="estatus" class="form-select" name="dia[]">
@@ -110,19 +172,33 @@
                                 <option {{ old('dia.0') == 'Sabado' ? 'selected' : '' }}>Sabado</option>
                             </select>
                         </div>
+                        @if ($errors->has('dia.0'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->get('dia.0')[0] }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="horario" class="validationDefault04">Inicio de Curso</label>
-                            <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control" min="07:00"
-                                max="21:00" value="{{ old('hora_inicio.0') }}">
+                            <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
+                                min="07:00" max="21:00" value="{{ old('hora_inicio.0') }}">
                         </div>
+                        @if ($errors->has('hora_inicio.0'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->get('hora_inicio.0')[0] }}
+                            </div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="horario" class="validationDefault04">Fin de Curso</label>
-                            <input id="hora_final" type="time" name="hora_final[]" class="form-control" min="07:00"
-                                max="21:00" value="{{ old('hora_final.0') }}">
+                            <input id="hora_final" type="time" name="hora_final[]" class="form-control"
+                                min="07:00" max="21:00" value="{{ old('hora_final.0') }}">
                         </div>
-
+                        @if ($errors->has('hora_final.0'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->get('hora_final.0')[0] }}
+                            </div>
+                        @endif
                         {{-- Segundo horario --}}
                         <div class="mb-3">
                             <input class="mb-3" type="button" value="Agregar nuevo horario" id="btn">
@@ -171,52 +247,90 @@
                     @php
                         $cursos = collect(session('cursosExistentes'));
                     @endphp
-
-                    <h3>Los horarios solapados son los siguientes.</h3>
+                    {{-- @dd($cursos['curso']->id) --}}
+                    <h3>Curso con el que interfiere:</h3>
                     <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
                         @foreach ($cursos as $key => $curso)
-                        @if (isset($curso)){{-- ¿Existe horario solapado? --}}
-                            <div class="col-6">
-                                <table class="table table-bordered border-dark">
-                                    <tr>
-                                        <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
-                                            {{$curso['curso']->curso_nombre}}
-                                        </td>
-                                        <td colspan="2"><span class="fw-semibold">Area:</span> {{isset($curso['area']->area) ? $curso['area']->area : 'No registrada'}}</td>
-                                    </tr>
-                        
-                                    <tr>
-                                        <td colspan="2"><span class="fw-semibold">Ciclo:</span> {{$curso['curso']->ciclo}}</td>
-                                    </tr>
-                        
-                                    <tr>
-                                        <td colspan="2"><span class="fw-semibold">Departamento:</span> {{$curso['curso']->departamento}}</td>
-                                        <td class="align-middle text-capitalize">{{$curso->dia}}</td>
-                                    </tr>
-                        
-                                    <tr>
-                                        <td colspan="2"><span class="fw-semibold">Sede:</span> {{isset($curso['area']->sede) ? $curso['area']->sede : 'No asignada'}}</td>
-                                        <td>{{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}</td>
-                                    </tr>
-                                    <tr>
-                                        @auth
-                                        <td colspan="4">
-                                            <div class="row align-items-center justify-content-center my-3">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                                    fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                    <a href="{{ route('editar', $curso['curso']->id) }}" class="text-reset p-5">
-                                                        <path
-                                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                        <path fill-rule="evenodd"
-                                                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                                </svg></a>
-                                            </div>
-                                        </td>
-                                        @endauth
-                                    </tr>
-                                </table>
-                            </div>
-                        @endif
+                            {{-- @dd($curso['curso']->id) --}}
+                            {{-- @dd($curso->dia) --}}
+                            @if (isset($curso))
+                                {{-- ¿Existe horario solapado? --}}
+                                <div class="col-6">
+                                    <table class="table table-bordered border-dark">
+                                        <tr>
+                                            <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
+                                                {{ $curso['curso']->curso_nombre }}
+                                            </td>
+                                            <td colspan="2"><span class="fw-semibold">Area:</span>
+                                                {{ isset($curso['area']->area) ? $curso['area']->area : 'No registrada' }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="2"><span class="fw-semibold">Ciclo:</span>
+                                                {{ $curso['curso']->ciclo }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="2">
+                                                {{ $curso['curso']->departamento }}
+                                            </td>
+                                            <td class="align-middle text-capitalize">
+                                                {{ $curso->dia }}
+                                            </td>
+                                            @foreach ($horarios as $horario)
+                                                {{-- @dd($curso->id_curso, $horario['id_curso']) --}}
+                                                @if ($curso->id_curso == $horario['id_curso'])
+                                                    @if ($curso->dia != $horario['dia'])
+                                                        <td class="align-middle text-capitalize">
+                                                            {{-- Mostramos el dia que falta mostrar --}}
+                                                            {{ $horario['dia'] }}
+                                                        </td>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><span class="fw-semibold">Sede:</span>
+                                                {{ isset($curso['area']->sede) ? $curso['area']->sede : 'No asignada' }}
+                                            </td>
+                                            <td>
+                                                {{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}
+                                            </td>
+                                            {{-- Foreach horarios para las horas --}}
+                                            @foreach ($horarios as $horario)
+                                                {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
+                                                @if ($curso->id_curso == $horario['id_curso'])
+                                                    {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
+                                                    {{-- Esto se hizo teniendo en cuenta que no existen un curso con el mismo dia en caso de tener dos horarios --}}
+                                                    @if ($curso->dia != $horario['dia'])
+                                                        <td>
+                                                            {{ date('H:i', strtotime($horario['hora_inicio'])) . '-' . date('H:i', strtotime($horario['hora_final'])) }}
+                                                        </td>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            @auth
+                                                <td colspan="4">
+                                                    {{-- <div class="row align-items-center justify-content-center my-3"> --}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                        fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                        <a href="{{ route('editar', $curso['curso']->id) }}"
+                                                            class="text-reset p-5">
+                                                            <path
+                                                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                            <path fill-rule="evenodd"
+                                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                                    </svg></a>
+                                                    {{-- </div> --}}
+                                                </td>
+                                            @endauth
+                                        </tr>
+                                    </table>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                     {{-- Final de cursos solapados --}}
@@ -228,27 +342,26 @@
     </div>
 
     <script>
+        // validarDias();
+        botonHorarioExtra();
         //Formulario extra de horario
-        var btn = document.getElementById('btn'),
-            formulario = document.getElementById('formulario');
-        contador = 1;
+        function botonHorarioExtra() {
+            var btn = document.getElementById('btn'),
+                formulario = document.getElementById('formulario');
+            contador = 1;
 
-        function cambio() {
-            if (contador == 0) {
-                formulario.style.display = "none";
-                btn.value = "Agregar horario";
-                contador = 1;
-            } else {
-                formulario.style.display = "block";
-                btn.value = "Quitar horario";
-                contador = 0;
+            function cambio() {
+                if (contador == 0) {
+                    formulario.style.display = "none";
+                    btn.value = "Agregar horario";
+                    contador = 1;
+                } else {
+                    formulario.style.display = "block";
+                    btn.value = "Quitar horario";
+                    contador = 0;
+                }
             }
-        }
-        btn.addEventListener('click', cambio, true);
-
-        function validateDays(){
-            form = document.querySelector('#guardarCurso');
-            console.log(form);
+            btn.addEventListener('click', cambio, true);
         }
     </script>
 @endsection

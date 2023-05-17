@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Storage;
 class CursosController extends Controller
 {
 
-    private function validateHorario($request){
+    private function validateHorario($request)
+    {
         $validationRules = [
             'curso_nombre' => 'required',
             'nrc' => 'required',
@@ -26,17 +27,29 @@ class CursosController extends Controller
             'nivel' => 'required',
             'profesor' => 'required',
             'codigo' => 'required',
+            'dia.0' => 'required',
+            'hora_inicio.0' => 'required',
+            'hora_final.0' => 'required',
+            // 'dia.1' => 'required',
+            // 'hora_inicio.1' => 'required',
+            // 'hora_final.1' => 'required'
         ];
         $customMessages = [
-            'curso_nombre.required' => 'El :attribute es obligatorio',
+            'curso_nombre.required' => 'El nombre del curso es obligatorio',
             'nrc.required' => 'El :attribute es obligatorio',
             'ciclo.required' => 'El :attribute es obligatorio',
             'area.required' => 'El :attribute es obligatorio',
             'departamento.required' => 'El :attribute es obligatorio',
-            'alumnos_registrados.required' => 'El :attribute es obligatorio',
+            'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
             'nivel.required' => 'El :attribute es obligatorio',
             'profesor.required' => 'El :attribute es obligatorio',
             'codigo.required' => 'El :attribute es obligatorio',
+            'dia.0.required' => 'El dia es obligatorio',
+            'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
+            'hora_final.0.required' => 'La hora final es obligatorio',
+            // 'dia.1.required' => 'El campo dia es obligatorio',
+            // 'hora_inicio.1.required' => 'El campo hora de inicio es obligatorio',
+            // 'hora_final.1.required' => 'El campo hora final es obligatorio',
         ];
 
         $request->validate($validationRules, $customMessages);
@@ -111,6 +124,13 @@ class CursosController extends Controller
 
     public function create()
     {
+        /*Consulta para ver que cursos tienen 2 horarios*/
+        $horarios = Horarios::whereIn('id_curso', function ($query) {
+            $query->select('id_curso')
+                ->from('horarios')
+                ->groupBy('id_curso')
+                ->havingRaw('COUNT(id_curso) = 2');
+        })->get()->toArray();
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
@@ -126,14 +146,13 @@ class CursosController extends Controller
             })->distinct()->orderBy('sede')->orderBy('edificio')
             ->get();
 
-
         // ->toSql();
 
         // return $cursos_area;
 
         $curso = new Cursos();
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios'));
     }
 
     public function store(Request $request)
@@ -156,7 +175,6 @@ class CursosController extends Controller
             'profesor'              => $request->profesor,
             'codigo'                => $request->codigo,
         ]);
-
         $curso->horarios()->create([
             'dia' => $request->dia[0],
             'hora_inicio' => $request->hora_inicio[0],
@@ -165,18 +183,22 @@ class CursosController extends Controller
         ]);
         // if ($request->dia2 != null && $request->hora_inicio2 != null && $request->hora_final2 != null) {
         if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-            $curso->horarios()->create([
-                'id_curso'  => $curso->id,
-                'dia' => $request->dia[1],
-                'hora_inicio' => $request->hora_inicio[1],
-                'hora_final' => $request->hora_final[1],
-                'id_area' => $request->area,
+            if ($request->dia[0] != $request->dia[1] && $request->hora_inicio[0] != $request->hora_inicio[1] && $request->hora_final[0] != $request->hora_inicio[1]) {
+                $curso->horarios()->create([
+                    'id_curso'  => $curso->id,
+                    'dia' => $request->dia[1],
+                    'hora_inicio' => $request->hora_inicio[1],
+                    'hora_final' => $request->hora_final[1],
+                    'id_area' => $request->area,
+                ]);
+            } else {
+                // return back()->withErrors(['confirm' => 'El curso fue creado, revisar']);
 
-            ]);
+                return back()->withErrors(['alert' => 'El curso no puede tener dos horarios iguales!']);
+            }
             // return response()->json(['curso' => $curso], 200);
+            // return redirect()->route('inicio');
         }
-
-
         return redirect()->route('inicio');
     }
 
@@ -284,20 +306,19 @@ class CursosController extends Controller
     {
 
         $cursos = $this->validateHorario($request);
-        foreach ($cursos as $item){            
+        foreach ($cursos as $item) {
             if ($item !== null && $item->id_curso !== $curso->id)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
         }
-        
+
         $curso->update($request->all());
-        
 
         /* Realizamos un loop para actualizar cada horario
             en caso de que tenga mas de uno. */
-            // dd(count($request->dia));
-            if(count($request->horariosId) > 1){
-                foreach ($request->horariosId as $key => $value) {
-                    $horario->where('id', $value)
+        // dd(count($request->dia));
+        if (count($request->horariosId) > 1) {
+            foreach ($request->horariosId as $key => $value) {
+                $horario->where('id', $value)
                     ->update(
                         [
                             'dia' => $request->dia[$key],
@@ -305,14 +326,14 @@ class CursosController extends Controller
                             'hora_final' => $request->hora_final[$key]
                         ]
                     );
-                    
-                    $horario->where('id', $value)
+
+                $horario->where('id', $value)
                     ->update([
                         'id_area' => $request->area,
                     ]);
-                }
-            }else{/* Actualizamos el primero y creamos el segundo */
-                $horario->where('id', $request->horariosId[0])
+            }
+        } else {/* Actualizamos el primero y creamos el segundo */
+            $horario->where('id', $request->horariosId[0])
                 ->update(
                     [
                         'dia' => $request->dia[0],
@@ -321,18 +342,17 @@ class CursosController extends Controller
                     ]
                 );
 
-                if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-                    Horarios::create([
-                        'id_curso'  => $curso->id,
-                        'dia' => $request->dia[1],
-                        'hora_inicio' => $request->hora_inicio[1],
-                        'hora_final' => $request->hora_final[1],
-                        'id_area' => $request->area,
-        
-                    ]);
-                }
+            if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
+                Horarios::create([
+                    'id_curso'  => $curso->id,
+                    'dia' => $request->dia[1],
+                    'hora_inicio' => $request->hora_inicio[1],
+                    'hora_final' => $request->hora_final[1],
+                    'id_area' => $request->area,
 
+                ]);
             }
+        }
 
 
         return redirect()->route('inicio');
