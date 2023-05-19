@@ -24,15 +24,13 @@ class CursosController extends Controller
             'area' => 'required',
             'departamento' => 'required',
             'alumnos_registrados' => 'required',
+            'cupo'  => 'required',
             'nivel' => 'required',
             'profesor' => 'required',
             'codigo' => 'required',
             'dia.0' => 'required',
             'hora_inicio.0' => 'required',
             'hora_final.0' => 'required',
-            // 'dia.1' => 'required',
-            // 'hora_inicio.1' => 'required',
-            // 'hora_final.1' => 'required'
         ];
         $customMessages = [
             'curso_nombre.required' => 'El nombre del curso es obligatorio',
@@ -41,15 +39,13 @@ class CursosController extends Controller
             'area.required' => 'El :attribute es obligatorio',
             'departamento.required' => 'El :attribute es obligatorio',
             'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
+            'cupo.required' => 'El campo :attribute es obligatorio',
             'nivel.required' => 'El :attribute es obligatorio',
-            'profesor.required' => 'El :attribute es obligatorio',
+            'profesor.required' => 'El nombre del :attribute es obligatorio',
             'codigo.required' => 'El :attribute es obligatorio',
             'dia.0.required' => 'El dia es obligatorio',
             'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             'hora_final.0.required' => 'La hora final es obligatorio',
-            // 'dia.1.required' => 'El campo dia es obligatorio',
-            // 'hora_inicio.1.required' => 'El campo hora de inicio es obligatorio',
-            // 'hora_final.1.required' => 'El campo hora final es obligatorio',
         ];
 
         $request->validate($validationRules, $customMessages);
@@ -143,7 +139,7 @@ class CursosController extends Controller
             })
             ->Where(function ($query) {
                 $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
-            })->distinct()->orderBy('sede')->orderBy('edificio')
+            })->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
             ->get();
 
         // ->toSql();
@@ -171,6 +167,7 @@ class CursosController extends Controller
             'observaciones'         => $request->observaciones,
             'departamento'          => $request->departamento,
             'alumnos_registrados'   => $request->alumnos_registrados,
+            'cupo'                  => $request->cupo,
             'nivel'                 => $request->nivel,
             'profesor'              => $request->profesor,
             'codigo'                => $request->codigo,
@@ -199,7 +196,9 @@ class CursosController extends Controller
             // return response()->json(['curso' => $curso], 200);
             // return redirect()->route('inicio');
         }
-        return redirect()->route('inicio');
+        // return redirect()->route('inicio');
+        return redirect()->route('inicio')->with('cursoCreado',true);
+
     }
 
     public function show(Request $request)
@@ -230,6 +229,7 @@ class CursosController extends Controller
         $conditions = [
             ['column' => 'departamento', 'value' => request('departamento')],
             ['column' => 'dia', 'value' => request('dia')],
+            ['column' => 'activo', 'value' => 1],
         ];
 
         /*Valida de que se mande un ciclo cada que se intente filtrar*/
@@ -360,6 +360,10 @@ class CursosController extends Controller
 
     public function destroy($id)
     {
-        //
+        // dd($id);
+        $eliminar = Cursos::findOrFail($id);    
+        $eliminar->update(['activo' => 0]);
+
+        return back()->with('success', 'Registro eliminado correctamente');
     }
 }

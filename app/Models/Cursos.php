@@ -16,6 +16,7 @@ class Cursos extends Model
         'observaciones',
         'departamento',
         'alumnos_registrados',
+        'cupo',
         'activo',
         'nivel',
         'profesor',

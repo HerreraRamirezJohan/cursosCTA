@@ -6,13 +6,14 @@
             {{ Session::get('msg') }}
         </p>
     @endif
-    {{-- @if (session('alert'))
-        <script>
-            alert("{{ session('alert') }}");
-        </script>
-    @endif --}}
+
 
     <div class="container">
+        @if (session('cursoCreado'))
+            <div class="alert alert-success" role="alert" id="alerta">
+                Curso creado exitosamente.
+            </div>
+        @endif
         <div class="row justify-content-center">
             {{-- <div class="col-md-8"> --}}
             <div class="card">
@@ -31,5 +32,4 @@
             {{-- </div> --}}
         </div>
     </div>
-    <br><br>
 @endsection
