@@ -8,7 +8,29 @@
                 </div>
             @endif
             <div class="col-md-12 mx-auto">
-                <h1 class="text-center text-muted mb-5">Cursos encontrados</h1>
+                <h1 class="text-center fw-normal mb-2">Resultados de la busqueda: </h1>
+                {{-- <h4 class="text-muted">
+                    @if ($cursos->total() == 1)
+                        {{ $cursos->total() }} curso encontrado
+                    @elseif ($cursos->total() == 0)
+                        No se encontraron cursos
+                    @else
+                        {{ $cursos->total() }} cursos encontrados.
+                    @endif
+                </h4> --}}
+                {{-- <h1 class="text-center fw-normal mb-2">Resultados de la búsqueda:</h1> --}}
+
+                @php
+                // dd($cursos->total());
+                $totalCursos = $cursos->total();
+                // dd($totalCursos);
+                $mensaje = ($totalCursos == 1) ? "1 curso encontrado" : (($totalCursos == 0) ? "No se encontraron cursos." : "$totalCursos cursos encontrados" );
+            @endphp
+            
+            <h4 class="text-muted">{{ $mensaje }}</h4>
+            
+            
+
                 <div class="d-flex justify-content-end gap-2 mb-4">
                     @auth
                         <a href="{{ route('inicio') }}" class="btn btn-primary text-light align-bottom"><svg

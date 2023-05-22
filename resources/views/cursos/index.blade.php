@@ -7,16 +7,19 @@
         </p>
     @endif
 
-
     <div class="container">
-        @if (session('cursoCreado'))
-            <div class="alert alert-success" role="alert" id="alerta">
-                Curso creado exitosamente.
-            </div>
-        @endif
+        @foreach (['cursoCreado', 'cursoModificado', 'primerHorario', 'segundoHorario'] as $sessionKey)
+            @if (session($sessionKey))
+                <div class="alert alert-{{ $sessionKey == 'cursoCreado' || $sessionKey == 'cursoModificado' ? 'success' : 'danger' }}"
+                    role="alert" id="alerta">
+                    {{ session($sessionKey) }}
+                </div>
+            @endif
+        @endforeach
+
         <div class="row justify-content-center">
             {{-- <div class="col-md-8"> --}}
-            <div class="card">
+            <div class="card g-0">
                 <div class="card-header text-center">
                     <h1>{{ __('Cursos') }}</h1>
                 </div>

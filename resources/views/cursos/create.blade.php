@@ -110,6 +110,7 @@
                                         </option>
                                         {{-- Datos del DB --}}
                                     @endforeach
+                                    
                                 </select>
                                 @if ($errors->has('area'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -267,11 +268,12 @@
                     @foreach ($cursos as $key => $curso)
                         {{-- @dd($curso['curso']->id) --}}
                         {{-- @dd($curso->dia) --}}
-                        @if (isset($curso))
+                        @if (isset($curso['curso']))
                             {{-- ¿Existe horario solapado? --}}
                             <div class="col-6">
                                 <table class="table table-bordered border-dark">
                                     <tr>
+                                        {{-- @dd($curso) --}}
                                         <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
                                             {{ $curso['curso']->curso_nombre }}
                                         </td>

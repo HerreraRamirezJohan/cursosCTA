@@ -51,7 +51,9 @@ class CursosController extends Controller
         $request->validate($validationRules, $customMessages);
 
         /* Obtenemos el curso que interfiere con el horario 1*/
-        $existingCourse1 = Horarios::with('curso', 'area')
+        $existingCourse1 = Horarios::with(['curso' => function ($query) {
+                $query->where('activo', true);
+                }, 'area'])
             ->where('id_area', $request->area)
             ->where('dia', $request->dia[0])
             ->where(function ($query) use ($request) {
@@ -105,9 +107,18 @@ class CursosController extends Controller
         $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')
             ->distinct()->pluck('ciclo');
 
-        $cursos_sede = Areas::select('sede')->orderBy('sede', 'asc')
-            ->distinct()->pluck('sede');
 
+        // $cursos_sede = Areas::select('sede')->orderBy('sede', 'asc')
+        //     ->distinct()->pluck('sede');
+
+        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
+            ->Where(function ($query) {
+                $query->whereIn('sede', ['La Normal', 'Belenes']);
+            })
+            ->Where(function ($query) {
+                $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
+            })->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
+            ->get();
 
         /*Imprimir los horarios (loop hecho antes de tener hora inicio y final)*/
         // $horarios = [];
@@ -115,7 +126,7 @@ class CursosController extends Controller
         //     $horarios[] = str_pad($i, 2, '0', STR_PAD_LEFT) . '00-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT) . '00';
         // }
 
-        return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_sede']));
+        return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_area']));
     }
 
     public function create()
@@ -160,6 +171,10 @@ class CursosController extends Controller
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
         // return response()->json($cursos);
         /*Si no existe nigun curso entre esas horas y en la area, se crea el curso*/
+        if (!($request->hora_final[0] > $request->hora_inicio[0])) {
+            return redirect()->route('inicio')->with('primerHorario', 'La hora de inicio no puede ser mayor que la hora final.');
+        }
+        // return redirect()->route('inicio');
         $curso = Cursos::create([
             'nrc'                   => $request->nrc,
             'curso_nombre'          => $request->curso_nombre,
@@ -178,27 +193,24 @@ class CursosController extends Controller
             'hora_final' => $request->hora_final[0],
             'id_area' => $request->area,
         ]);
-        // if ($request->dia2 != null && $request->hora_inicio2 != null && $request->hora_final2 != null) {
-        if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-            if ($request->dia[0] != $request->dia[1] && $request->hora_inicio[0] != $request->hora_inicio[1] && $request->hora_final[0] != $request->hora_inicio[1]) {
-                $curso->horarios()->create([
-                    'id_curso'  => $curso->id,
-                    'dia' => $request->dia[1],
-                    'hora_inicio' => $request->hora_inicio[1],
-                    'hora_final' => $request->hora_final[1],
-                    'id_area' => $request->area,
-                ]);
-            } else {
-                // return back()->withErrors(['confirm' => 'El curso fue creado, revisar']);
-
-                return back()->withErrors(['alert' => 'El curso no puede tener dos horarios iguales!']);
+        // dd("gola");
+        if (!($request->hora_inicio[1] < $request->hora_final[1])) {
+            return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
+        } else {
+            if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
+                if ($request->dia[0] != $request->dia[1]) {
+                    $curso->horarios()->create([
+                        'id_curso'  => $curso->id,
+                        'dia' => $request->dia[1],
+                        'hora_inicio' => $request->hora_inicio[1],
+                        'hora_final' => $request->hora_final[1],
+                        'id_area' => $request->area,
+                    ]);
+                } else
+                    return back()->withErrors(['alert' => '¡El curso no puede tener dos horarios iguales!']);
             }
-            // return response()->json(['curso' => $curso], 200);
-            // return redirect()->route('inicio');
         }
-        // return redirect()->route('inicio');
-        return redirect()->route('inicio')->with('cursoCreado',true);
-
+        return redirect()->route('inicio')->with('cursoCreado', 'Curso creado exitosamente.');
     }
 
     public function show(Request $request)
@@ -223,7 +235,7 @@ class CursosController extends Controller
             'sede' => $request->get('sede'),
             'ciclo' => $request->get('ciclo'),
             'dia' => $request->get('dia'),
-            'horario' => $request->get('hora_inicio')
+            'horario' => $request->get('hora_inicio'),
         ];
 
         $conditions = [
@@ -253,6 +265,11 @@ class CursosController extends Controller
                 $query->where('sede', $request['sede']);
             });
         }
+        if ($request['area']) {
+            $cursos->whereHas('area', function ($query) use ($request) {
+                $query->where('id', $request['area']);
+            });
+        }
         /* Verificamos si el usuario ingreso un nombre y se  aplica el filtro where */
         if ($request['curso_nombre']) {
             $cursos->whereHas('curso', function ($query) use ($request) {
@@ -265,9 +282,12 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-
-        $cursos = $cursos->paginate(15);
-        // return $cursos;
+        // return $cursos->toSql();
+        // $total = $cursos->distinct('id_curso')->count();
+        $cursos = $cursos->distinct('id_curso')->paginate(15);
+        
+        // dd($cursos);
+        // return $total;
         return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios'));
     }
 
@@ -355,15 +375,25 @@ class CursosController extends Controller
         }
 
 
-        return redirect()->route('inicio');
+        return redirect()->route('inicio')->with('cursoModificado', 'Curso modificado correctamente.');
     }
 
     public function destroy($id)
     {
         // dd($id);
-        $eliminar = Cursos::findOrFail($id);    
+        $eliminar = Cursos::findOrFail($id);
         $eliminar->update(['activo' => 0]);
 
         return back()->with('success', 'Registro eliminado correctamente');
     }
+
+    public function destroyHorario($id)
+    {
+        // dd($id);
+        $eliminar = Horarios::findOrFail($id);
+        $eliminar->destr(['activo' => 0]);
+
+        return back()->with('success', 'Registro eliminado correctamente');
+    }
+
 }
