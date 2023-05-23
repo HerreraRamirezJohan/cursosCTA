@@ -206,8 +206,8 @@
 
 
                 <div class="d-flex justify-content-center">
-                    <a href="{{ route('inicio') }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary mx-2">Actualizar</button>
+                    <a href="{{url()->previous()}}" class="btn btn-danger mx-2">Cancelar</a>
+                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="confirmEdit()">Actualizar</button>
                 </div>
                 </form>
             </div>
@@ -283,8 +283,28 @@
     </div>
 
     <script>
-        // validarDias();
         botonHorarioExtra();
+        function confirmEdit(){
+            let formSubmit = document.querySelector('#guardarCurso');
+
+            Swal.fire({
+            title: '¿Desea guardar los cambios?',
+            showDenyButton: true,
+            confirmButtonText: 'Guardar',
+            denyButtonText: `Seguir editando`,
+            })
+            .then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    Swal.fire('Saved!', '', 'success')
+                    .then(()=>{ 
+                        formSubmit.submit();
+                    })
+                } else if (result.isDenied) {
+                    Swal.fire('Datos no guardados', '', 'info')
+                }
+            })
+        }
         //Formulario extra de horario
         function botonHorarioExtra() {
             var btn = document.getElementById('btn'),
@@ -306,18 +326,5 @@
             }
             btn.addEventListener('click', cambio, true);
         }
-
-        // function validarDias() {
-        //     form = document.querySelector('#guardarCurso');
-        //     form.addEventListener('submit', function(e) {
-        //         e.preventDefault();
-        //         console.log([dia1, dia2])
-        //         if (dia1.value === dia2.value) {
-        //             console.log('No puedes colocar el mismo dia que el anterior horario.');
-        //         } else {
-        //             form.submit();
-        //         }
-        //     });
-        // }
     </script>
 @endsection

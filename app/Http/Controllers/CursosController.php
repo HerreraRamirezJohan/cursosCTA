@@ -193,8 +193,8 @@ class CursosController extends Controller
             'hora_final' => $request->hora_final[0],
             'id_area' => $request->area,
         ]);
-        // dd("gola");
-        if (!($request->hora_inicio[1] < $request->hora_final[1])) {
+        if (!($request->hora_inicio[1] < $request->hora_final[1]) && $request->hora_inicio[1] !== null) {
+            dd($request->hora_inicio[1]);
             return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
         } else {
             if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {

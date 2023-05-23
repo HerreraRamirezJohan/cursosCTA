@@ -251,7 +251,7 @@
                 {{-- Segundo horario Final --}}
                 <div class="d-flex justify-content-center">
                     <a href="{{ route('inicio') }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary mx-2">Agregar</button>
+                    <button type="button" class="btn btn-primary mx-2" onclick="guardarCurso()">Agregar</button>
                 </div>
                 </form>
             </div>
@@ -380,6 +380,23 @@
                 }
             }
             btn.addEventListener('click', cambio, true);
+
+        }
+        function guardarCurso(){
+            let formSubmit = document.querySelector('#guardarCurso');
+
+            Swal.fire({
+            title: '¿Desea guardar el curso?',
+            showDenyButton: true,
+            confirmButtonText: 'Guardar',
+            denyButtonText: `Regresar`,
+            })
+            .then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    formSubmit.submit();
+                }
+            })
         }
     </script>
 @endsection
