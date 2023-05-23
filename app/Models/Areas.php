@@ -12,6 +12,6 @@ class Areas extends Model
 
     public function horarios()
     {
-        return $this->hasMany(Horarios::class,'id_curso');
+        return $this->hasMany(Horarios::class,'id_area');
     }
 }

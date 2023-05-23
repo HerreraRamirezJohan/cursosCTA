@@ -6,16 +6,20 @@
             {{ Session::get('msg') }}
         </p>
     @endif
-    {{-- @if (session('alert'))
-        <script>
-            alert("{{ session('alert') }}");
-        </script>
-    @endif --}}
 
     <div class="container">
+        @foreach (['cursoCreado', 'cursoModificado', 'primerHorario', 'segundoHorario'] as $sessionKey)
+            @if (session($sessionKey))
+                <div class="alert alert-{{ $sessionKey == 'cursoCreado' || $sessionKey == 'cursoModificado' ? 'success' : 'danger' }}"
+                    role="alert" id="alerta">
+                    {{ session($sessionKey) }}
+                </div>
+            @endif
+        @endforeach
+
         <div class="row justify-content-center">
             {{-- <div class="col-md-8"> --}}
-            <div class="card">
+            <div class="card g-0">
                 <div class="card-header text-center">
                     <h1>{{ __('Cursos') }}</h1>
                 </div>
@@ -31,5 +35,4 @@
             {{-- </div> --}}
         </div>
     </div>
-    <br><br>
 @endsection
