@@ -4,6 +4,9 @@ use App\Http\Controllers\CursosController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+/* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
+use App\Http\Controllers\HomeController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +47,10 @@ Route::post('/guardar', [CursosController::class, 'store'])->name('guardar');
 Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar');
 Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar');
 Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eliminar');
+
+Route::get('perfil', function () {return view('user.editUser');})->name('perfil');
+Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile');
+Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword');
 
 
 

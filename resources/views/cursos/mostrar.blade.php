@@ -68,7 +68,8 @@
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        {{ $curso->curso->departamento }}</td>
+                                        {{ $curso->curso->departamento }}
+                                    </td>
                                     <td class="align-middle text-capitalize">
                                         {{ $curso->dia }}
                                     </td>
@@ -110,10 +111,10 @@
                                 </tr>
                                 <tr>
                                     @auth
-                                        <td colspan="2" style="border-style: none none none solid;">
+                                        <td colspan="2" style="border-style: none none none solid;" class="fw-semibold">
                                             Opciones de Curso: 
                                         </td>
-                                        <td colspan="1" style="border-style:none solid none none;">
+                                        <td colspan="2" style="border-style:none solid none none;">
                                             <div class="d-flex">
                                                 {{-- Boton editar --}}
                                                 <div class="d-flex w-50 justify-content-center align-items-center">
@@ -163,13 +164,14 @@
                 let url = "{{ route('eliminar', $curso->curso->id) }}";
                 
                 Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: '¿Seguro de eliminar el curso?',
+                text: "Esta accion no podra ser revertida",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: '¡Eliminar!',
+                cancelButtonText: 'Cancelar'
                 })
                 .then((result) => {
                     if (result.isConfirmed) {
