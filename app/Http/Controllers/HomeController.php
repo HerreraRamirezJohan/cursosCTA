@@ -45,17 +45,33 @@ class HomeController extends Controller
     public function restartPassword(User $user, Request $request){
 
         // dd($request);
-        // $validate = $this->validarContrasena($request->newPassword);
-        // if ($validate)
-        //     return back()->withInput()->with('ivalidpass', $validate);
-        if($request->newPassword !== $request->confirmPassword)
-            return back()->withInput()->with('coincide', 'Las contraseñas no coinciden');
+        // $consult = $user->select('id')
+        // ->where('password', Hash::check($request->oldPassword, $user->password))
+        // ->get();
+        
+        // dd(Hash::check($request->oldPassword, $user->password));
+        
+        $validate = $this->validarContrasena($request->newPassword, $request->confirmPassword);
+        if ($validate)
+            return back()->withInput()->with('invalidpass', $validate);
+        else{
+            /*Con check validamos que la actual contraseña coincida con la de la BD*/
+            $check = Hash::check($request->oldPassword, $user->password);
+            /*Verifica si es True*/
+            if($check == True){
+                /*Si es true, valida que las nuevas contraseñas sean iguales*/
+                if($request->newPassword !== $request->confirmPassword){
+                    return back()->withInput()->with('coincide', 'Las contraseñas no coinciden');
+                }else{
+                    $user->update(['password' => Hash::make($request->newPassword)]);
+                    return back()->with('passwordChanged', 'La contraseña fue modificada correctamente');
+                }
+            }else{
+                return back()->withInput()->with('noCoincide', 'La contraseña actual no coincide');
+            }
+        }
 
-        $consult = $user->select('id')
-        ->where('password',  Hash::make($request->oldPassword))
-        ->get();
-        dd(Hash::make($request->oldPassword));
-
+        // dd(Hash::check($request->oldPassword, $user->password));
 
         // 'password' => Hash::make($data['password']),
     }
