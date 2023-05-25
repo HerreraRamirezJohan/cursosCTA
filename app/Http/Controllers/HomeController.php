@@ -45,39 +45,55 @@ class HomeController extends Controller
     public function restartPassword(User $user, Request $request){
 
         // dd($request);
-        // $validate = $this->validarContrasena($request->newPassword);
-        // if ($validate)
-        //     return back()->withInput()->with('ivalidpass', $validate);
-        if($request->newPassword !== $request->confirmPassword)
-            return back()->withInput()->with('coincide', 'Las contraseñas no coinciden');
+        // $consult = $user->select('id')
+        // ->where('password', Hash::check($request->oldPassword, $user->password))
+        // ->get();
+        
+        // dd(Hash::check($request->oldPassword, $user->password));
+        
+        $validate = $this->validarContrasena($request->newPassword, $request->confirmPassword);
+        if ($validate)
+            return back()->withInput()->with('invalidpass', $validate);
+        else{
+            /*Con check validamos que la actual contraseña coincida con la de la BD*/
+            $check = Hash::check($request->oldPassword, $user->password);
+            /*Verifica si es True*/
+            if($check == True){
+                /*Si es true, valida que las nuevas contraseñas sean iguales*/
+                if($request->newPassword !== $request->confirmPassword){
+                    return back()->withInput()->with('coincide', 'Las contraseñas no coinciden');
+                }else{
+                    $user->update(['password' => Hash::make($request->newPassword)]);
+                    return back()->with('passwordChanged', 'La contraseña fue modificada correctamente');
+                }
+            }else{
+                return back()->withInput()->with('noCoincide', 'La contraseña actual no coincide');
+            }
+        }
 
-        $consult = $user->select('id')
-        ->where('password',  Hash::make($request->oldPassword))
-        ->get();
-        dd(Hash::make($request->oldPassword));
-
+        // dd(Hash::check($request->oldPassword, $user->password));
 
         // 'password' => Hash::make($data['password']),
     }
-    private function validarContrasena($contrasena) {
+    private function validarContrasena($contrasena, $confirmarContrasena) {
         $answer = '';
         // Longitud mínima de 8 caracteres
-        if (strlen($contrasena) < 8) {
+        if (strlen($contrasena) && strlen($confirmarContrasena)  < 8) {
             $answer .= 'Debe tener al menos 8 caracteres. -- ';
         }
     
         // Al menos 1 número
-        if (!preg_match('/[0-9]/', $contrasena)) {
+        if (!preg_match('/[0-9]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener al menos un número. -- ';
         }
     
         // Al menos 1 letra mayúscula
-        if (!preg_match('/[A-Z]/', $contrasena)) {
+        if (!preg_match('/[A-Z]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener mayúscula. -- ';
         }
     
         // Al menos 1 símbolo
-        if (!preg_match('/[\W_]/', $contrasena)) {
+        if (!preg_match('/[\W_]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener algún carácter especial -- ';
         }
     

@@ -6,12 +6,14 @@
             $('.js-example-basic-single').select2();
         });
     </script>
-    @if ($errors->has('alert'))
-        <script>
-            alert("{{ $errors->first('alert') }}");
-        </script>
-    @endif
     <div class="container">
+        @if ($errors->has('alert'))
+            <script>
+                alert("{{ $errors->first('alert') }}");
+            </script>
+        @endif
+
+
         <div class="row">
             @if ($errors->any())
                 {{-- @dd($errors) --}}
@@ -27,6 +29,7 @@
                         @method('put')
                         {{-- @include('cursos.form') --}}
                         <div class="mb-3">
+                            <input type="hidden" name="filter_url" value="{{ url()->previous() }}">
                             <label for="nombre" class="">Nombre del curso:</label>
                             <input type="text" name="curso_nombre"
                                 value="{{ old('curso_nombre', $curso->curso_nombre) }}" class="form-control" required>
@@ -40,14 +43,15 @@
                             <div class="mb-3 w-100">
                                 <label for="cupo" class="">Cupo:</label>
                                 <input type="number" name="cupo" value="{{ old('cupo', $curso->cupo) }}" id="cupo"
-                                    min="0" class="form-control" required>
+                                    min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
+                                    required>
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="alumnos_registrados" class="">Alumnos registrados:</label>
                                 <input type="number" name="alumnos_registrados"
                                     value="{{ old('alumnos_registrados', $curso->alumnos_registrados) }}"
-                                    id="alumnos_registrados" min="0" class="form-control" required>
+                                    id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)" required>
                             </div>
 
                             <div class="mb-3 w-100">
@@ -172,14 +176,19 @@
                             {{-- @dd($validacion_horario) --}}
                             @if ($validacion_horario == 1)
                                 {{-- Segundo horario --}}
-                                <div class="btn btn-success d-flex justify-content-center align-items-center mb-4" style="width: 400px">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
-                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                <div class="btn btn-success d-flex justify-content-center align-items-center mb-4"
+                                    style="width: 400px">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                        fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
+                                        <path
+                                            d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                        <path
+                                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                                     </svg>
-                                    <input class="flex-grow-1" type="button" value="Agregar nuevo horario" id="btn" style="all:unset">
+                                    <input class="flex-grow-1" type="button" value="Agregar nuevo horario"
+                                        id="btn" style="all:unset">
                                 </div>
-                                
+
                                 <div id="formulario" style="display:none">
                                     <div class="mb-3 w-100">
                                         <label for="dia2">Día</label>
@@ -195,7 +204,7 @@
                                     </div>
 
                                     <div class="mb-3 w-100">
-                                        <label for="horario" class="validationDefault04">Iora de inicio del curso</label>
+                                        <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
                                         <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
                                             min="07:00" max="21:00">
                                     </div>
@@ -213,8 +222,9 @@
 
 
                 <div class="d-flex justify-content-center">
-                    <a href="{{url()->previous()}}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="confirmEdit()">Actualizar</button>
+                    <a href="{{ url()->previous() }}" class="btn btn-danger mx-2">Cancelar</a>
+                    <button type="button" class="btn btn-primary mx-2" id="editBtn"
+                        onclick="confirmEdit()">Actualizar</button>
                 </div>
                 </form>
             </div>
@@ -290,27 +300,32 @@
     </div>
 
     <script>
+        function validarNumero(input) {
+            input.value = input.value.replace(/\D/g, ''); // Remover cualquier carácter no numérico
+        }
+
         botonHorarioExtra();
-        function confirmEdit(){
+
+        function confirmEdit() {
             let formSubmit = document.querySelector('#guardarCurso');
 
             Swal.fire({
-            title: '¿Desea guardar los cambios?',
-            showDenyButton: true,
-            confirmButtonText: 'Guardar',
-            denyButtonText: `Seguir editando`,
-            })
-            .then((result) => {
-                /* Read more about isConfirmed, isDenied below */
-                if (result.isConfirmed) {
-                    Swal.fire('Saved!', '', 'success')
-                    .then(()=>{ 
-                        formSubmit.submit();
-                    })
-                } else if (result.isDenied) {
-                    Swal.fire('Datos no guardados', '', 'info')
-                }
-            })
+                    title: '¿Deseas guardar los cambios?',
+                    showDenyButton: true,
+                    confirmButtonText: 'Guardar',
+                    denyButtonText: `Seguir editando`,
+                })
+                .then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        Swal.fire('¡El curso fue modificado con exito!', '', 'success')
+                            .then(() => {
+                                formSubmit.submit();
+                            })
+                    } else if (result.isDenied) {
+                        Swal.fire('Datos no guardados', '', 'info')
+                    }
+                })
         }
         //Formulario extra de horario
         function botonHorarioExtra() {

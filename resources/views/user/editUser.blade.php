@@ -4,9 +4,9 @@
 {{-- @dd(Auth::user()) --}}
 <div class="container">
 
-    @foreach (['modificado', 'coincide', 'ivalidpass'] as $sessionKey)
+    @foreach (['modificado', 'coincide', 'invalidpass', 'passwordChanged', 'noCoincide'] as $sessionKey)
             @if (session($sessionKey))
-                <div class="alert alert-{{ $sessionKey == 'cursoCreado' || $sessionKey == 'cursoModificado' ? 'success' : 'danger' }}"
+                <div class="alert alert-danger"
                     role="alert" id="alerta">
                     {{ session($sessionKey) }}
                 </div>
@@ -15,7 +15,7 @@
 
     <div class="d-flex">
         <h2 class="text-center w-25">
-            Edicion de Perfil
+             Editar Perfil
         </h2>
         <form action="{{route('updateProfile', Auth::user() )}}" method="POST" class="w-50 flex-grow-1">
             @csrf
@@ -25,7 +25,7 @@
                 <label for="name">Nombre:</label>
                 <input class= "form-control w-25" type="text" name="name" id="name" value="{{Auth::user()->name}}">
             
-                <label for="email">Email:</label>
+                <label for="email">Correo electrónico:</label>
                 <input class="form-control w-25" type="email" name="email" id="email" value="{{Auth::user()->email}}">
                 
             </div>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="d-flex mt-5">
-        <h2 class="text-center w-25">
+        <h2 class="text-center w-25 ">
             Restablecer Contraseña
         </h2>
         <form action="{{route('changePassword', Auth::user() )}}" method="POST" class="w-50 flex-grow-1">
@@ -47,10 +47,10 @@
                     <input class="form-control w-25" name="oldPassword" type="password">
 
                     <label for="oldpass">Nueva Contraseña:</label>
-                    <input class="form-control w-25" name="newPassword" type="password">
+                    <input class="form-control w-25" name="newPassword" type="password" placeholder="[A-Z], [0-9], [#*&-], [Min 8]">
 
                     <label for="oldpass">Confirmar Contraseña:</label>
-                    <input class="form-control w-25" name="confirmPassword" type="password">
+                    <input class="form-control w-25" name="confirmPassword" type="password" placeholder="[A-Z], [0-9], [#*&-], [Min 8]">
             </div>
             <div class="text-center my-3 px-4">
                 <button class="btn btn-primary w-25" type="submit">Enviar</button>

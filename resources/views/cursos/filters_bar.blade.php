@@ -6,25 +6,23 @@
 </script>
 <form class="row" action="{{ route('mostrar') }}">
 
+    {{-- [Nombre del curso] --}}
+    <div class="d-flex flex-column align-items-center mt-2">
+        <label for="nombre_curso">Nombre del curso</label>
+        <input type="text" class="form-control w-50 mb-4" name="curso_nombre">
+    {{-- [Departamento] --}}
+        <label for="departamento">Departamento</label>
+        <select id="departamento" class="form-select w-50 mb-4" name="departamento">
+            <option selected disabled>Elegir</option>
+            @foreach ($cursos_departamento as $item)
+                <option value="{{ $item }}">{{ $item }}</option>
+                {{-- Datos del DB --}}
+            @endforeach
+        </select>
+    </div>
     {{-- Inicio Selects [Departamento, Sede y Estatus] --}}
     <div class="row row-cols-lg-auto align-items-center justify-content-center mt-0" style="gap:1rem 2rem">
 
-        {{-- [Nombre del curso] --}}
-        <div class="w-50">
-            <label for="nombre_curso">Nombre del curso</label>
-            <input type="text" class="form-control" name="curso_nombre">
-        </div>
-        {{-- [Departamento] --}}
-        <div>
-            <label for="departamento">Departamento</label>
-            <select id="departamento" class="form-select" name="departamento">
-                <option selected disabled>Elegir</option>
-                @foreach ($cursos_departamento as $item)
-                    <option value="{{ $item }}">{{ $item }}</option>
-                    {{-- Datos del DB --}}
-                @endforeach
-            </select>
-        </div>
         {{-- [Sede] --}}
         <div>
             <label for="sede">Sede</label>
@@ -81,7 +79,7 @@
         <select id="area" class="form-select js-example-basic-single w-50" name="area">
             <option selected disabled>Elegir</option>
             @foreach ($cursos_area as $item)
-                <option value="{{ $item->id }}" {{ old('area') == $item->id ? 'selected' : '' }}>
+                <option value="{{ $item->id }}">
                     {{ $item->sede . ' - ' . $item->edificio . ' - ' . $item->area }}
                 </option>
                 {{-- Datos del DB --}}

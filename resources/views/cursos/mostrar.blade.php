@@ -7,29 +7,23 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if (session('cursoModificado'))
+                <div class="alert alert-success align-items-center text-center mt-3">
+                    {{ session('cursoModificado') }}
+                </div>
+            @endif
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center fw-normal mb-2">Resultados de la busqueda: </h1>
-                {{-- <h4 class="text-muted">
-                    @if ($cursos->total() == 1)
-                        {{ $cursos->total() }} curso encontrado
-                    @elseif ($cursos->total() == 0)
-                        No se encontraron cursos
-                    @else
-                        {{ $cursos->total() }} cursos encontrados.
-                    @endif
-                </h4> --}}
-                {{-- <h1 class="text-center fw-normal mb-2">Resultados de la búsqueda:</h1> --}}
-
                 @php
-                // dd($cursos->total());
-                $totalCursos = $cursos->total();
-                // dd($totalCursos);
-                $mensaje = ($totalCursos == 1) ? "1 curso encontrado" : (($totalCursos == 0) ? "No se encontraron cursos." : "$totalCursos cursos encontrados" );
-            @endphp
-            
-            <h4 class="text-muted">{{ $mensaje }}</h4>
-            
-            
+                    // dd($cursos->total());
+                    $totalCursos = $cursos->total();
+                    // dd($totalCursos);
+                    $mensaje = $totalCursos == 1 ? '1 curso encontrado' : ($totalCursos == 0 ? 'No se encontraron cursos.' : "$totalCursos cursos encontrados");
+                @endphp
+
+                <h4 class="text-muted">{{ $mensaje }}</h4>
+
+
 
                 <div class="d-flex justify-content-end gap-2 mb-4">
                     @auth
@@ -112,13 +106,50 @@
                                 <tr>
                                     @auth
                                         <td colspan="2" style="border-style: none none none solid;" class="fw-semibold">
-                                            Opciones de Curso: 
+
+                                            <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                                                data-bs-target="#staticBackdrop">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                                    fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                    <path
+                                                        d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+                                                data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title
+                                                            </h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            ...
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="button" class="btn btn-primary">Understood</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            Opciones de Curso:
                                         </td>
                                         <td colspan="2" style="border-style:none solid none none;">
                                             <div class="d-flex">
                                                 {{-- Boton editar --}}
                                                 <div class="d-flex w-50 justify-content-center align-items-center">
-                                                    <a href="{{ route('editar', $curso->curso->id) }}" class="text-decoration-none d-flex btn btn-outline-dark">
+                                                    <a href="{{ route('editar', $curso->curso->id) }}"
+                                                        class="text-decoration-none d-flex btn btn-outline-dark">
                                                         <p class="m-0 pe-3 ">Editar</p>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                                             fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -131,7 +162,8 @@
                                                 </div>
                                                 {{-- Boton eliminar --}}
                                                 <div class="d-flex w-50 justify-content-center align-items-center">
-                                                    <a id="eliminar" class="text-decoration-none d-flex btn btn-outline-dark" onclick="deleteConfirm()">
+                                                    <a id="eliminar" class="text-decoration-none d-flex btn btn-outline-dark"
+                                                        onclick="deleteConfirm('{{ route('eliminar', $curso->curso->id) }}')">
                                                         <p class="m-0 pe-3">Eliminar</p>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                                             fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
@@ -159,32 +191,27 @@
             </nav>
         </div>
         <script>
-
-            function deleteConfirm(){
-                let url = "{{ route('eliminar', $curso->curso->id) }}";
-                
+            function deleteConfirm(url) {
                 Swal.fire({
-                title: '¿Seguro de eliminar el curso?',
-                text: "Esta accion no podra ser revertida",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '¡Eliminar!',
-                cancelButtonText: 'Cancelar'
-                })
-                .then((result) => {
+                    title: '¿Estás seguro de eliminar el curso?',
+                    text: "Esta acción no podrá ser revertida",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire(
-                        'Curso Eliminado!',
-                        '',
-                        'success'
-                        )
-                        .then(() => {
-                            window.location.href = url;
-                        })
+                            'Curso eliminado correctamente',
+                            '',
+                            'success'
+                        ).then(() => {
+                            window.location.href = url; // Redirige a la URL de eliminación
+                        });
                     }
-                })
+                });
             }
         </script>
     @endsection
