@@ -42,15 +42,15 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
-Route::get('/crear', [CursosController::class, 'create'])->name('crear');
-Route::post('/guardar', [CursosController::class, 'store'])->name('guardar');
-Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar');
-Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar');
-Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eliminar');
+Route::get('/crear', [CursosController::class, 'create'])->name('crear')->middleware('auth');
+Route::post('/guardar', [CursosController::class, 'store'])->name('guardar')->middleware('auth');
+Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar')->middleware('auth');
+Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar')->middleware('auth');
+Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eliminar')->middleware('auth');
 
-Route::get('perfil', function () {return view('user.editUser');})->name('perfil');
-Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile');
-Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword');
+Route::get('perfil', function () {return view('user.editUser');})->name('perfil')->middleware('auth');
+Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');
+Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
 
 

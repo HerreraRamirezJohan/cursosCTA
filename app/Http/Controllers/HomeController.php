@@ -75,25 +75,25 @@ class HomeController extends Controller
 
         // 'password' => Hash::make($data['password']),
     }
-    private function validarContrasena($contrasena) {
+    private function validarContrasena($contrasena, $confirmarContrasena) {
         $answer = '';
         // Longitud mínima de 8 caracteres
-        if (strlen($contrasena) < 8) {
+        if (strlen($contrasena) && strlen($confirmarContrasena)  < 8) {
             $answer .= 'Debe tener al menos 8 caracteres. -- ';
         }
     
         // Al menos 1 número
-        if (!preg_match('/[0-9]/', $contrasena)) {
+        if (!preg_match('/[0-9]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener al menos un número. -- ';
         }
     
         // Al menos 1 letra mayúscula
-        if (!preg_match('/[A-Z]/', $contrasena)) {
+        if (!preg_match('/[A-Z]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener mayúscula. -- ';
         }
     
         // Al menos 1 símbolo
-        if (!preg_match('/[\W_]/', $contrasena)) {
+        if (!preg_match('/[\W_]/', $contrasena, $confirmarContrasena)) {
             $answer .= 'Debe tener algún carácter especial -- ';
         }
     

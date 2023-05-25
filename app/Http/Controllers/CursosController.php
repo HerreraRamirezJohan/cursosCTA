@@ -194,7 +194,7 @@ class CursosController extends Controller
             'id_area' => $request->area,
         ]);
         if (!($request->hora_inicio[1] < $request->hora_final[1]) && $request->hora_inicio[1] !== null) {
-            dd($request->hora_inicio[1]);
+            // dd($request->hora_inicio[1]);
             return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
         } else {
             if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
@@ -284,8 +284,9 @@ class CursosController extends Controller
 
         // return $cursos->toSql();
         // $total = $cursos->distinct('id_curso')->count();
-        $cursos = $cursos->distinct('id_curso')->paginate(15);
-        
+        // $cursos = $cursos->distinct('id_curso')->paginate(15);
+        $cursos = $cursos->groupBy('id_curso')->paginate(15);
+
         // dd($cursos);
         // return $total;
         return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios'));
@@ -338,6 +339,9 @@ class CursosController extends Controller
         // dd(count($request->dia));
         if (count($request->horariosId) > 1) {
             foreach ($request->horariosId as $key => $value) {
+                if (!($request->hora_final[$key] > $request->hora_inicio[$key])) {
+                    return redirect()->route('inicio')->with('primerHorario', 'La hora de inicio no puede ser mayor que la hora final del dia ' . $request->dia[$key]);
+                }
                 $horario->where('id', $value)
                     ->update(
                         [
@@ -352,30 +356,44 @@ class CursosController extends Controller
                         'id_area' => $request->area,
                     ]);
             }
-        } else {/* Actualizamos el primero y creamos el segundo */
-            $horario->where('id', $request->horariosId[0])
+        } else {
+            /*Se valida hora inicio y hora final del primer horario*/ 
+            if (!($request->hora_final[0] > $request->hora_inicio[0])) {
+                return redirect()->route('inicio')->with('primerHorario', 'La hora de inicio no puede ser mayor que la hora final del dia' . $request->dia[0]);
+            }else{
+                /* Actualizamos el primero y creamos el segundo */
+                $horario->where('id', $request->horariosId[0])
                 ->update(
                     [
                         'dia' => $request->dia[0],
                         'hora_inicio' => $request->hora_inicio[0],
                         'hora_final' => $request->hora_final[0]
-                    ]
-                );
-
+                        ]
+                    );
+                }
+                    /*Validamos si el usuario creo un segundo horario en editar*/ 
             if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-                Horarios::create([
-                    'id_curso'  => $curso->id,
-                    'dia' => $request->dia[1],
-                    'hora_inicio' => $request->hora_inicio[1],
-                    'hora_final' => $request->hora_final[1],
-                    'id_area' => $request->area,
-
-                ]);
+                /*Se valida hora inicio y hora final del segundo horario*/ 
+                if (!($request->hora_inicio[1] < $request->hora_final[1]) && $request->hora_inicio[1] !== null) {
+                    return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
+                }else{
+                    Horarios::create([
+                        'id_curso'  => $curso->id,
+                        'dia' => $request->dia[1],
+                        'hora_inicio' => $request->hora_inicio[1],
+                        'hora_final' => $request->hora_final[1],
+                        'id_area' => $request->area,
+                        
+                    ]);
+                }
             }
         }
 
+        // return redirect()->route('inicio')->with('cursoModificado', 'Curso modificado correctamente.');
+        // dd($request->filter_url);
+        return redirect()->away($request->filter_url)->with('cursoModificado', 'Curso modificado correctamente.');
 
-        return redirect()->route('inicio')->with('cursoModificado', 'Curso modificado correctamente.');
+        
     }
 
     public function destroy($id)
@@ -384,7 +402,7 @@ class CursosController extends Controller
         $eliminar = Cursos::findOrFail($id);
         $eliminar->update(['activo' => 0]);
 
-        return back()->with('success', 'Registro eliminado correctamente');
+        return back()->with('success', 'Curso eliminado correctamente');
     }
 
     public function destroyHorario($id)
