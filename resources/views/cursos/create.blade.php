@@ -179,6 +179,20 @@
                                 @endif
                             </div>
                         </div>
+                        <h3>Horario</h3>
+                        {{-- [Inicio] Alerts de validaciones de horario --}}
+                        @if(session('errorsHorario'))
+                            @php
+                                $horarioErrors = collect(session('errorsHorario'));
+                            @endphp    
+                            <div class="alert alert-danger mt-2" role="alert">
+                                @foreach($horarioErrors as $item)
+                                    <p>{{$item}}</p>
+                                @endforeach
+                            </div>
+                        @endif
+                        {{-- [Final] Alerts de validaciones de horario --}}
+                        
                         {{-- Primer horario --}}
                         <div class="d-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">

@@ -11,7 +11,7 @@
         });
     </script>
     <div class="container">
-        @if ($errors->has('alert'))
+        @if ($errors->has('errorsHorario'))
             <script>
                 alert("{{ $errors->first('alert') }}");
             </script>
@@ -150,6 +150,19 @@
                         </div>
                         {{-- Extraemos los horarios del curso --}}
                         <h3>Horarios</h3>
+
+                        {{-- [Inicio] Alerts de validaciones de horario --}}
+                        @if(session('errorsHorario'))
+                            @php
+                                $horarioErrors = collect(session('errorsHorario'));
+                            @endphp    
+                            <div class="alert alert-danger mt-2" role="alert">
+                                @foreach($horarioErrors as $item)
+                                    <p>{{$item}}</p>
+                                @endforeach
+                            </div>
+                        @endif
+                        {{-- [Final] Alerts de validaciones de horario --}}
 
                         @foreach ($horariosDelCurso as $key => $horario)
                             @if ($key == 1)
