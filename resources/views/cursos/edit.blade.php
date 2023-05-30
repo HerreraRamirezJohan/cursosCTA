@@ -17,11 +17,6 @@
             </script>
         @endif
 
-        @if (session('alumnosMayor'))
-            <div class="alert alert-warning align-items-center text-center mt-3" role="alert">
-                {{ session('alumnosMayor') }}
-            </div>
-        @endif
         @if (session('cursoModificado'))
             <div class="alert alert-success mt-3 d-flex justify-content-between" role="alert">
                 <div>{{ session('cursoModificado') }}</div>
@@ -61,6 +56,11 @@
                                 <input type="number" name="nrc" value="{{ old('nrc', $curso->nrc) }}" id="nrc"
                                     min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==10) return false;" required>
+                                    @if (session('nrcLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('nrcLength') }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-3 w-100">
                                 <label for="cupo" class="">Cupo:</label>
@@ -81,6 +81,11 @@
                                     id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+"
                                     oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==2) return false;"required>
+                                    @if (session('alumnosMayor'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('alumnosMayor') }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
@@ -140,6 +145,11 @@
                                 <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo"
                                     min="0" class="form-control"
                                     onKeyPress="if(this.value.length==8) return false;" required>
+                                    @if (session('codigoLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('codigoLength') }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-3
                                     flex-grow-1">

@@ -13,90 +13,6 @@ use App\Http\Controllers\CursosValidacion;
 
 class CursosController extends Controller
 {
-
-    private function validateHorario($request)
-    {
-        $validationRules = [
-            'curso_nombre' => 'required',
-            'nrc' => 'required',
-            'ciclo' => 'required',
-            'area' => 'required',
-            'departamento' => 'required',
-            'alumnos_registrados' => 'required',
-            'cupo'  => 'required',
-            'nivel' => 'required',
-            'profesor' => 'required',
-            'codigo' => 'required',
-            'dia.0' => 'required',
-            'hora_inicio.0' => 'required',
-            'hora_final.0' => 'required',
-        ];
-        $customMessages = [
-            'curso_nombre.required' => 'El nombre del curso es obligatorio',
-            'nrc.required' => 'El :attribute es obligatorio',
-            'ciclo.required' => 'El :attribute es obligatorio',
-            'area.required' => 'El :attribute es obligatorio',
-            'departamento.required' => 'El :attribute es obligatorio',
-            'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
-            'cupo.required' => 'El campo :attribute es obligatorio',
-            'nivel.required' => 'El :attribute es obligatorio',
-            'profesor.required' => 'El nombre del :attribute es obligatorio',
-            'codigo.required' => 'El :attribute es obligatorio',
-            'dia.0.required' => 'El dia es obligatorio',
-            'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
-            'hora_final.0.required' => 'La hora final es obligatorio',
-        ];
-
-        $request->validate($validationRules, $customMessages);
-
-        /* Obtenemos el curso que interfiere con el horario 1*/
-        $existingCourse1 = Horarios::with(['curso' => function ($query) {
-                $query->where('activo', true);
-                }, 'area'])
-            ->where('id_area', $request->area)
-            ->where('dia', $request->dia[0])
-            ->where(function ($query) use ($request) {
-                $query->where([
-                    ['hora_inicio', '<=',  $request->hora_inicio[0]],
-                    ['hora_final', '>=',  $request->hora_inicio[0]],
-                ])->orWhere(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_final[0]],
-                        ['hora_final', '>=', $request->hora_final[0]],
-                    ]);
-                });
-            })
-            ->first();
-        // dd($existingCourse1);
-        /* Validamos el 2do horario en caso que lo haya */
-        $existingCourse2 = null;
-        if (count($request->dia) > 1) {
-            $existingCourse2 = Horarios::with('curso', 'area')
-                ->where('id_area', $request->area)
-                ->where('dia', $request->dia[1])
-                ->where(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_inicio[1]],
-                        ['hora_final', '>=',  $request->hora_inicio[1]],
-                    ])->orWhere(function ($query) use ($request) {
-                        $query->where([
-                            ['hora_inicio', '<=',  $request->hora_final[1]],
-                            ['hora_final', '>=', $request->hora_final[1]],
-                        ]);
-                    });
-                })
-                ->first();
-        }
-        // dd($existingCourse2);
-        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas
-            las introducimos en un array para mandar el mensaje de error*/
-        $cursos = [];
-        array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
-        array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
-        //dd($cursos);
-
-        return $cursos;
-    }
     public function index()
     {
 
@@ -165,7 +81,7 @@ class CursosController extends Controller
     {
         /* Validamos los campos del horario */
         $errors = CursosValidacion::validateHoursAndDays($request);
-        if(!empty($errors)){
+        if (!empty($errors)) {
             return back()->withInput()->with(['errorsHorario' => $errors]);
         }
         /* Validamos si hay algun curso solapado con otro horario. */
@@ -178,25 +94,45 @@ class CursosController extends Controller
         if (!($request->hora_final[0] > $request->hora_inicio[0])) {
             return redirect()->route('inicio')->with('primerHorario', 'La hora de inicio no puede ser mayor que la hora final.');
         }
-        // return redirect()->route('inicio');
-        $curso = Cursos::create([
-            'nrc'                   => $request->nrc,
-            'curso_nombre'          => $request->curso_nombre,
-            'ciclo'                 => $request->ciclo,
-            'observaciones'         => $request->observaciones,
-            'departamento'          => $request->departamento,
-            'alumnos_registrados'   => $request->alumnos_registrados,
-            'cupo'                  => $request->cupo,
-            'nivel'                 => $request->nivel,
-            'profesor'              => $request->profesor,
-            'codigo'                => $request->codigo,
-        ]);
-        $curso->horarios()->create([
-            'dia' => $request->dia[0],
-            'hora_inicio' => $request->hora_inicio[0],
-            'hora_final' => $request->hora_final[0],
-            'id_area' => $request->area,
-        ]);
+        /*Validamos que el nrc debe de tener de 7 a 10 caracteres*/
+        if (strlen($request->get('nrc')) < 6 || strlen($request->get('nrc')) > 10) {
+            return back()->withInput()->with('nrcLength', 'El nrc debe tener de 6 a 10 digitos');
+        }
+        /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que el cupo no sea mayor a 60 */ 
+        elseif (strlen($request->get('cupo')) > 2 || $request->cupo > 60) {
+            return back()->withInput()->with('cupoMax', 'El cupo no puede ser mayor a 60');
+        }
+                /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que alumnos R. no sea mayor a 60 */ 
+        elseif (strlen($request->get('alumnos_registrados')) > 2 || $request->alumnos_registrados > 60) {
+            return back()->withInput()->with('alumnosMax', 'El numero de alumnos registrados no debe ser mayor a 60');
+        }
+        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
+        elseif ($request->alumnos_registrados > $request->cupo) {
+            return back()->withInput()->with('alumnosMayor', 'El numero de alumnos registrados sobrepasa el cupo del curso');
+        }
+        /*Valida que el codigo de profesor debe ser de 8 digitos*/
+         elseif (strlen($request->get('codigo')) != 8) {
+            return back()->withInput()->with('codigoLength', 'El código de profesor deber tener 8 digitos');
+        } else {
+            $curso = Cursos::create([
+                'nrc' => $request->nrc,
+                'curso_nombre' => $request->curso_nombre,
+                'ciclo' => $request->ciclo,
+                'observaciones' => $request->observaciones,
+                'departamento' => $request->departamento,
+                'alumnos_registrados' => $request->alumnos_registrados,
+                'cupo' => $request->cupo,
+                'nivel' => $request->nivel,
+                'profesor' => $request->profesor,
+                'codigo' => $request->codigo,
+            ]);
+            $curso->horarios()->create([
+                'dia' => $request->dia[0],
+                'hora_inicio' => $request->hora_inicio[0],
+                'hora_final' => $request->hora_final[0],
+                'id_area' => $request->area,
+            ]);
+        }
         if (!($request->hora_inicio[1] < $request->hora_final[1]) && $request->hora_inicio[1] !== null) {
             // dd($request->hora_inicio[1]);
             return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
@@ -204,7 +140,7 @@ class CursosController extends Controller
             if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
                 if ($request->dia[0] != $request->dia[1]) {
                     $curso->horarios()->create([
-                        'id_curso'  => $curso->id,
+                        'id_curso' => $curso->id,
                         'dia' => $request->dia[1],
                         'hora_inicio' => $request->hora_inicio[1],
                         'hora_final' => $request->hora_final[1],
@@ -336,7 +272,7 @@ class CursosController extends Controller
     {
         /* Validamos los campos del horario */
         $errors = CursosValidacion::validateHoursAndDays($request);
-        if(!empty($errors)){
+        if (!empty($errors)) {
             return back()->with(['errorsHorario' => $errors]);
         }
 
@@ -346,10 +282,26 @@ class CursosController extends Controller
             if ($item !== null && $item->id_curso !== $curso->id)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursosSolapados]);
         }
+        // dd(strlen($request->get('nrc')));
 
-        $curso->update($request->all());
 
-        if (count($request->horariosId) > 1) {/* Si el curso cuenta con mas de 1 horario realizamos un loop para realizar sus actualizaciones */
+
+        if ($request->alumnos_registrados > $request->cupo) {
+            return back()->withInput()->with('alumnosMayor', 'El número de alumnos registrados sobrepasa el cupo del curso');
+        }
+        elseif (strlen($request->get('nrc')) < 6 || strlen($request->get('nrc')) > 10) {
+                return back()->withInput()->with('nrcLength', 'El nrc debe tener de 6 a 10 digitos');
+        } elseif (strlen($request->input('codigo')) != 8) {
+            return back()->withInput()->with('codigoLength', 'El código debe tener 8 digitos');
+        }
+        // elseif ($length <= 8){
+        //     return back()->withInput()->with('nrcLength', 'El nrc debe tener minimo 7 digitos');
+        // }
+        else {
+            $curso->update($request->all());
+        }
+
+        if (count($request->horariosId) > 1) { /* Si el curso cuenta con mas de 1 horario realizamos un loop para realizar sus actualizaciones */
             foreach ($request->horariosId as $key => $value) {
                 $horario->where('id', $value)
                     ->update(
@@ -366,33 +318,33 @@ class CursosController extends Controller
                     ]);
             }
         } else {
-            /*Se valida hora inicio y hora final del primer horario*/ 
+            /*Se valida hora inicio y hora final del primer horario*/
             if (!($request->hora_final[0] > $request->hora_inicio[0])) {
                 return redirect()->route('inicio')->with('primerHorario', 'La hora de inicio no puede ser mayor que la hora final del dia' . $request->dia[0]);
-            }else{
+            } else {
                 /* Actualizamos el primero y creamos el segundo */
                 $horario->where('id', $request->horariosId[0])
-                ->update(
-                    [
-                        'dia' => $request->dia[0],
-                        'hora_inicio' => $request->hora_inicio[0],
-                        'hora_final' => $request->hora_final[0]
+                    ->update(
+                        [
+                            'dia' => $request->dia[0],
+                            'hora_inicio' => $request->hora_inicio[0],
+                            'hora_final' => $request->hora_final[0]
                         ]
                     );
-                }
-                    /*Validamos si el usuario creo un segundo horario en editar*/ 
+            }
+            /*Validamos si el usuario creo un segundo horario en editar*/
             if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-                /*Se valida hora inicio y hora final del segundo horario*/ 
+                /*Se valida hora inicio y hora final del segundo horario*/
                 if (!($request->hora_inicio[1] < $request->hora_final[1]) && $request->hora_inicio[1] !== null) {
                     return redirect()->route('inicio')->with('segundoHorario', 'Error en el segundo horario.');
-                }else{
+                } else {
                     Horarios::create([
-                        'id_curso'  => $curso->id,
+                        'id_curso' => $curso->id,
                         'dia' => $request->dia[1],
                         'hora_inicio' => $request->hora_inicio[1],
                         'hora_final' => $request->hora_final[1],
                         'id_area' => $request->area,
-                        
+
                     ]);
                 }
             }
@@ -400,7 +352,7 @@ class CursosController extends Controller
 
         // return redirect()->route('inicio')->with('cursoModificado', 'Curso modificado correctamente.');
         // dd($request->filter_url);
-        return redirect()->away($request->filter_url)->with('cursoModificado', 'Curso modificado correctamente.');
+        return redirect()->back()->with('cursoModificado', 'Curso modificado correctamente.');
 
 
     }
