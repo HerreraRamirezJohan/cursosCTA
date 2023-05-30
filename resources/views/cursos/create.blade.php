@@ -21,16 +21,8 @@
             alert("{{ $errors->first('alert') }}");
         </script>
     @endif
-    {{-- @if ($errors->has('confirm'))
-    <script>
-        if (confirm("{{ $errors->first('confirm') }}")) {
-        } else {
-            window.location.href = "{{ route('inicio') }}";
-        }
-    </script>
-    @endif --}}
-
     <div class="container">
+
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Crear curso</h1>
@@ -51,10 +43,16 @@
                             <div class="mb-3 w-100">
                                 <label for="nrc">Nrc:</label>
                                 <input type="number" name="nrc" id="nrc" class="form-control" min="0"
-                                    value="{{ old('nrc') }}" required>
+                                    value="{{ old('nrc') }}" pattern="[0-9]+" oninput="validarNumero(this)"
+                                    onKeyPress="if(this.value.length==10) return false;" required>
                                 @if ($errors->has('nrc'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('nrc') }}
+                                    </div>
+                                @endif
+                                @if (session('nrcLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('nrcLength') }}
                                     </div>
                                 @endif
                             </div>
@@ -62,7 +60,8 @@
                                 <label for="cupo">Cupo:</label>
                                 <input type="number" name="cupo" id="cupo" min="0" class="form-control"
                                     max="60" value="{{ old('cupo') }}" pattern="[0-9]+"
-                                    oninput="validarNumero(this)" required>
+                                    oninput="validarNumero(this)" onKeyPress="if(this.value.length==2) return false;"
+                                    required>
                                 @if ($errors->has('cupo'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('cupo') }}
@@ -74,10 +73,16 @@
                                 <label for="alumnos_registrados">Alumnos registrados:</label>
                                 <input type="number" name="alumnos_registrados" id="alumnos_registrados" min="0"
                                     class="form-control" max="60" value="{{ old('alumnos_registrados') }}"
-                                    pattern="[0-9]+" oninput="validarNumero(this)" required>
+                                    pattern="[0-9]+" oninput="validarNumero(this)"
+                                    onKeyPress="if(this.value.length==2) return false;"required>
                                 @if ($errors->has('alumnos_registrados'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('alumnos_registrados') }}
+                                    </div>
+                                @endif
+                                @if (session('alumnosMayor'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('alumnosMayor') }}
                                     </div>
                                 @endif
                             </div>
@@ -160,10 +165,16 @@
                             <div class="mb-3 flex-grow-2">
                                 <label for="Codigo">Codigo del profesor:</label>
                                 <input type="number" name="codigo" id="codigo" class="form-control" min="0"
-                                    value="{{ old('codigo') }}" required>
+                                    value="{{ old('codigo') }}" onKeyPress="if(this.value.length==8) return false;"
+                                    required>
                                 @if ($errors->has('codigo'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('codigo') }}
+                                    </div>
+                                @endif
+                                @if (session('codigoLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('codigoLength') }}
                                     </div>
                                 @endif
                             </div>
@@ -180,18 +191,18 @@
                         </div>
                         <h3>Horario</h3>
                         {{-- [Inicio] Alerts de validaciones de horario --}}
-                        @if(session('errorsHorario'))
+                        @if (session('errorsHorario'))
                             @php
                                 $horarioErrors = collect(session('errorsHorario'));
-                            @endphp    
+                            @endphp
                             <div class="alert alert-danger mt-2" role="alert">
-                                @foreach($horarioErrors as $item)
-                                    <p>{{$item}}</p>
+                                @foreach ($horarioErrors as $item)
+                                    <p>{{ $item }}</p>
                                 @endforeach
                             </div>
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
-                        
+
                         {{-- Primer horario --}}
                         <div class="d-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">

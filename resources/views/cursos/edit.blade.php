@@ -1,5 +1,9 @@
 @extends('layouts.app')
 @section('content')
+    @php
+        $url = session('url'); // Obtener la URL de la variable de sesión
+    @endphp
+
     <script>
         // In your Javascript (external .js resource or <script> tag)
         $(document).ready(function() {
@@ -13,6 +17,18 @@
             </script>
         @endif
 
+        @if (session('cursoModificado'))
+            <div class="alert alert-success mt-3 d-flex justify-content-between" role="alert">
+                <div>{{ session('cursoModificado') }}</div>
+                <div>
+                    <a href="{{ $url }}" class="align-bottom"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                            height="20" fill="currentColor" class="bi bi-arrow-left align-middle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                        </svg> REGRESAR</a>
+                </div>
+            </div>
+        @endif
 
         <div class="row">
             @if ($errors->any())
@@ -29,7 +45,7 @@
                         @method('put')
                         {{-- @include('cursos.form') --}}
                         <div class="mb-3">
-                            <input type="hidden" name="filter_url" value="{{ url()->previous() }}">
+                            {{-- <input type="hidden" name="filter_url" value="{{ url()->previous() }}"> --}}
                             <label for="nombre" class="">Nombre del curso:</label>
                             <input type="text" name="curso_nombre"
                                 value="{{ old('curso_nombre', $curso->curso_nombre) }}" class="form-control" required>
@@ -38,20 +54,38 @@
                             <div class="mb-3 w-100">
                                 <label for="nrc" class="">Nrc:</label>
                                 <input type="number" name="nrc" value="{{ old('nrc', $curso->nrc) }}" id="nrc"
-                                    min="0" class="form-control" required>
+                                    min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
+                                    onKeyPress="if(this.value.length==10) return false;" required>
+                                    @if (session('nrcLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('nrcLength') }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-3 w-100">
                                 <label for="cupo" class="">Cupo:</label>
                                 <input type="number" name="cupo" value="{{ old('cupo', $curso->cupo) }}" id="cupo"
                                     min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
-                                    required>
+                                    onKeyPress="if(this.value.length==2) return false;" required>
+                                @if ($errors->has('cupo'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('cupo') }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="alumnos_registrados" class="">Alumnos registrados:</label>
                                 <input type="number" name="alumnos_registrados"
                                     value="{{ old('alumnos_registrados', $curso->alumnos_registrados) }}"
-                                    id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)" required>
+                                    id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+"
+                                    oninput="validarNumero(this)"
+                                    onKeyPress="if(this.value.length==2) return false;"required>
+                                    @if (session('alumnosMayor'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('alumnosMayor') }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
@@ -109,9 +143,16 @@
                             <div class="mb-3 flex-grow-2">
                                 <label for="Codigo" class="">Codigo del profesor:</label>
                                 <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo"
-                                    min="0" class="form-control" required>
+                                    min="0" class="form-control"
+                                    onKeyPress="if(this.value.length==8) return false;" required>
+                                    @if (session('codigoLength'))
+                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                        {{ session('codigoLength') }}
+                                    </div>
+                                @endif
                             </div>
-                            <div class="mb-3 flex-grow-1">
+                            <div class="mb-3
+                                    flex-grow-1">
                                 <label for="Profesor" class="">Profesor:</label>
                                 <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor"
                                     class="form-control" required>
@@ -232,10 +273,8 @@
                 </div>
                 @endforeach
 
-
-
                 <div class="d-flex justify-content-center">
-                    <a href="{{ url()->previous() }}" class="btn btn-danger mx-2">Cancelar</a>
+                    <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
                     <button type="button" class="btn btn-primary mx-2" id="editBtn"
                         onclick="confirmEdit()">Actualizar</button>
                 </div>
@@ -331,10 +370,7 @@
                 .then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        Swal.fire('¡El curso fue modificado con exito!', '', 'success')
-                            .then(() => {
-                                formSubmit.submit();
-                            })
+                        formSubmit.submit();
                     } else if (result.isDenied) {
                         Swal.fire('Datos no guardados', '', 'info')
                     }

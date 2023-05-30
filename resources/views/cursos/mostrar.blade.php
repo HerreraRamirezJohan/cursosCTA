@@ -126,18 +126,48 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title
+                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Datos del
+                                                                curso
                                                             </h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                                 aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            ...
+                                                            <table class="table table-bordered align-middle">
+                                                                <thead class="align-middle">
+                                                                    <tr>
+                                                                        <th scope="col">Profesor:</th>
+                                                                        <th scope="col" class="fw-normal">{{$curso->curso->profesor}}</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th scope="row">Código del profesor:</th>
+                                                                        <td class="fw-normal">{{$curso->curso->codigo}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Nrc:</th>
+                                                                        <td class="fw-normal">{{$curso->curso->nrc}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Nivel:</th>
+                                                                        <td class="fw-normal text-capitalize">{{$curso->curso->nivel}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Cupo:</th>
+                                                                        <td class="fw-normal">{{$curso->curso->cupo}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Alumnos registrados:</th>
+                                                                        <td class="fw-normal">{{$curso->curso->alumnos_registrados}}</td>
+                                                                    </tr>
+                                                                </tbody>
+
+                                                            </table>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn btn-primary">Understood</button>
+                                                                data-bs-dismiss="modal">Cerrar</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -152,7 +182,8 @@
                                                         class="text-decoration-none d-flex btn btn-outline-dark">
                                                         <p class="m-0 pe-3 ">Editar</p>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
-                                                            fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                            fill="currentColor" class="bi bi-pencil-square"
+                                                            viewBox="0 0 16 16">
                                                             <path
                                                                 d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                                             <path fill-rule="evenodd"
