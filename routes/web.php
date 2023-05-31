@@ -47,6 +47,7 @@ Route::post('/guardar', [CursosController::class, 'store'])->name('guardar')->mi
 Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar')->middleware('auth');
 Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar')->middleware('auth');
 Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eliminar')->middleware('auth');
+Route::get('/eliminar_horario/{horario}', [CursosController::class, 'destroyHorario'])->name('eliminarHorario')->middleware('auth');
 
 Route::get('perfil', function () {return view('user.editUser');})->name('perfil')->middleware('auth');
 Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');

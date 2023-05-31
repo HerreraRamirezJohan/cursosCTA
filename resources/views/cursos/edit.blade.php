@@ -2,6 +2,7 @@
 @section('content')
     @php
         $url = session('url'); // Obtener la URL de la variable de sesión
+        $horarioErrors = collect(session('errorsHorario'));  //Obtenemos los errores de los horarios
     @endphp
 
     <script>
@@ -11,12 +12,6 @@
         });
     </script>
     <div class="container">
-        @if ($errors->has('errorsHorario'))
-            <script>
-                alert("{{ $errors->first('alert') }}");
-            </script>
-        @endif
-
         @if (session('cursoModificado'))
             <div class="alert alert-success mt-3 d-flex justify-content-between" role="alert">
                 <div>{{ session('cursoModificado') }}</div>
@@ -31,12 +26,6 @@
         @endif
 
         <div class="row">
-            @if ($errors->any())
-                {{-- @dd($errors) --}}
-                @foreach ($errors->all() as $error)
-                    {{ $error }}
-                @endforeach
-            @endif
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Editar curso</h1>
                 <div class="col-md-5 w-100">
@@ -49,15 +38,20 @@
                             <input type="text" name="curso_nombre"
                                 value="{{ old('curso_nombre', $curso->curso_nombre) }}" class="form-control" required>
                         </div>
+                        @if ($errors->has('curso_nombre'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('curso_nombre') }}
+                            </div>
+                        @endif
                         <div class="d-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="nrc" class="">Nrc:</label>
                                 <input type="number" name="nrc" value="{{ old('nrc', $curso->nrc) }}" id="nrc"
                                     min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==10) return false;" required>
-                                    @if (session('nrcLength'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('nrcLength') }}
+                                @if ($errors->has('nrc'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('nrc') }}
                                     </div>
                                 @endif
                             </div>
@@ -80,17 +74,27 @@
                                     id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+"
                                     oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==2) return false;"required>
+                                    @if ($errors->has('alumnos_registrados'))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{ $errors->first('alumnos_registrados') }}
+                                        </div>
+                                    @endif
                                     @if (session('alumnosMayor'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('alumnosMayor') }}
-                                    </div>
-                                @endif
+                                        <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
+                                            {{ session('alumnosMayor') }}
+                                        </div>
+                                    @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="Ciclo" class="">Ciclo:</label>
                                 <input type="text" name="ciclo" value="{{ old('ciclo', $curso->ciclo) }}"
                                     id="ciclo" class="form-control" required readOnly>
+                                @if ($errors->has('ciclo'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('ciclo') }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="mb-3">
@@ -112,6 +116,11 @@
                                         {{-- Datos del DB --}}
                                     @endforeach
                                 </select>
+                                @if ($errors->has('area'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('area') }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
@@ -125,6 +134,11 @@
                                         {{-- Datos del DB --}}
                                     @endforeach
                                 </select>
+                                @if ($errors->has('departamento'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('departamento') }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="d-flex justify-content-between gap-5">
@@ -138,32 +152,39 @@
                                     <option {{ $curso->nivel === 'Maestría' ? 'selected' : '' }}>Maestría</option>
                                     <option {{ $curso->nivel === 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
                                 </select>
+                                @if ($errors->has('nivel'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('nivel') }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-3 flex-grow-2">
                                 <label for="Codigo" class="">Codigo del profesor:</label>
                                 <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo"
                                     min="0" class="form-control"
                                     onKeyPress="if(this.value.length==8) return false;" required>
-                                    @if (session('codigoLength'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('codigoLength') }}
-                                    </div>
-                                @endif
+                                    @if ($errors->has('codigo'))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{ $errors->first('codigo') }}
+                                        </div>
+                                    @endif
                             </div>
                             <div class="mb-3 flex-grow-1">
                                 <label for="Profesor" class="">Profesor:</label>
                                 <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor"
                                     class="form-control" required>
+                                @if ($errors->has('profesor'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->first('profesor') }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         {{-- Extraemos los horarios del curso --}}
                         <h3>Horarios</h3>
 
                         {{-- [Inicio] Alerts de validaciones de horario --}}
-                        @if(session('errorsHorario'))
-                            @php
-                                $horarioErrors = collect(session('errorsHorario'));
-                            @endphp    
+                        @if(session('errorsHorario'))   
                             <div class="alert alert-danger mt-2" role="alert">
                                 @foreach($horarioErrors as $item)
                                     <p>{{$item}}</p>
@@ -175,7 +196,7 @@
                         @foreach ($horariosDelCurso as $key => $horario)
                             @if ($key == 1)
                                 <div class="d-flex align-items-center justify-content-end">
-                                    <a id="eliminar" hre class=" ms-3 text-decoration-none btn btn-danger">
+                                    <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                             fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                             <path
@@ -204,6 +225,11 @@
                                                 {{ $dia }}
                                             </option>
                                         @endforeach
+                                        @if ($errors->has('dia.0'))
+                                            <div class="alert alert-danger mt-2" role="alert">
+                                                {{ $errors->get('dia.0')[0] }}
+                                            </div>
+                                        @endif
                                     </select>
                                 </div>
 
@@ -212,6 +238,11 @@
                                     <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]"
                                         class="form-control" min="07:00" max="21:00"
                                         value="{{ $horario->hora_inicio }}">
+                                    @if ($errors->has('hora_inicio.0'))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{ $errors->get('hora_inicio.0')[0] }}
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="mb-3 w-100">
@@ -219,6 +250,11 @@
                                     <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]"
                                         class="form-control" min="07:00" max="21:00"
                                         value="{{ $horario->hora_final }}">
+                                    @if ($errors->has('hora_final.0'))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{ $errors->get('hora_final.0')[0] }}
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -309,11 +345,7 @@
                                         <td colspan="2"><span class="fw-semibold">Departamento:</span>
                                             {{ $item['curso']->departamento }}</td>
                                         <td class="align-middle text-capitalize">{{ $item->dia }}</td>
-                                    {{-- </tr> --}}
-                                        {{-- @dd($item) --}}
-                                        {{-- @dd($item) --}}
                                         @foreach ($horarios as $horario)
-                                            {{-- @dd($item->id, $horario['id_curso']) --}}
                                             @if ($item->id_curso == $horario['id_curso'])
                                                 @if ($item->dia != $horario['dia'])
                                                     <td class="align-middle text-capitalize">

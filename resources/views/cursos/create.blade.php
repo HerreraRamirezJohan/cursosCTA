@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('content')
+    @php
+        $horarioErrors = collect(session('errorsHorario'));        
+    @endphp
     {{-- @dd(old('departamento')) --}}
     <script>
         // In your Javascript (external .js resource or <script> tag)
@@ -7,15 +10,6 @@
             $('.js-example-basic-single').select2();
         });
     </script>
-    {{-- @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif --}}
     @if ($errors->has('alert'))
         <script>
             alert("{{ $errors->first('alert') }}");
@@ -44,15 +38,10 @@
                                 <label for="nrc">Nrc:</label>
                                 <input type="number" name="nrc" id="nrc" class="form-control" min="0"
                                     value="{{ old('nrc') }}" pattern="[0-9]+" oninput="validarNumero(this)"
-                                    onKeyPress="if(this.value.length==10) return false;" required>
+                                    onKeyPress="if(this.value.length==11) return false;" required>
                                 @if ($errors->has('nrc'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('nrc') }}
-                                    </div>
-                                @endif
-                                @if (session('nrcLength'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('nrcLength') }}
                                     </div>
                                 @endif
                             </div>
@@ -172,11 +161,6 @@
                                         {{ $errors->first('codigo') }}
                                     </div>
                                 @endif
-                                @if (session('codigoLength'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('codigoLength') }}
-                                    </div>
-                                @endif
                             </div>
                             <div class="mb-3 flex-grow-1">
                                 <label for="Profesor">Profesor:</label>
@@ -192,9 +176,6 @@
                         <h3>Horario</h3>
                         {{-- [Inicio] Alerts de validaciones de horario --}}
                         @if (session('errorsHorario'))
-                            @php
-                                $horarioErrors = collect(session('errorsHorario'));
-                            @endphp
                             <div class="alert alert-danger mt-2" role="alert">
                                 @foreach ($horarioErrors as $item)
                                     <p>{{ $item }}</p>
@@ -334,7 +315,6 @@
                                             {{ $curso->dia }}
                                         </td>
                                         @foreach ($horarios as $horario)
-                                            {{-- @dd($curso->id_curso, $horario['id_curso']) --}}
                                             @if ($curso->id_curso == $horario['id_curso'])
                                                 @if ($curso->dia != $horario['dia'])
                                                     <td class="align-middle text-capitalize">
@@ -494,6 +474,10 @@
 
     <script>
         // validarDias();
+        testVariablePHP({{empty($horarioErrors) ? null : $horarioErrors}})
+        function testVariablePHP($data){
+            console.log(data);
+        }
         function validarNumero(input) {
             input.value = input.value.replace(/\D/g, ''); // Remover cualquier carácter no numérico
         }

@@ -8,7 +8,7 @@
     @endif
 
     <div class="container">
-        @foreach (['cursoCreado', 'cursoModificado', 'primerHorario', 'segundoHorario'] as $sessionKey)
+        @foreach (['cursoCreado', 'cursoModificado', 'segundoHorario'] as $sessionKey)
             @if (session($sessionKey))
                 <div class="alert alert-{{ $sessionKey == 'cursoCreado' || $sessionKey == 'cursoModificado' ? 'success' : 'danger' }}"
                     role="alert" id="alerta">

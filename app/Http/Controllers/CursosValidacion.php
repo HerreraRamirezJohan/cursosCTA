@@ -6,16 +6,14 @@ use App\Models\Horarios;
 use DateTime;
 
 class CursosValidacion {
-    public static function validateHoursAndDays($request){
+    public static function validateHoursAndDays($request, $action = null){
         $errors = [];
+        self::validateFilledInputs($request, $action);
 
+        /* Si exiuste un segundo horario, validamos que no coloque 2 horarios en el mismo dia. */
         if(isset($request->dia[1]))
             if($request->dia[0] === $request->dia[1])
-            {
-                //dd($request->dia[0]);
-
                 $errors[] = "¡No puedes tener 2 horarios en el mismo día!";
-            }
         /* Iteramos en cada horario para verificar si no hay error en lo datos 
         esto validara n cantidad de horarios que tenga el curso. */
         foreach ($request->dia as $key => $value){
@@ -25,8 +23,7 @@ class CursosValidacion {
             $hora_final = new DateTime($request->hora_final[$key]);
             $duracion =  $hora_inicio->diff($hora_final);
             $minutosTotales = ($duracion->h * 60) + $duracion->i;
-            /* Validamos  */
-            // dd($hora_inicio, $hora_final);
+            /* Validamos el rango de horario que puede registrar un curso */
             if( ($hora_inicio >= new \DateTime('07:00') && $hora_inicio <= new \DateTime('20:00')) &&
                 ($hora_final >= new \DateTime('07:55') && $hora_final <= new \DateTime('21:00'))){
                     /* Validamos que no ingrese una hora inicio mayor a la final. */
@@ -42,42 +39,9 @@ class CursosValidacion {
         return $errors;
     }
 
-    public static function validateHorario($request)
+    public static function validateHorario($request, $action = null)
     {
-        $validationRules = [
-            'curso_nombre' => 'required',
-            'nrc' => 'required',
-            'ciclo' => 'required',
-            'area' => 'required',
-            'departamento' => 'required',
-            'alumnos_registrados' => 'required|numeric|max:60',
-            'cupo' => 'required|numeric|max:60',
-            'nivel' => 'required',
-            'profesor' => 'required',
-            'codigo' => 'required',
-            'dia.0' => 'required',
-            'hora_inicio.0' => 'required',
-            'hora_final.0' => 'required',
-        ];
-        $customMessages = [
-            'curso_nombre.required' => 'El nombre del curso es obligatorio',
-            'nrc.required' => 'El :attribute es obligatorio',
-            'ciclo.required' => 'El :attribute es obligatorio',
-            'area.required' => 'El :attribute es obligatorio',
-            'departamento.required' => 'El :attribute es obligatorio',
-            'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
-            'alumnos_registrados.max' => 'El máximo de alumnos registrados puede ser 60',
-            'cupo.max' => 'El cupo máximo de un curso es de 60',
-            'cupo.required' => 'El campo :attribute es obligatorio',
-            'nivel.required' => 'El :attribute es obligatorio',
-            'profesor.required' => 'El nombre del :attribute es obligatorio',
-            'codigo.required' => 'El :attribute es obligatorio',
-            'dia.0.required' => 'El dia es obligatorio',
-            'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
-            'hora_final.0.required' => 'La hora final es obligatorio',
-        ];
-
-        $request->validate($validationRules, $customMessages);
+        self::validateFilledInputs($request, $action);
 
         /* Obtenemos el curso que interfiere con el horario 1*/
         $existingCourse1 = Horarios::with(['curso' => function ($query) {
@@ -126,5 +90,50 @@ class CursosValidacion {
         //dd($cursos);
 
         return $cursos;
+    }
+
+    public function validateFilledInputs($request, $action){
+        $validationRules = [
+            'curso_nombre' => 'required',
+            'nrc' => 'required|string|between:5,10',
+            'ciclo' => 'required',
+            'area' => 'required',
+            'departamento' => 'required',
+            'alumnos_registrados' => 'required|numeric|between:0,60',
+            'cupo' => 'required|numeric|between:1,60',
+            'nivel' => 'required',
+            'profesor' => 'required',
+            'codigo' => 'required|between:8,8',
+            'dia.0' => 'required',
+            'hora_inicio.0' => 'required',
+            'hora_final.0' => 'required',
+        ];
+        if($action === "store")/* Solo si estamos guardando modificamos la regla para que el NRC sea unico */
+            $validationRules['nrc'] = 'required|unique:cursos,nrc|string|between:5,10';
+             
+        $customMessages = [
+            'curso_nombre.required' => 'El nombre del curso es obligatorio',
+            'nrc.required' => 'El :attribute es obligatorio',
+            'nrc.between' => 'El :attribute debe tener de :min a :max caracteres',
+            'ciclo.required' => 'El :attribute es obligatorio',
+            'area.required' => 'El :attribute es obligatorio',
+            'departamento.required' => 'El :attribute es obligatorio',
+            'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
+            'alumnos_registrados.between' => 'Los :attribute debe ser entre 1 al limite de cupos regitrado',
+            'cupo.between' => 'El :attribute debe ser entre 1 a 60.',
+            'cupo.required' => 'El campo :attribute es obligatorio',
+            'nivel.required' => 'El :attribute es obligatorio',
+            'profesor.required' => 'El nombre del :attribute es obligatorio',
+            'codigo.required' => 'El :attribute es obligatorio',
+            'codigo.between' => 'El :attribute debe ser de 8 caracteres.',
+            'dia.0.required' => 'El dia es obligatorio',
+            'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
+            'hora_final.0.required' => 'La hora final es obligatorio',
+        ];
+
+        if($action === "store")/* Si estamos guardando agregamos el nuevo mensaje para NRC unico. */
+            $customMessages['nrc.unique'] = 'El :attribute debe ser unico';
+
+        $request->validate($validationRules, $customMessages);
     }
 }
