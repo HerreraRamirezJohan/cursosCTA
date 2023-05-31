@@ -11,8 +11,11 @@ class CursosValidacion {
 
         if(isset($request->dia[1]))
             if($request->dia[0] === $request->dia[1])
-                $errors[] = "¡No puedes tener 2 horarios en el mismo día!";
+            {
+                //dd($request->dia[0]);
 
+                $errors[] = "¡No puedes tener 2 horarios en el mismo día!";
+            }
         /* Iteramos en cada horario para verificar si no hay error en lo datos 
         esto validara n cantidad de horarios que tenga el curso. */
         foreach ($request->dia as $key => $value){
@@ -23,6 +26,7 @@ class CursosValidacion {
             $duracion =  $hora_inicio->diff($hora_final);
             $minutosTotales = ($duracion->h * 60) + $duracion->i;
             /* Validamos  */
+            // dd($hora_inicio, $hora_final);
             if( ($hora_inicio >= new \DateTime('07:00') && $hora_inicio <= new \DateTime('20:00')) &&
                 ($hora_final >= new \DateTime('07:55') && $hora_final <= new \DateTime('21:00'))){
                     /* Validamos que no ingrese una hora inicio mayor a la final. */
@@ -32,7 +36,7 @@ class CursosValidacion {
                         if($minutosTotales < 55)/* Validar la duracion del curso */
                             $errors[] = "¡El horario del ".$dia." debe tener una duración minima de 55 minutos!";
             }else{
-                    $errors[] = "¡El rango para registrar un horario debe ser de 07:00 a.m. - 09:00 p.m.";
+                    $errors[] = "El rango para registrar un horario debe ser de 07:00 a.m. - 09:00 p.m.";
             }
         }
         return $errors;
@@ -62,8 +66,8 @@ class CursosValidacion {
             'area.required' => 'El :attribute es obligatorio',
             'departamento.required' => 'El :attribute es obligatorio',
             'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
-            'alumnos_registrados.max' => 'El maximo de alumnos registrados puede ser 60',
-            'cupo.max' => 'El cupo maximo de un curso es 60',
+            'alumnos_registrados.max' => 'El máximo de alumnos registrados puede ser 60',
+            'cupo.max' => 'El cupo máximo de un curso es de 60',
             'cupo.required' => 'El campo :attribute es obligatorio',
             'nivel.required' => 'El :attribute es obligatorio',
             'profesor.required' => 'El nombre del :attribute es obligatorio',

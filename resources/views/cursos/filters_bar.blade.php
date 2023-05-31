@@ -34,9 +34,9 @@
         </div>
         {{-- [Estatus] --}}
         <div>
-            <label for="estatus" class="validationDefault04">Ciclo</label>
-            <select id="validationDefault04" class="form-select" name="ciclo" required>
-                <option selected disabled>Elegir</option>
+            <label for="validationDefault04">Ciclo</label>
+            <select class="form-select" id="validationDefault04" name="ciclo" required>
+                <option selected disabled value="">Elegir</option>
                 @foreach ($cursos_ciclo as $item)
                     <option value="{{ $item }}">{{ $item }}</option>
                 @endforeach

@@ -109,7 +109,7 @@
 
                                             <!-- Button trigger modal -->
                                             <button type="button" class="btn btn-dark" data-bs-toggle="modal"
-                                                data-bs-target="#staticBackdrop">
+                                                data-bs-target="#modal{{ $curso->id }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                                     fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
                                                     <path
@@ -120,14 +120,13 @@
                                             </button>
 
                                             <!-- Modal -->
-                                            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
-                                                data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                                            <div class="modal fade" id="modal{{ $curso->id }}" data-bs-backdrop="static"
+                                                data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel{{ $curso->id }}"
                                                 aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Datos del
-                                                                curso
+                                                            <h1 class="modal-title fs-5" id="modalLabel{{ $curso->id }}">Datos del curso
                                                             </h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                                 aria-label="Close"></button>
