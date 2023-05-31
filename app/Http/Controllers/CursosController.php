@@ -98,20 +98,16 @@ class CursosController extends Controller
         if (strlen($request->get('nrc')) < 6 || strlen($request->get('nrc')) > 10) {
             return back()->withInput()->with('nrcLength', 'El nrc debe tener de 6 a 10 digitos');
         }
-        /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que el cupo no sea mayor a 60 */ 
-        elseif (strlen($request->get('cupo')) > 2 || $request->cupo > 60) {
+        /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que el cupo no sea mayor a 60 */elseif (strlen($request->get('cupo')) > 2 || $request->cupo > 60) {
             return back()->withInput()->with('cupoMax', 'El cupo no puede ser mayor a 60');
         }
-                /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que alumnos R. no sea mayor a 60 */ 
-        elseif (strlen($request->get('alumnos_registrados')) > 2 || $request->alumnos_registrados > 60) {
-            return back()->withInput()->with('alumnosMax', 'El numero de alumnos registrados no debe ser mayor a 60');
+        /*Se hace una validacion doble, primero que el cupo no tenga mas dos digitos y que alumnos R. no sea mayor a 60 */elseif (strlen($request->get('alumnos_registrados')) > 2 || $request->alumnos_registrados > 60) {
+            return back()->withInput()->with('alumnosMax', 'El número de alumnos registrados no debe ser mayor a 60');
         }
-        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
-        elseif ($request->alumnos_registrados > $request->cupo) {
-            return back()->withInput()->with('alumnosMayor', 'El numero de alumnos registrados sobrepasa el cupo del curso');
+        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/elseif ($request->alumnos_registrados > $request->cupo) {
+            return back()->withInput()->with('alumnosMayor', 'El número de alumnos registrados sobrepasa el cupo del curso');
         }
-        /*Valida que el codigo de profesor debe ser de 8 digitos*/
-         elseif (strlen($request->get('codigo')) != 8) {
+        /*Valida que el codigo de profesor debe ser de 8 digitos*/elseif (strlen($request->get('codigo')) != 8) {
             return back()->withInput()->with('codigoLength', 'El código de profesor deber tener 8 digitos');
         } else {
             $curso = Cursos::create([
@@ -240,6 +236,13 @@ class CursosController extends Controller
     {
         // $curso = Cursos::findOrFail($id);
         // return view('cursos.edit', compact('curso'));
+        /*Consulta para ver que cursos tienen 2 horarios*/
+        $horarios = Horarios::whereIn('id_curso', function ($query) {
+            $query->select('id_curso')
+                ->from('horarios')
+                ->groupBy('id_curso')
+                ->havingRaw('COUNT(id_curso) = 2');
+        })->get()->toArray();
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
@@ -261,11 +264,12 @@ class CursosController extends Controller
             ->get();
 
 
+
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->count();
         //dd($validacion_horario);
 
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario'));
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario', 'horarios'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
@@ -284,13 +288,10 @@ class CursosController extends Controller
         }
         // dd(strlen($request->get('nrc')));
 
-
-
         if ($request->alumnos_registrados > $request->cupo) {
             return back()->withInput()->with('alumnosMayor', 'El número de alumnos registrados sobrepasa el cupo del curso');
-        }
-        elseif (strlen($request->get('nrc')) < 6 || strlen($request->get('nrc')) > 10) {
-                return back()->withInput()->with('nrcLength', 'El nrc debe tener de 6 a 10 digitos');
+        } elseif (strlen($request->get('nrc')) < 6 || strlen($request->get('nrc')) > 10) {
+            return back()->withInput()->with('nrcLength', 'El nrc debe tener de 6 a 10 digitos');
         } elseif (strlen($request->input('codigo')) != 8) {
             return back()->withInput()->with('codigoLength', 'El código debe tener 8 digitos');
         }
@@ -368,11 +369,11 @@ class CursosController extends Controller
 
     public function destroyHorario($id)
     {
-        // dd($id);
-        $eliminar = Horarios::findOrFail($id);
-        $eliminar->destr(['activo' => 0]);
+        $eliminar_horario = Horarios::findOrFail($id);
+        $eliminar_horario->update(['activo' => 0]);
 
-        return back()->with('success', 'Registro eliminado correctamente');
+        return back()->with('success', 'Horario eliminado correctamente');
     }
+
 
 }

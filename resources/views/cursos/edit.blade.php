@@ -1,4 +1,4 @@
-@extends('layouts.app')
+    @extends('layouts.app')
 @section('content')
     @php
         $url = session('url'); // Obtener la URL de la variable de sesión
@@ -43,7 +43,6 @@
                     <form action="{{ route('actualizar', $curso) }}" method="post" id="guardarCurso">
                         @csrf
                         @method('put')
-                        {{-- @include('cursos.form') --}}
                         <div class="mb-3">
                             {{-- <input type="hidden" name="filter_url" value="{{ url()->previous() }}"> --}}
                             <label for="nombre" class="">Nombre del curso:</label>
@@ -104,7 +103,7 @@
                             <div class="mb-3 w-100">
                                 <label for="Area">Area:</label>
                                 <select id="area" class="form-select js-example-basic-single" name="area"
-                                    class="form-control">
+                                    class="form-control" required>
                                     @foreach ($cursos_area as $area)
                                         <option value="{{ $area->id }}"
                                             {{ $horariosDelCurso[0]->id_area === $area->id ? 'selected' : '' }}>
@@ -151,8 +150,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="mb-3
-                                    flex-grow-1">
+                            <div class="mb-3 flex-grow-1">
                                 <label for="Profesor" class="">Profesor:</label>
                                 <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor"
                                     class="form-control" required>
@@ -195,7 +193,6 @@
                             <div class="d-flex justify-content-between gap-5">
                                 <input type="text" name="horariosId[]" hidden readonly value="{{ $horario->id }}">
                                 <div class="mb-3 w-100">
-                                    {{-- <div class="mb-3"> --}}
                                     <label for="dia1">Día</label>
                                     <select id="dia{{ $key + 1 }}" class="form-select text-capitalize"
                                         name="dia[]">
@@ -223,7 +220,6 @@
                                         class="form-control" min="07:00" max="21:00"
                                         value="{{ $horario->hora_final }}">
                                 </div>
-                                {{-- </div> --}}
                             </div>
 
                             {{-- Segundo horario Final --}}
@@ -245,32 +241,32 @@
 
                                 <div id="formulario" style="display:none">
                                     <div class="mb-3 w-100">
-                                        <label for="dia2">Día</label>
-                                        <select id="dia2" class="form-select" name="dia[]">
+                                        <label for="dia">Día</label>
+                                        <select id="dia" class="form-select" name="dia[]">
                                             <option selected disabled>Elegir</option>
-                                            <option>Lunes</option>
-                                            <option>Martes</option>
-                                            <option>Miercoles</option>
-                                            <option>Jueves</option>
-                                            <option>Viernes</option>
-                                            <option>Sabado</option>
+                                            <option value="lunes">Lunes</option>
+                                            <option value="martes">Martes</option>
+                                            <option value="miercoles">Miercoles</option>
+                                            <option value="jueves">Jueves</option>
+                                            <option value="viernes">Viernes</option>
+                                            <option value="sabado">Sabado</option>
                                         </select>
                                     </div>
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
                                         <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
-                                            min="07:00" max="21:00">
+                                            min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}" >
                                     </div>
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora final del curso</label>
                                         <input id="hora_final" type="time" name="hora_final[]" class="form-control"
-                                            min="07:00" max="21:00">
+                                            min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
                                     </div>
                                 </div>
+                            </div>
                             @endif
-                </div>
                 @endforeach
 
                 <div class="d-flex justify-content-center">
@@ -287,7 +283,8 @@
                 @php
                     $cursos = collect(session('cursosExistentes'));
                 @endphp
-
+                {{-- @dd($cursos) --}}
+                {{-- @dd($cursos['curso']->id) --}}
                 <h3>Curso con el que interfiere:</h3>
                 <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
                     {{-- {{dd($curso->id)}} --}}
@@ -304,37 +301,159 @@
                                             {{ isset($item['area']->area) ? $item['area']->area : 'No registrada' }}
                                         </td>
                                     </tr>
-
                                     <tr>
                                         <td colspan="2"><span class="fw-semibold">Ciclo:</span>
                                             {{ $item['curso']->ciclo }}</td>
                                     </tr>
-
                                     <tr>
                                         <td colspan="2"><span class="fw-semibold">Departamento:</span>
                                             {{ $item['curso']->departamento }}</td>
                                         <td class="align-middle text-capitalize">{{ $item->dia }}</td>
+                                    {{-- </tr> --}}
+                                        {{-- @dd($item) --}}
+                                        {{-- @dd($item) --}}
+                                        @foreach ($horarios as $horario)
+                                            {{-- @dd($item->id, $horario['id_curso']) --}}
+                                            @if ($item->id_curso == $horario['id_curso'])
+                                                @if ($item->dia != $horario['dia'])
+                                                    <td class="align-middle text-capitalize">
+                                                        {{-- Mostramos el dia que falta mostrar --}}
+                                                        {{ $horario['dia'] }}
+                                                    </td>
+                                                @endif
+                                            @endif
+                                        @endforeach
                                     </tr>
-
                                     <tr>
                                         <td colspan="2"><span class="fw-semibold">Sede:</span>
-                                            {{ isset($item['area']->sede) ? $item['area']->sede : 'No asignada' }}</td>
-                                        <td>{{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
+                                            {{ isset($item['area']->sede) ? $item['area']->sede : 'No asignada' }}
                                         </td>
+                                        <td>
+                                            {{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
+                                        </td>   
+                                        {{-- Foreach horarios para las horas --}}
+                                        @foreach ($horarios as $horario)
+                                            {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
+                                            @if ($item->id_curso == $horario['id_curso'])
+                                                {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
+                                                {{-- Esto se hizo teniendo en cuenta que no existen un curso con el mismo dia en caso de tener dos horarios --}}
+                                                @if ($item->dia != $horario['dia'])
+                                                    <td>
+                                                        {{ date('H:i', strtotime($horario['hora_inicio'])) . '-' . date('H:i', strtotime($horario['hora_final'])) }}
+                                                    </td>
+                                                @endif
+                                            @endif
+                                        @endforeach
                                     </tr>
                                     <tr>
                                         @auth
-                                            <td colspan="4">
-                                                <div class="row align-items-center justify-content-center my-3">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                                        fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <td colspan="2" style="border-style: none none none solid;"
+                                                class="fw-semibold">
+
+                                                <!-- Button trigger modal -->
+                                                <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                                                data-bs-target="#modal{{ $curso->id }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                                        fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                        <path
+                                                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                                    </svg>
+                                                </button>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="modal{{ $curso->id }}" data-bs-backdrop="static"
+                                                    data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel{{ $curso->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="modalLabel{{ $curso->id }}">Datos del curso
+                                                                </h1>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <table class="table table-bordered align-middle">
+                                                                    <thead class="align-middle">
+                                                                        <tr>
+                                                                            <th scope="col">Profesor:</th>
+                                                                            <th scope="col" class="fw-normal">
+                                                                                {{ $item['curso']->profesor }}</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <th scope="row">Código del profesor:</th>
+                                                                            <td class="fw-normal">
+                                                                                {{ $item['curso']->codigo }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th scope="row">Nrc:</th>
+                                                                            <td class="fw-normal">{{ $item['curso']->nrc }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th scope="row">Nivel:</th>
+                                                                            <td class="fw-normal text-capitalize">
+                                                                                {{ $item['curso']->nivel }}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th scope="row">Cupo:</th>
+                                                                            <td class="fw-normal">{{ $item['curso']->cupo }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th scope="row">Alumnos registrados:</th>
+                                                                            <td class="fw-normal">
+                                                                                {{ $item['curso']->alumnos_registrados }}</td>
+                                                                        </tr>
+                                                                    </tbody>
+
+                                                                </table>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Cerrar</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                Opciones de Curso:
+                                            </td>
+                                            <td colspan="2" style="border-style:none solid none none;">
+                                                <div class="d-flex">
+                                                    {{-- Boton editar --}}
+                                                    <div class="d-flex w-50 justify-content-center align-items-center">
                                                         <a href="{{ route('editar', $item['curso']->id) }}"
-                                                            class="text-reset p-5">
-                                                            <path
-                                                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                            <path fill-rule="evenodd"
-                                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                                    </svg></a>
+                                                            class="text-decoration-none d-flex btn btn-outline-dark">
+                                                            <p class="m-0 pe-3 ">Editar</p>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="25"
+                                                                height="25" fill="currentColor"
+                                                                class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                                <path fill- rule="evenodd"
+                                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                    {{-- Boton eliminar --}}
+                                                    <div class="d-flex w-50 justify-content-center align-items-center">
+                                                        <a id="eliminar"
+                                                            class="text-decoration-none d-flex btn btn-outline-dark"
+                                                            onclick="deleteConfirm('{{ route('eliminar', $item['curso']->id) }}')">
+                                                            <p class="m-0 pe-3">Eliminar</p>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="25"
+                                                                height="25" fill="currentColor" class="bi bi-trash3"
+                                                                viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </td>
                                         @endauth
@@ -397,5 +516,27 @@
             }
             btn.addEventListener('click', cambio, true);
         }
+        function deleteConfirm(url) {
+                Swal.fire({
+                    title: '¿Estás seguro de eliminar el curso?',
+                    text: "Esta acción no podrá ser revertida",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire(
+                            'Curso eliminado correctamente',
+                            '',
+                            'success'
+                        ).then(() => {
+                            window.location.href = url; // Redirige a la URL de eliminación
+                        });
+                    }
+                });
+            }
     </script>
 @endsection
