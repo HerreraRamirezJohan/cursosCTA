@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\CursosFunctions;
 
 use App\Models\Horarios;
 use DateTime;
@@ -45,39 +45,29 @@ class CursosValidacion {
 
         /* Obtenemos el curso que interfiere con el horario 1*/
         $existingCourse1 = Horarios::with(['curso' => function ($query) {
-                $query->where('activo', true);
-                }, 'area'])
+            $query->where('activo', true);
+            }, 'area'])
             ->where('id_area', $request->area)
             ->where('dia', $request->dia[0])
+            ->where('estado', 1)
             ->where(function ($query) use ($request) {
-                $query->where([
-                    ['hora_inicio', '<=',  $request->hora_inicio[0]],
-                    ['hora_final', '>=',  $request->hora_inicio[0]],
-                ])->orWhere(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_final[0]],
-                        ['hora_final', '>=', $request->hora_final[0]],
-                    ]);
-                });
+                $query->whereBetween('hora_inicio', [$request->hora_inicio[0], $request->hora_final[0]]);
+                $query->orWhereBetween('hora_final', [$request->hora_inicio[0], $request->hora_final[0]]);
             })
             ->first();
         // dd($existingCourse1);
         /* Validamos el 2do horario en caso que lo haya */
         $existingCourse2 = null;
         if (count($request->dia) > 1) {
-            $existingCourse2 = Horarios::with('curso', 'area')
+            $existingCourse2 = Horarios::with(['curso' => function ($query) {
+                $query->where('activo', true);
+                }, 'area'])
                 ->where('id_area', $request->area)
                 ->where('dia', $request->dia[1])
+                ->where('estado', 1)
                 ->where(function ($query) use ($request) {
-                    $query->where([
-                        ['hora_inicio', '<=',  $request->hora_inicio[1]],
-                        ['hora_final', '>=',  $request->hora_inicio[1]],
-                    ])->orWhere(function ($query) use ($request) {
-                        $query->where([
-                            ['hora_inicio', '<=',  $request->hora_final[1]],
-                            ['hora_final', '>=', $request->hora_final[1]],
-                        ]);
-                    });
+                    $query->whereBetween('hora_inicio', [$request->hora_inicio[1], $request->hora_final[1]]);
+                    $query->orWhereBetween('hora_final', [$request->hora_inicio[1], $request->hora_final[1]]);
                 })
                 ->first();
         }
@@ -87,7 +77,7 @@ class CursosValidacion {
         $cursos = [];
         array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
         array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
-        //dd($cursos);
+        // dd($cursos);
 
         return $cursos;
     }

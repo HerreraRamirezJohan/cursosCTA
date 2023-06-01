@@ -9,27 +9,19 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 
-use App\Http\Controllers\CursosValidacion;
+use App\Http\Controllers\CursosFunctions\CursosValidacion;
+use App\Http\Controllers\CursosFunctions\CursosRequest;
 
 class CursosController extends Controller
 {
     public function index()
     {
 
-        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
-            ->distinct()->pluck('departamento');
+        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')
-            ->distinct()->pluck('ciclo');
+        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
 
-        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
-            ->Where(function ($query) {
-                $query->whereIn('sede', ['La Normal', 'Belenes']);
-            })
-            ->Where(function ($query) {
-                $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
-            })->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
-            ->get();
+        $cursos_area = CursosRequest::getAreas();
 
         return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_area']));
     }
@@ -37,15 +29,9 @@ class CursosController extends Controller
     public function create(Request $request)
     {
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = Horarios::whereIn('id_curso', function ($query) {
-            $query->select('id_curso')
-                ->from('horarios')
-                ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) >= 2');
-        })->get()->toArray();
+        $horarios = CursosRequest::obtenerDoblesHorarios();
 
-        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
-            ->distinct()->pluck('departamento');
+        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
         $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
 
@@ -55,14 +41,7 @@ class CursosController extends Controller
         $tiempoTranscurrido = $primerCursoDelCiclo->diffForHumans();
         // dd($tiempoTranscurrido);
 
-        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
-            ->Where(function ($query) {
-                $query->whereIn('sede', ['La Normal', 'Belenes']);
-            })
-            ->Where(function ($query) {
-                $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
-            })->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
-            ->get();
+        $cursos_area = CursosRequest::getAreas();
 
         $curso = new Cursos();
 
@@ -127,13 +106,7 @@ class CursosController extends Controller
         $validarDatos = $request->validate($rules);
 
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = Horarios::whereIn('id_curso', function ($query) {
-            $query->select('id_curso')
-                ->from('horarios')
-                ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) >= 2');
-        })->get()->toArray();
-
+        $horarios = CursosRequest::obtenerDoblesHorarios();
 
         /* Areglo que define los aributos mandados */
         $filtros = [
@@ -205,36 +178,18 @@ class CursosController extends Controller
 
     public function edit(Cursos $curso)
     {
-        // $curso = Cursos::findOrFail($id);
-        // return view('cursos.edit', compact('curso'));
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = Horarios::whereIn('id_curso', function ($query) {
-            $query->select('id_curso')
-                ->from('horarios')
-                ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) >= 2');
-        })->get()->toArray();
+        $horarios = CursosRequest::obtenerDoblesHorarios();
 
-        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
-            ->distinct()->pluck('departamento');
+        $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
-            ->orWhere(function ($query) {
-                $query->where('sede', 'La Normal')
-                    ->orWhere('sede', 'Belenes');
-            })
-            ->orWhere(function ($query) {
-                $query->where('tipo_espacio', 'Laboratorio')
-                    ->orWhere('tipo_espacio', 'Aula');
-            })->distinct()->orderBy('sede')->orderBy('edificio')
-            ->get();
+        /* Valores para select de areas */
+        $cursos_area = CursosRequest::getAreas();
 
         /* Solicitamos los horarios que tenga el curso y esten activos*/
         $horariosDelCurso = Horarios::select('horarios.*')
         ->where('id_curso', $curso->id)->where('estado', 1)
         ->get();
-
-
 
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->where('estado', 1)->count();
@@ -319,6 +274,4 @@ class CursosController extends Controller
 
         return back()->with('success', 'Horario eliminado correctamente');
     }
-
-
 }
