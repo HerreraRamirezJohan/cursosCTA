@@ -346,6 +346,7 @@
                                             {{ $item['curso']->departamento }}</td>
                                         <td class="align-middle text-capitalize">{{ $item->dia }}</td>
                                         @foreach ($horarios as $horario)
+                                        @if($horario['estado'] == 1)
                                             @if ($item->id_curso == $horario['id_curso'])
                                                 @if ($item->dia != $horario['dia'])
                                                     <td class="align-middle text-capitalize">
@@ -354,6 +355,7 @@
                                                     </td>
                                                 @endif
                                             @endif
+                                        @endif
                                         @endforeach
                                     </tr>
                                     <tr>
@@ -365,6 +367,7 @@
                                         </td>   
                                         {{-- Foreach horarios para las horas --}}
                                         @foreach ($horarios as $horario)
+                                        @if($horario['estado'] == 1)
                                             {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
                                             @if ($item->id_curso == $horario['id_curso'])
                                                 {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
@@ -375,6 +378,7 @@
                                                     </td>
                                                 @endif
                                             @endif
+                                        @endif    
                                         @endforeach
                                     </tr>
                                     <tr>
