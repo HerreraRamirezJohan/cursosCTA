@@ -2,6 +2,7 @@
 @section('content')
     @php
         $horarioErrors = collect(session('errorsHorario'));        
+
     @endphp
     {{-- @dd(old('departamento')) --}}
     <script>
@@ -38,7 +39,7 @@
                                 <label for="nrc">Nrc:</label>
                                 <input type="number" name="nrc" id="nrc" class="form-control" min="0"
                                     value="{{ old('nrc') }}" pattern="[0-9]+" oninput="validarNumero(this)"
-                                    onKeyPress="if(this.value.length==11) return false;" required>
+                                    onKeyPress="if(this.value.length==10) return false;" required>
                                 @if ($errors->has('nrc'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('nrc') }}
@@ -78,8 +79,9 @@
 
                             <div class="mb-3 w-100">
                                 <label for="Ciclo">Ciclo:</label>
-                                <input id="ciclo" class="form-control" value="{{ $cursos_ciclo }}" name="ciclo"
-                                    readOnly>
+                                <input id="ciclo" class="form-control" name="ciclo" 
+                                {{ $tiempoTranscurrido != '5 months ago' ? "readOnly value=$cursos_ciclo" : '' }}>
+                                                   
                                 {{-- <label for="">*Nota: Solo puedes asignar un ciclo cuando es el primer curso.</label> --}}
                                 @if ($errors->has('ciclo'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -474,10 +476,10 @@
 
     <script>
         // validarDias();
-        testVariablePHP({{empty($horarioErrors) ? null : $horarioErrors}})
-        function testVariablePHP($data){
-            console.log(data);
-        }
+        // testVariablePHP({{empty($horarioErrors) ? null : $horarioErrors}})
+        // function testVariablePHP($data){
+        //     console.log(data);
+        // }
         function validarNumero(input) {
             input.value = input.value.replace(/\D/g, ''); // Remover cualquier carácter no numérico
         }

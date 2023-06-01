@@ -14,7 +14,8 @@ class Horarios extends Model
         'hora_inicio',
         'hora_final',
         'id_curso',
-        'id_area'
+        'id_area',
+        'estado'
     ];
 
 

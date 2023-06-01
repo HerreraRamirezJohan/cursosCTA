@@ -22,9 +22,6 @@
                 @endphp
 
                 <h4 class="text-muted">{{ $mensaje }}</h4>
-
-
-
                 <div class="d-flex justify-content-end gap-2 mb-4">
                     @auth
                         <a href="{{ route('inicio') }}" class="btn btn-primary text-light align-bottom"><svg
@@ -69,6 +66,9 @@
                                     </td>
                                     {{-- Foreach horarios (consulta los horarios que tienen 2 horarios) --}}
                                     @foreach ($horarios as $horario)
+                                    {{-- @dd($horario) --}}
+                                    {{-- Validamos que de los horarios que trajo solo muestre los activos--}}
+                                    @if($horario['estado'] == 1)
                                         {{-- Verificamos si el id del curso se encuentra entre los que tienen 2 horarios --}}
                                         @if ($curso->id_curso == $horario['id_curso'])
                                             {{-- Verificamos que el dia del curso sea diferente a el dia del horario que tiene 2 horarios --}}
@@ -80,6 +80,7 @@
                                                 </td>
                                             @endif
                                         @endif
+                                    @endif
                                     @endforeach
                                 </tr>
                                 <tr>
@@ -90,7 +91,10 @@
                                         {{ date('H:i', strtotime($curso->hora_inicio)) . '-' . date('H:i', strtotime($curso->hora_final)) }}
                                     </td>
                                     {{-- Foreach horarios para las horas --}}
+                                    {{-- @dd($horarios) --}}
                                     @foreach ($horarios as $horario)
+                                    {{-- Validamos que de los horarios que trajo solo muestre los activos--}}
+                                    @if($horario['estado'] == 1)
                                         {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
                                         @if ($curso->id_curso == $horario['id_curso'])
                                             {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
@@ -101,6 +105,7 @@
                                                 </td>
                                             @endif
                                         @endif
+                                    @endif
                                     @endforeach
                                 </tr>
                                 <tr>
