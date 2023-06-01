@@ -6,6 +6,8 @@ use App\Models\Areas;
 use App\Models\Cursos;
 use App\Models\Horarios;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 use App\Http\Controllers\CursosValidacion;
 
@@ -32,20 +34,26 @@ class CursosController extends Controller
         return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_area']));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         /*Consulta para ver que cursos tienen 2 horarios*/
         $horarios = Horarios::whereIn('id_curso', function ($query) {
             $query->select('id_curso')
                 ->from('horarios')
                 ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) = 2');
+                ->havingRaw('COUNT(id_curso) >= 2');
         })->get()->toArray();
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
             ->distinct()->pluck('departamento');
 
         $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+
+        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
+        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
+        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
+        $tiempoTranscurrido = $primerCursoDelCiclo->diffForHumans();
+        // dd($tiempoTranscurrido);
 
         $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
             ->Where(function ($query) {
@@ -58,7 +66,7 @@ class CursosController extends Controller
 
         $curso = new Cursos();
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios', 'tiempoTranscurrido'));
     }
 
     public function store(Request $request)
@@ -123,7 +131,7 @@ class CursosController extends Controller
             $query->select('id_curso')
                 ->from('horarios')
                 ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) = 2');
+                ->havingRaw('COUNT(id_curso) >= 2');
         })->get()->toArray();
 
 
@@ -204,7 +212,7 @@ class CursosController extends Controller
             $query->select('id_curso')
                 ->from('horarios')
                 ->groupBy('id_curso')
-                ->havingRaw('COUNT(id_curso) = 2');
+                ->havingRaw('COUNT(id_curso) >= 2');
         })->get()->toArray();
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')
@@ -307,8 +315,7 @@ class CursosController extends Controller
     public function destroyHorario($id)
     {
         $eliminar_horario = Horarios::findOrFail($id);
-        $eliminar_horario->estado = 0; // Actualizar el atributo 'estado'    
-        $eliminar_horario->save(); // Guarda los cambios en la base de datos
+        $eliminar_horario->update(['estado' => 0]);
 
         return back()->with('success', 'Horario eliminado correctamente');
     }

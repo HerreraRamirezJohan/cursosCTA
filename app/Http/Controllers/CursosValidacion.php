@@ -92,7 +92,7 @@ class CursosValidacion {
         return $cursos;
     }
 
-    public function validateFilledInputs($request, $action){
+    public static function validateFilledInputs($request, $action){
         $validationRules = [
             'curso_nombre' => 'required',
             'nrc' => 'required|string|between:5,10',
