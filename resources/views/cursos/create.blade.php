@@ -65,11 +65,6 @@
                                     class="form-control" max="60" value="{{ old('alumnos_registrados') }}"
                                     pattern="[0-9]+" oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==2) return false;"required>
-                                @if ($errors->has('alumnos_registrados'))
-                                    <div class="alert alert-danger mt-2" role="alert">
-                                        {{ $errors->first('alumnos_registrados') }}
-                                    </div>
-                                @endif
                                 @if (session('alumnosMayor'))
                                     <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
                                         {{ session('alumnosMayor') }}
@@ -80,8 +75,16 @@
                             <div class="mb-3 w-100">
                                 <label for="Ciclo">Ciclo:</label>
                                 <input id="ciclo" class="form-control" name="ciclo" 
-                                {{ $tiempoTranscurrido != '5 months ago' ? "readOnly value=$cursos_ciclo" : '' }}>
-                                                   
+                                    {{ $cursos_ciclo ? "readOnly value=$cursos_ciclo" : '' }}
+                                    onKeyPress="if(this.value.length==5) return false;"
+                                >
+                                @if (session('errorsHorario'))
+                                    @if(isset($horarioErrors['ciclo']))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{$horarioErrors['ciclo']}}
+                                    </div>
+                                    @endif
+                                @endif            
                                 {{-- <label for="">*Nota: Solo puedes asignar un ciclo cuando es el primer curso.</label> --}}
                                 @if ($errors->has('ciclo'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -178,11 +181,13 @@
                         <h3>Horario</h3>
                         {{-- [Inicio] Alerts de validaciones de horario --}}
                         @if (session('errorsHorario'))
-                            <div class="alert alert-danger mt-2" role="alert">
-                                @foreach ($horarioErrors as $item)
-                                    <p>{{ $item }}</p>
+                                @foreach ($horarioErrors as $key => $item)
+                                    @if($key !== 'ciclo')
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            <p>{{ $item }}</p>
+                                        </div>
+                                    @endif
                                 @endforeach
-                            </div>
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
 

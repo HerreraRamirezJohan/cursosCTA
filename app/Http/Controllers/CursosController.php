@@ -33,19 +33,16 @@ class CursosController extends Controller
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+        $cursos_ciclo = CursosValidacion::getCiclo();
 
-        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
-        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
-        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
-        $tiempoTranscurrido = $primerCursoDelCiclo->diffForHumans();
-        // dd($tiempoTranscurrido);
+        
+        // dd($primerCursoDelCiclo, $tiempoTranscurrido);
 
         $cursos_area = CursosRequest::getAreas();
 
         $curso = new Cursos();
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios', 'tiempoTranscurrido'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios'));
     }
 
     public function store(Request $request)

@@ -3,13 +3,22 @@
 namespace App\Http\Controllers\CursosFunctions;
 
 use App\Models\Horarios;
+use App\Models\Cursos;
+
 use DateTime;
+use Exception;
+
+use function PHPUnit\Framework\returnSelf;
 
 class CursosValidacion {
     public static function validateHoursAndDays($request, $action = null){
         $errors = [];
         self::validateFilledInputs($request, $action);
-
+        /* Validar el input del ciclo. */
+        $validacionCiclo = self::validarCiclo($request->ciclo);
+        if ($validacionCiclo !== null) {
+            $errors['ciclo'] = $validacionCiclo;
+        }
         /* Si exiuste un segundo horario, validamos que no coloque 2 horarios en el mismo dia. */
         if(isset($request->dia[1]))
             if($request->dia[0] === $request->dia[1])
@@ -82,7 +91,7 @@ class CursosValidacion {
         return $cursos;
     }
 
-    public static function validateFilledInputs($request, $action){
+    private static function validateFilledInputs($request, $action){
         $validationRules = [
             'curso_nombre' => 'required',
             'nrc' => 'required|string|between:5,10',
@@ -125,5 +134,44 @@ class CursosValidacion {
             $customMessages['nrc.unique'] = 'El :attribute debe ser unico';
 
         $request->validate($validationRules, $customMessages);
+    }
+
+    private static function validarCiclo($ciclo){
+        $year = intval(substr($ciclo, 0, 4));//obtenemos el año
+        if(!$year)
+            return 'Formato de ciclo registrado invalido debe ser YYYY[A-B]';  
+        $letra = substr($ciclo, 4, 1);//obtenemos la letra
+        $ciclo_actual = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+        $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
+        $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
+
+        if(strcmp(self::getCiclo(), $ciclo) !== 0){
+            if($letra === 'A' || $letra === 'B'){
+                if($letra_actual === 'A'){
+                    if($year_actual !== $year)
+                        return 'El ciclo siguiente debe ser: ' . $year_actual . 'B';
+                    if($letra === $letra_actual)
+                        return 'El ciclo debe ser B';
+                }elseif($letra_actual === 'B'){
+                    if($year !== $year_actual+1)
+                        return 'El ciclo siguiente debe ser: '. (string)($year_actual+1) . 'A';
+                    if($letra === $letra_actual)
+                        return 'El ciclo debe ser A';
+                }
+            }else
+                return 'El ciclo ingresado es invalido, debe ser un año vigente y tener el ciclo A o B correspondiente';
+        }
+
+        return null;
+    }
+
+    public static function getCiclo(){
+        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
+        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
+        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
+        $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
+
+        return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
     }
 }
