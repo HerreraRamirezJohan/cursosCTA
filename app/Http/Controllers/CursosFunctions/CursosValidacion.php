@@ -8,6 +8,7 @@ use App\Models\Cursos;
 use DateTime;
 use Exception;
 
+use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\returnSelf;
 
 class CursosValidacion {
@@ -18,6 +19,15 @@ class CursosValidacion {
         $validacionCiclo = self::validarCiclo($request->ciclo);
         if ($validacionCiclo !== null) {
             $errors['ciclo'] = $validacionCiclo;
+        }
+        /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
+        // $vallidationNrcName = self::validateNrc($request);
+        // if($vallidationNrcName !== null)
+        //     $errors['uniqueNrc'] = $vallidationNrcName;
+
+        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
+        if ($request->alumnos_registrados > $request->cupo) {
+            $errors['alumnosMayor'] = 'El número de alumnos registrados sobrepasa el cupo del curso';
         }
         /* Si exiuste un segundo horario, validamos que no coloque 2 horarios en el mismo dia. */
         if(isset($request->dia[1]))
@@ -106,10 +116,7 @@ class CursosValidacion {
             'dia.0' => 'required',
             'hora_inicio.0' => 'required',
             'hora_final.0' => 'required',
-        ];
-        if($action === "store")/* Solo si estamos guardando modificamos la regla para que el NRC sea unico */
-            $validationRules['nrc'] = 'required|unique:cursos,nrc|string|between:5,10';
-             
+        ];    
         $customMessages = [
             'curso_nombre.required' => 'El nombre del curso es obligatorio',
             'nrc.required' => 'El :attribute es obligatorio',
@@ -129,10 +136,6 @@ class CursosValidacion {
             'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             'hora_final.0.required' => 'La hora final es obligatorio',
         ];
-
-        if($action === "store")/* Si estamos guardando agregamos el nuevo mensaje para NRC unico. */
-            $customMessages['nrc.unique'] = 'El :attribute debe ser unico';
-
         $request->validate($validationRules, $customMessages);
     }
 
@@ -141,7 +144,7 @@ class CursosValidacion {
         if(!$year)
             return 'Formato de ciclo registrado invalido debe ser YYYY[A-B]';  
         $letra = substr($ciclo, 4, 1);//obtenemos la letra
-        $ciclo_actual = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+        $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
         $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
 
@@ -166,12 +169,40 @@ class CursosValidacion {
     }
 
     public static function getCiclo(){
-        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->value('ciclo');
+        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
         $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
         $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
         $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
 
+        /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
+        lo que permitira poder ingresar un ciclo manualmente
+        en caso contrario mando el ciclo actual que se cursa */
         return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
+    }
+
+    public static function validateNrc($request){
+        /* validamos si el curso ya existe */
+        $curso = Cursos::select('cursos.*')
+        ->where('nrc', $request->nrc)
+        ->orWhere('curso_nombre', $request->curso_nombre)
+        ->latest()//Obtenemos el ultimo registrado en la DB
+        ->first();
+
+        // dd($curso, isset($curso));
+        
+        /* No existe ningun curso que coincida */
+        if(isset($curso) == null)
+            return null;
+
+        //Obtenemos el ciclo actual
+        $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+        // dd(strcmp($request->ciclo, $ciclo_actual));
+        if(!strcmp($request->ciclo, $ciclo_actual))
+            return ['Ya existe un curso con el nombre o NRC registrado en el ciclo actual ', $curso, 'Favor de ingresar valores únicos.'];
+        
+        if(strcmp($request->curso_nombre, $curso->curso_nombre) != 0 || strcmp($request->nrc, $curso->nrc) != 0)
+            return ['El nombre o NRC no coincide con el siguiente curso: ', $curso, 'Se requiere que el nombre y el NRC coincida con el curso para agregarlo al nuevo ciclo.'];
+        return null;
     }
 }

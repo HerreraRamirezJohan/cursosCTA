@@ -19,7 +19,7 @@ class CursosController extends Controller
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        $cursos_ciclo = Cursos::select('ciclo')->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
+        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
 
         $cursos_area = CursosRequest::getAreas();
 
@@ -34,8 +34,6 @@ class CursosController extends Controller
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
         $cursos_ciclo = CursosValidacion::getCiclo();
-
-        
         // dd($primerCursoDelCiclo, $tiempoTranscurrido);
 
         $cursos_area = CursosRequest::getAreas();
@@ -49,18 +47,18 @@ class CursosController extends Controller
     {
         /* Validamos los campos del horario */
         $errors = CursosValidacion::validateHoursAndDays($request, "store");
-        if (!empty($errors)) {
+        if (!empty($errors))
             return back()->withInput()->with(['errorsHorario' => $errors]);
-        }
+
+        /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
+        $vallidationNrcName = CursosValidacion::validateNrc($request);
+        if($vallidationNrcName !== null)
+            return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request, "store");
         foreach ($cursos as $curso)
             if ($curso !== null)
-                return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
-        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
-        if ($request->alumnos_registrados > $request->cupo) {
-            return back()->withInput()->with('alumnosMayor', 'El número de alumnos registrados sobrepasa el cupo del curso');
-        }
+                return back()->withInput()->with(['cursosExistentes' => $cursos]);
         
         /* Creamos El curso con su primer horario */
         $curso = Cursos::create([
@@ -205,10 +203,6 @@ class CursosController extends Controller
         foreach ($cursos as $item)
             if ($item !== null && $item->id_curso !== $curso->id)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
-        /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
-        if ($request->alumnos_registrados > $request->cupo) {
-            return back()->withInput()->with('alumnosMayor', 'El número de alumnos registrados sobrepasa el cupo del curso');
-        }
 
         /* Actualizamos el curso despues de sus validacoines */
         $curso->update($request->all());

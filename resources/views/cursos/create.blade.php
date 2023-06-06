@@ -2,7 +2,9 @@
 @section('content')
     @php
         $horarioErrors = collect(session('errorsHorario'));        
-
+        $cursoMismoCiclo = collect(session('cursoMismoCiclo'));
+        if(!empty($cursoMismoCiclo->all()))
+            $item = $cursoMismoCiclo[1];
     @endphp
     {{-- @dd(old('departamento')) --}}
     <script>
@@ -17,11 +19,32 @@
         </script>
     @endif
     <div class="container">
-
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Crear curso</h1>
                 <div class="col-md-5 w-100">
+                    @if(!empty($cursoMismoCiclo->all()))
+                        <!-- Button trigger modal -->
+                        <div class="alert alert-danger" role="alert">
+                            <p class="d-inline-block my-0 me-3">{{$cursoMismoCiclo[0]}}</p>
+                            
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                                    data-bs-target="#modal{{ $item->id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                <path
+                                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path
+                                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                </svg>
+                            </button>
+                            
+                            <p class="">{{$cursoMismoCiclo[2]}}</p>
+                            @include('cursos.layouts.cursosModalCiclo')
+                        </div>
+                    @endif
+
+
                     <form action="{{ route('guardar') }}" method="post" id="guardarCurso">
                         @csrf
                         <div class="mb-3">
@@ -65,11 +88,13 @@
                                     class="form-control" max="60" value="{{ old('alumnos_registrados') }}"
                                     pattern="[0-9]+" oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==2) return false;"required>
-                                @if (session('alumnosMayor'))
-                                    <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                        {{ session('alumnosMayor') }}
+                                @if (session('errorsHorario'))
+                                    @if(isset($horarioErrors['alumnosMayor']))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{$horarioErrors['alumnosMayor']}}
                                     </div>
-                                @endif
+                                    @endif
+                                @endif 
                             </div>
 
                             <div class="mb-3 w-100">
@@ -182,7 +207,7 @@
                         {{-- [Inicio] Alerts de validaciones de horario --}}
                         @if (session('errorsHorario'))
                                 @foreach ($horarioErrors as $key => $item)
-                                    @if($key !== 'ciclo')
+                                    @if($key !== 'ciclo' && $key !== 'alumnosMayor' && $key !== 'uniqueNrc')
                                         <div class="alert alert-danger mt-2" role="alert">
                                             <p>{{ $item }}</p>
                                         </div>

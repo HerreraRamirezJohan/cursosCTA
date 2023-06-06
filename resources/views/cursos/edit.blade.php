@@ -79,11 +79,13 @@
                                             {{ $errors->first('alumnos_registrados') }}
                                         </div>
                                     @endif
-                                    @if (session('alumnosMayor'))
-                                        <div class="alert alert-danger align-items-center text-center mt-3" role="alert">
-                                            {{ session('alumnosMayor') }}
+                                    @if (session('errorsHorario'))
+                                        @if(isset($horarioErrors['alumnosMayor']))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{$horarioErrors['alumnosMayor']}}
                                         </div>
                                     @endif
+                                @endif 
                             </div>
 
                             <div class="mb-3 w-100">
@@ -184,12 +186,14 @@
                         <h3>Horarios</h3>
 
                         {{-- [Inicio] Alerts de validaciones de horario --}}
-                        @if(session('errorsHorario'))   
-                            <div class="alert alert-danger mt-2" role="alert">
-                                @foreach($horarioErrors as $item)
-                                    <p>{{$item}}</p>
+                        @if (session('errorsHorario'))
+                                @foreach ($horarioErrors as $key => $item)
+                                    @if($key !== 'ciclo' && $key !== 'alumnosMayor')
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            <p>{{ $item }}</p>
+                                        </div>
+                                    @endif
                                 @endforeach
-                            </div>
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
 
