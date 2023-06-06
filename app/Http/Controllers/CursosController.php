@@ -101,7 +101,7 @@ class CursosController extends Controller
         $validarDatos = $request->validate($rules);
 
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = CursosRequest::obtenerDoblesHorarios();z
+        $horarios = CursosRequest::obtenerDoblesHorarios();
 
         /* Areglo que define los aributos mandados */
         $filtros = [
@@ -165,10 +165,10 @@ class CursosController extends Controller
         $url = $request->fullUrl();
         session(['url' => $url]); // Almacenar la URL en la variable de sesión
 
-
+        $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         // dd($cursos);
         // return $total;
-        return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios'));
+        return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios', 'lastCiclo'));
     }
 
     public function edit(Cursos $curso)
