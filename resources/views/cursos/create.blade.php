@@ -284,18 +284,33 @@
                                     <option {{ old('dia.1') == 'Viernes' ? 'selected' : '' }}>Viernes</option>
                                     <option {{ old('dia.1') == 'Sabado' ? 'selected' : '' }}>Sabado</option>
                                 </select>
+                                @if ($errors->has('dia.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('dia.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
                                 <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
                                     min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}">
+                                @if ($errors->has('hora_inicio.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('hora_inicio.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora final del curso</label>
                                 <input id="hora_final" type="time" name="hora_final[]" class="form-control"
                                     min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
+                                @if ($errors->has('hora_final.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('hora_final.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                 </div>

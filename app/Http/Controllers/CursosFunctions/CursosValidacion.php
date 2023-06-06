@@ -116,7 +116,12 @@ class CursosValidacion {
             'dia.0' => 'required',
             'hora_inicio.0' => 'required',
             'hora_final.0' => 'required',
-        ];    
+        ];  
+        if ($request->dia[1] != null || $request->hora_inicio[1] != null || $request->hora_final[1] != null){
+            $validationRules['dia.1'] = 'required';
+            $validationRules['hora_inicio.1'] = 'required';
+            $validationRules['hora_final.1'] = 'required';
+        }
         $customMessages = [
             'curso_nombre.required' => 'El nombre del curso es obligatorio',
             'nrc.required' => 'El :attribute es obligatorio',
@@ -135,6 +140,9 @@ class CursosValidacion {
             'dia.0.required' => 'El dia es obligatorio',
             'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             'hora_final.0.required' => 'La hora final es obligatorio',
+            'dia.1.required' => 'El dia es obligatorio',
+            'hora_inicio.1.required' => 'La hora de inicio es obligatorio',
+            'hora_final.1.required' => 'La hora final es obligatorio',
         ];
         $request->validate($validationRules, $customMessages);
     }
