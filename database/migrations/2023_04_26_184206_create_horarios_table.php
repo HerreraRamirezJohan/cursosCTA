@@ -28,7 +28,6 @@ class CreateHorariosTable extends Migration
             $table->foreign('id_area')->references('id')->on('areas');
 
 
-
             $table->timestamps();
         });
     }

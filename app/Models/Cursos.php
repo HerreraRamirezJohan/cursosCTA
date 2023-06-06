@@ -16,10 +16,17 @@ class Cursos extends Model
         'observaciones',
         'departamento',
         'alumnos_registrados',
+        'cupo',
         'activo',
         'nivel',
         'profesor',
         'codigo',
     ];
+
+    public function horarios()
+    {
+        return $this->hasMany(Horarios::class,'id_curso');
+    }
+    
     
 }
