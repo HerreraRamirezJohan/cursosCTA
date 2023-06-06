@@ -2,7 +2,6 @@
 @section('content')
     @php
         $horarioErrors = collect(session('errorsHorario'));        
-
     @endphp
     {{-- @dd(old('departamento')) --}}
     <script>
@@ -17,7 +16,6 @@
         </script>
     @endif
     <div class="container">
-
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Crear curso</h1>

@@ -4,25 +4,31 @@
         $('.js-example-basic-single').select2();
     });
 </script>
-<form class="row" action="{{ route('mostrar') }}">
+<form action="{{ route('mostrar') }}">
 
     {{-- [Nombre del curso] --}}
-    <div class="d-flex flex-column align-items-center mt-2">
-        <label for="nombre_curso">Nombre del curso</label>
-        <input type="text" class="form-control w-50 mb-4" name="curso_nombre">
-    {{-- [Departamento] --}}
-        <label for="departamento">Departamento</label>
-        <select id="departamento" class="form-select w-50 mb-4" name="departamento">
-            <option selected disabled>Elegir</option>
-            @foreach ($cursos_departamento as $item)
-                <option value="{{ $item }}">{{ $item }}</option>
-                {{-- Datos del DB --}}
-            @endforeach
-        </select>
+    <div class="row mt-2">
+        <div class="col-sm-12 text-sm-start col-md-12 text-md-start col-lg-6 text-lg-center offset-lg-3">
+            <label for="nombre_curso">Nombre del curso</label>
+            <input type="text" class="form-control w-100 mb-3" name="curso_nombre">
+        </div>
     </div>
+    
+    <div class="row">
+        <div class="col-sm-12 text-sm-start col-md-12 text-md-start col-lg-6 text-lg-center offset-lg-3">
+            <label for="departamento">Departamento</label>
+            <select id="departamento" class="form-select w-100 mb-3" name="departamento">
+                <option selected disabled>Elegir</option>
+                @foreach ($cursos_departamento as $item)
+                    <option value="{{ $item }}">{{ $item }}</option>
+                    {{-- Datos del DB --}}
+                @endforeach
+            </select>
+        </div>
+    </div>
+    
     {{-- Inicio Selects [Departamento, Sede y Estatus] --}}
     <div class="row row-cols-lg-auto align-items-center justify-content-center mt-0" style="gap:1rem 2rem">
-
         {{-- [Sede] --}}
         <div>
             <label for="sede">Sede</label>
@@ -55,17 +61,6 @@
                 <option value="sabado">Sabado</option>
             </select>
         </div>
-        {{-- 
-        <div>
-            <label for="estatus" class="validationDefault04">Horario</label>
-            <select id="validationDefault04" class="form-select" name="horario">
-                <option selected disabled value="">Elegir</option>
-                @foreach ($horarios as $item)
-                    <option>{{ $item }}</option>
-                @endforeach
-            </select>
-        </div> --}}
-
         {{-- InputTime para buscar por hora de inicio del curso --}}
         <div>
             <label for="horario" class="validationDefault04">Inicio de Curso</label>
@@ -74,9 +69,12 @@
         </div>
     </div> {{-- Final contenedor 4 campos --}}
     {{-- [Area] --}}
-    <div class="d-flex flex-column align-items-center mt-3">
-        <label for="area">Area</label>
-        <select id="area" class="form-select js-example-basic-single w-50" name="area">
+    <div class="row mt-2">
+        <div class="col-sm-12 col-md-12 col-lg-6 offset-lg-3">
+            <div class="text-sm-start text-md-start text-lg-center">
+                <label for="area">Area</label>
+            </div>
+        <select id="area" class="form-select w-100 js-example-basic-single" name="area">
             <option selected disabled>Elegir</option>
             @foreach ($cursos_area as $item)
                 <option value="{{ $item->id }}">
@@ -84,18 +82,19 @@
                 </option>
                 {{-- Datos del DB --}}
             @endforeach
-
         </select>
+    </div>
     </div>
 
     <div>
 
     </div>
     {{-- Final Selects [Departamento, Sede y Estatus] --}}
-
     {{-- Boton de filtros --}}
-    <div class="col-sm-12 col-md-12 col-lg-1 mx-auto">
-        <button type="submit" class="w-100 btn btn-primary mt-3 w-2">Filtrar</button>
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-2 mx-auto">
+            <button type="submit" class="w-100 btn btn-primary mt-3">Filtrar</button>
+        </div>
     </div>
 
 </form>
