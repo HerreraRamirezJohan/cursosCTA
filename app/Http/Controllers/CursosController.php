@@ -101,7 +101,7 @@ class CursosController extends Controller
         $validarDatos = $request->validate($rules);
 
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = CursosRequest::obtenerDoblesHorarios();
+        $horarios = CursosRequest::obtenerDoblesHorarios();z
 
         /* Areglo que define los aributos mandados */
         $filtros = [

@@ -1,5 +1,6 @@
-<div class="col-6 mb-5">
-    <table class="table table-bordered border-dark h-100 align-middle">
+<div class="col-12 col-lg-6 mb-5">
+{{-- <div class="h-100 table-responsive-sm"> --}}
+    <table class="table table-bordered border-dark align-middle h-100">
         <tr>
             <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
                 {{ $item['curso']->curso_nombre }}
@@ -28,10 +29,10 @@
                 {{-- Verificamos que el dia del curso sea diferente a el dia del horario que tiene 2 horarios --}}
                 {{-- Esto se hizo para que no muestre el horario que anteriormente mostramos desde curso --}}
                 @if ($item->dia != $horario['dia'])
-                    <td class="align-middle text-capitalize">
-                        {{-- Mostramos el dia que falta mostrar --}}
-                        {{ $horario['dia'] }}
-                    </td>
+                <td class="align-middle text-capitalize">
+                    {{-- Mostramos el dia que falta mostrar --}}
+                    {{ $horario['dia'] }}
+                </td>
                 @endif
             @endif
             @endforeach
@@ -52,9 +53,9 @@
                     {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
                     {{-- Esto se hizo teniendo en cuenta que no existen un curso con el mismo dia en caso de tener dos horarios --}}
                     @if ($item->dia != $horario['dia'])
-                        <td>
-                            {{ date('H:i', strtotime($horario['hora_inicio'])) . '-' . date('H:i', strtotime($horario['hora_final'])) }}
-                        </td>
+                    <td>
+                        {{ date('H:i', strtotime($horario['hora_inicio'])) . '-' . date('H:i', strtotime($horario['hora_final'])) }}
+                    </td>
                     @endif
                 @endif
             @endforeach
@@ -62,7 +63,6 @@
         <tr>
             @auth
                 <td colspan="2" style="border-style: none none none solid;" class="fw-semibold">
-
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-dark" data-bs-toggle="modal"
                         data-bs-target="#modal{{ $item->id }}">
@@ -76,15 +76,16 @@
                     </button>
 
                     @include('cursos.layouts.cursosModal')
-                    Opciones de Curso:
+                     <span class="d-none d-sm-inline">Opciones de Curso:</span>
                 </td>
                 <td colspan="2" style="border-style:none solid none none;">
                     <div class="d-flex">
                         {{-- Boton editar --}}
+                        @if ($lastCiclo == $item->ciclo)
                         <div class="d-flex w-50 justify-content-center align-items-center">
                             <a href="{{ route('editar', $item['curso']->id) }}"
                                 class="text-decoration-none d-flex btn btn-outline-dark">
-                                <p class="m-0 pe-3 ">Editar</p>
+                                <p class="m-0 pe-3 d-none d-sm-table-cell">Editar</p>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                     fill="currentColor" class="bi bi-pencil-square"
                                     viewBox="0 0 16 16">
@@ -99,7 +100,7 @@
                         <div class="d-flex w-50 justify-content-center align-items-center">
                             <a id="eliminar" class="text-decoration-none d-flex btn btn-outline-dark"
                                 onclick="deleteConfirm('{{ route('eliminar', $item['curso']->id) }}')">
-                                <p class="m-0 pe-3">Eliminar</p>
+                                <p class="m-0 pe-3 d-none d-sm-table-cell">Eliminar</p>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                     fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                     <path
@@ -107,9 +108,12 @@
                                 </svg>
                             </a>
                         </div>
+                        @endif
+
                     </div>
                 </td>
             @endauth
         </tr>
     </table>
+{{-- </div> --}}
 </div>

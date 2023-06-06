@@ -16,9 +16,6 @@
                 </div>
             @endif
         @endforeach
-
-
-        
         <div class="row justify-content-center">
             {{-- <div class="col-md-8"> --}}
             <div class="card g-0">
@@ -26,9 +23,12 @@
                     <h1>{{ __('Cursos') }}</h1>
                 </div>
                 @auth
-                    <div class="d-flex justify-content-end gap-2 mt-4 mx-3">
-                        <a href="{{ route('crear') }}" class="btn btn-success text-light align-bottom"> AGREGAR CURSO </a>
+                <div class="row mt-4 mx-2">
+                    <div class="col-12 text-end">
+                        <a href="{{ route('crear') }}" class="btn btn-success text-light">AGREGAR CURSO</a>
                     </div>
+                </div>
+                
                 @endauth
                 <div class="card-body">
                     @include('cursos.filters_bar')
