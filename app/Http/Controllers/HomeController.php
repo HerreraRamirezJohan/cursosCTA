@@ -39,7 +39,7 @@ class HomeController extends Controller
             'name' => $request->name,
             'email' => $request->email,
         ]);
-        return back()->with('modificado', '¡El usuario fue modificado con exito!');
+        return back()->with('modificado', '¡La información del usuario fue modificada con exito!');
     }
 
     public function restartPassword(User $user, Request $request){
@@ -61,13 +61,13 @@ class HomeController extends Controller
             if($check == True){
                 /*Si es true, valida que las nuevas contraseñas sean iguales*/
                 if($request->newPassword !== $request->confirmPassword){
-                    return back()->withInput()->with('coincide', 'Las contraseñas no coinciden');
+                    return back()->withInput()->with('coincide', 'Las contraseñas no coinciden.');
                 }else{
                     $user->update(['password' => Hash::make($request->newPassword)]);
-                    return back()->with('passwordChanged', 'La contraseña fue modificada correctamente');
+                    return back()->with('passwordChanged', 'La contraseña fue modificada correctamente.');
                 }
             }else{
-                return back()->withInput()->with('noCoincide', 'La contraseña actual no coincide');
+                return back()->withInput()->with('noCoincide', 'La contraseña actual no coincide.');
             }
         }
 

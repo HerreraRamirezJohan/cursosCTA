@@ -43,7 +43,7 @@
                                 {{ $errors->first('curso_nombre') }}
                             </div>
                         @endif
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="nrc" class="">Nrc:</label>
                                 <input type="number" name="nrc" value="{{ old('nrc', $curso->nrc) }}" id="nrc"
@@ -105,7 +105,7 @@
                                 value="{{ old('observaciones', $curso->observaciones) }}">Ninguna</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Area:</label>
                                 <select id="area" class="form-select js-example-basic-single" name="area"
@@ -143,7 +143,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 flex-grow-2">
                                 <label for="Nivel" class="validationDefault04">Nivel:</label>
                                 <select id="validationDefault04" class="form-select" name="nivel" class="form-control"
@@ -215,7 +215,7 @@
                                 </div>
                             @endif
                             {{-- iteramos los horarios que tenga --}}
-                            <div class="d-flex justify-content-between gap-5">
+                            <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                                 <input type="text" name="horariosId[]" hidden readonly value="{{ $horario->id }}">
                                 <div class="mb-3 w-100">
                                     <label for="dia1">Día</label>
@@ -266,8 +266,7 @@
                             {{-- @dd($validacion_horario) --}}
                             @if ($validacion_horario == 1)
                                 {{-- Segundo horario --}}
-                                <div class="btn btn-success d-flex justify-content-center align-items-center mb-4"
-                                    style="width: 400px">
+                                <div class="btn btn-success mb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                         fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
                                         <path
@@ -376,7 +375,7 @@
                 if (contador == 0) {
                     formulario.style.display = "none";
                     btn.value = "Agregar nuevo horario";
-                    formulario.classList.remove('d-flex', 'justify-content-between', 'gap-5');
+                    formulario.classList.remove('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
                     contador = 1;
 
                     let inputs = document.querySelectorAll('.inputsHorario2');
@@ -388,13 +387,16 @@
                         }
                     });
                 } else {
-                    formulario.classList.add('d-flex', 'justify-content-between', 'gap-5');
+                    formulario.classList.add('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
+                    // formulario.classList.add('d-flex', 'justify-content-between', 'gap-5'
+                    
                     // formulario.style.display = "block";
                     btn.value = "Quitar horario";
                     contador = 0;
                 }
             }
             btn.addEventListener('click', cambio, true);
+
         }
         function deleteConfirm(url) {
                 Swal.fire({

@@ -16,7 +16,8 @@
                 </div>
             @endif
         @endforeach
-        <div class="row justify-content-center">
+        {{-- <div class="row justify-content-center"> --}}
+        <div>
             {{-- <div class="col-md-8"> --}}
             <div class="card g-0">
                 <div class="card-header text-center">

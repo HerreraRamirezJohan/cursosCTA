@@ -57,7 +57,7 @@
                                 {{ $errors->first('curso_nombre') }}
                             </div>
                         @endif
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="nrc">Nrc:</label>
                                 <input type="number" name="nrc" id="nrc" class="form-control" min="0"
@@ -124,7 +124,7 @@
                             <textarea name="observaciones" id="observaciones" class="form-control h-100">Ninguna</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Area:</label>
                                 <select id="area" class="form-select js-example-basic-single" name="area"
@@ -165,7 +165,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 flex-grow-2">
                                 <label for="Nivel">Nivel:</label>
                                 <select id="nivel" class="form-select" name="nivel" class="form-control" required>
@@ -217,7 +217,7 @@
                         {{-- [Final] Alerts de validaciones de horario --}}
 
                         {{-- Primer horario --}}
-                        <div class="d-flex justify-content-between gap-5">
+                        <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="estatus">Día</label>
                                 <select id="estatus" class="form-select" name="dia[]" required>
@@ -259,8 +259,7 @@
                             </div>
                         </div>
                         {{-- Segundo horario --}}
-                        <div class="btn btn-success d-flex justify-content-center align-items-center mb-4"
-                            style="width: 400px">
+                        <div class="btn btn-success mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
                                 class="bi bi-plus-square me-2" viewBox="0 0 16 16">
                                 <path
@@ -272,7 +271,6 @@
                                 style="all:unset">
                         </div>
                         <div id="formulario" style="display: none">
-
                             <div class="mb-3 w-100">
                                 <label for="dia2">Día</label>
                                 <select id="dia2" class="form-select" name="dia[]">
@@ -284,18 +282,33 @@
                                     <option {{ old('dia.1') == 'Viernes' ? 'selected' : '' }}>Viernes</option>
                                     <option {{ old('dia.1') == 'Sabado' ? 'selected' : '' }}>Sabado</option>
                                 </select>
+                                @if ($errors->has('dia.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('dia.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
                                 <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
                                     min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}">
+                                @if ($errors->has('hora_inicio.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('hora_inicio.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora final del curso</label>
                                 <input id="hora_final" type="time" name="hora_final[]" class="form-control"
                                     min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
+                                @if ($errors->has('hora_final.1'))
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        {{ $errors->get('hora_final.1')[0] }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                 </div>
@@ -354,7 +367,7 @@
                 if (contador == 0) {
                     formulario.style.display = "none";
                     btn.value = "Agregar nuevo horario";
-                    formulario.classList.remove('d-flex', 'justify-content-between', 'gap-5');
+                    formulario.classList.remove('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
                     contador = 1;
 
                     let inputs = document.querySelectorAll('.inputsHorario2');
@@ -366,7 +379,9 @@
                         }
                     });
                 } else {
-                    formulario.classList.add('d-flex', 'justify-content-between', 'gap-5');
+                    formulario.classList.add('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
+                    // formulario.classList.add('d-flex', 'justify-content-between', 'gap-5'
+                    
                     // formulario.style.display = "block";
                     btn.value = "Quitar horario";
                     contador = 0;
