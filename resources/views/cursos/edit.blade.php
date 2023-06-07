@@ -107,7 +107,7 @@
                         </div>
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
-                                <label for="Area">Area:</label>
+                                <label for="Area">Área:</label>
                                 <select id="area" class="form-select js-example-basic-single" name="area"
                                     class="form-control" required>
                                     @foreach ($cursos_area as $area)
@@ -161,7 +161,7 @@
                                 @endif
                             </div>
                             <div class="mb-3 flex-grow-2">
-                                <label for="Codigo" class="">Codigo del profesor:</label>
+                                <label for="Codigo" class="">Código del profesor:</label>
                                 <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo"
                                     min="0" class="form-control"
                                     onKeyPress="if(this.value.length==8) return false;" required>
@@ -200,7 +200,7 @@
                         @foreach ($horariosDelCurso as $key => $horario)
                             @if ($key == 1)
                                 <div class="d-flex align-items-center justify-content-end">
-                                    <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}')">
+                                    <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}', 'Horario')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                             fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                             <path
@@ -223,15 +223,15 @@
                                         name="dia[]">
                                         {{-- Generamos un array de los option y mediante un operador ternario validamos cual 
                                             dia se encuentra en la DB para colocar el texto 'selected' para despues colocar el dia --}}
-                                        @foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $dia)
+                                        @foreach (['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] as $dia)
                                             <option value="{{ $dia }}"
                                                 {{ $horario->dia === $dia ? 'selected' : '' }}>
                                                 {{ $dia }}
                                             </option>
                                         @endforeach
-                                        @if ($errors->has('dia.0'))
+                                        @if ($errors->has('dia.'.$key))
                                             <div class="alert alert-danger mt-2" role="alert">
-                                                {{ $errors->get('dia.0')[0] }}
+                                                {{ $errors->get('dia.'.$key)[0] }}
                                             </div>
                                         @endif
                                     </select>
@@ -242,9 +242,9 @@
                                     <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]"
                                         class="form-control" min="07:00" max="21:00"
                                         value="{{ $horario->hora_inicio }}">
-                                    @if ($errors->has('hora_inicio.0'))
+                                    @if ($errors->has('hora_inicio.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
-                                            {{ $errors->get('hora_inicio.0')[0] }}
+                                            {{ $errors->get('hora_inicio.'.$key)[0] }}
                                         </div>
                                     @endif
                                 </div>
@@ -254,9 +254,9 @@
                                     <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]"
                                         class="form-control" min="07:00" max="21:00"
                                         value="{{ $horario->hora_final }}">
-                                    @if ($errors->has('hora_final.0'))
+                                    @if ($errors->has('hora_final.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
-                                            {{ $errors->get('hora_final.0')[0] }}
+                                            {{ $errors->get('hora_final.'.$key)[0] }}
                                         </div>
                                     @endif
                                 </div>
@@ -285,23 +285,38 @@
                                             <option selected disabled>Elegir</option>
                                             <option value="lunes">Lunes</option>
                                             <option value="martes">Martes</option>
-                                            <option value="miercoles">Miercoles</option>
+                                            <option value="miércoles">Miércoles</option>
                                             <option value="jueves">Jueves</option>
                                             <option value="viernes">Viernes</option>
-                                            <option value="sabado">Sabado</option>
+                                            <option value="sábado">Sábado</option>
                                         </select>
+                                        @if ($errors->has('dia.1'))
+                                        <div class="alert alert-danger mt-2" role="alert">
+                                            {{ $errors->get('dia.1')[0] }}
+                                        </div>
+                                    @endif
                                     </div>
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
                                         <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control inputsHorario2"
                                             min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}" >
+                                            @if ($errors->has('hora_inicio.1'))
+                                            <div class="alert alert-danger mt-2" role="alert">
+                                                {{ $errors->get('hora_inicio.1')[0] }}
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora final del curso</label>
                                         <input id="hora_final" type="time" name="hora_final[]" class="form-control inputsHorario2"
                                             min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
+                                            @if ($errors->has('hora_final.1'))
+                                            <div class="alert alert-danger mt-2" role="alert">
+                                                {{ $errors->get('hora_final.1')[0] }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -398,9 +413,9 @@
             btn.addEventListener('click', cambio, true);
 
         }
-        function deleteConfirm(url) {
+        function deleteConfirm(url, elemento='Curso') {
                 Swal.fire({
-                    title: '¿Estás seguro de eliminar el curso?',
+                    title: `¿Estás seguro de eliminar el ${elemento}?`,
                     text: "Esta acción no podrá ser revertida",
                     icon: 'warning',
                     showCancelButton: true,
@@ -411,7 +426,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire(
-                            'Curso eliminado correctamente',
+                            `${elemento} eliminado correctamente`,
                             '',
                             'success'
                         ).then(() => {

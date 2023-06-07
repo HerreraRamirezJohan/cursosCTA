@@ -3,7 +3,7 @@
     <div class="container mt-3">
         @foreach (['modificado', 'coincide', 'invalidpass', 'noCoincide'] as $sessionKey)
             @if (session($sessionKey))
-                <div class="alert alert-danger" role="alert" id="alerta">
+                <div class="alert {{$sessionKey == 'modificado' ? 'alert-success' : 'alert-danger'}}" role="alert" id="alerta">
                     {{ session($sessionKey) }}
                 </div>
             @endif
@@ -37,8 +37,13 @@
                             <!-- Email -->
                             <div class="col-sm-12 col-md-8 col-lg-8">
                                 <label for="email">Correo electrónico</label>
-                                <input class="form-control" id="email" type="text" name="email"
+                                <input class="form-control mb-2" id="email" type="text" name="email"
                                     value="{{ Auth::user()->email }}">
+                                @if ($errors->has('email'))
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ $errors->first('email') }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                 </div>

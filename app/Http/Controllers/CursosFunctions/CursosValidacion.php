@@ -16,9 +16,11 @@ class CursosValidacion {
         $errors = [];
         self::validateFilledInputs($request, $action);
         /* Validar el input del ciclo. */
-        $validacionCiclo = self::validarCiclo($request->ciclo);
-        if ($validacionCiclo !== null) {
-            $errors['ciclo'] = $validacionCiclo;
+        if($action != 'update'){
+            $validacionCiclo = self::validarCiclo($request->ciclo);
+            if ($validacionCiclo !== null) {
+                $errors['ciclo'] = $validacionCiclo;
+            }
         }
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
         // $vallidationNrcName = self::validateNrc($request);
@@ -50,7 +52,7 @@ class CursosValidacion {
                         $errors[] = "¡Has ingresado una hora de inicio mayor a la hora final en el horario del ".$dia."!";
                     else
                         if($minutosTotales < 55)/* Validar la duracion del curso */
-                            $errors[] = "¡El horario del ".$dia." debe tener una duración minima de 55 minutos!";
+                            $errors[] = "¡El horario del ".$dia." debe tener una duración mínima de 55 minutos!";
             }else{
                     $errors[] = "El rango para registrar un horario debe ser de 07:00 a.m. - 09:00 p.m.";
             }
@@ -116,8 +118,9 @@ class CursosValidacion {
             'dia.0' => 'required',
             'hora_inicio.0' => 'required',
             'hora_final.0' => 'required',
-        ];  
-        if ($request->dia[1] != null || $request->hora_inicio[1] != null || $request->hora_final[1] != null){
+        ]; 
+        // dd(isset($request->hora_inicio[1]), $request);
+        if(isset($request->dia[1]) || isset($request->hora_inicio[1]) || isset($request->hora_final[1])){
             $validationRules['dia.1'] = 'required';
             $validationRules['hora_inicio.1'] = 'required';
             $validationRules['hora_final.1'] = 'required';
@@ -127,20 +130,20 @@ class CursosValidacion {
             'nrc.required' => 'El :attribute es obligatorio',
             'nrc.between' => 'El :attribute debe tener de :min a :max caracteres',
             'ciclo.required' => 'El :attribute es obligatorio',
-            'area.required' => 'El :attribute es obligatorio',
+            'area.required' => 'El área es obligatorio',
             'departamento.required' => 'El :attribute es obligatorio',
-            'alumnos_registrados.required' => 'El campo :attribute es obligatorio',
-            'alumnos_registrados.between' => 'Los :attribute debe ser entre 1 al limite de cupos regitrado',
+            'alumnos_registrados.required' => 'El campo alumnos registrados es obligatorio',
+            'alumnos_registrados.between' => 'Los alumnos registrados debe ser entre 1 al limite de cupos regitrado',
             'cupo.between' => 'El :attribute debe ser entre 1 a 60.',
             'cupo.required' => 'El campo :attribute es obligatorio',
             'nivel.required' => 'El :attribute es obligatorio',
             'profesor.required' => 'El nombre del :attribute es obligatorio',
             'codigo.required' => 'El :attribute es obligatorio',
             'codigo.between' => 'El :attribute debe ser de 8 caracteres.',
-            'dia.0.required' => 'El dia es obligatorio',
+            'dia.0.required' => 'El día es obligatorio',
             'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             'hora_final.0.required' => 'La hora final es obligatorio',
-            'dia.1.required' => 'El dia es obligatorio',
+            'dia.1.required' => 'El día es obligatorio',
             'hora_inicio.1.required' => 'La hora de inicio es obligatorio',
             'hora_final.1.required' => 'La hora final es obligatorio',
         ];
@@ -150,7 +153,7 @@ class CursosValidacion {
     private static function validarCiclo($ciclo){
         $year = intval(substr($ciclo, 0, 4));//obtenemos el año
         if(!$year)
-            return 'Formato de ciclo registrado invalido debe ser YYYY[A-B]';  
+            return 'Formato de ciclo registrado inválido debe ser YYYY[A-B]';  
         $letra = substr($ciclo, 4, 1);//obtenemos la letra
         $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
@@ -170,7 +173,7 @@ class CursosValidacion {
                         return 'El ciclo debe ser A';
                 }
             }else
-                return 'El ciclo ingresado es invalido, debe ser un año vigente y tener el ciclo A o B correspondiente';
+                return 'El ciclo ingresado es inválido, debe ser un año vigente y tener el ciclo A o B correspondiente';
         }
 
         return null;

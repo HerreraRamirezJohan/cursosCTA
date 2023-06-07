@@ -186,28 +186,32 @@ class CursosController extends Controller
         ->where('id_curso', $curso->id)->where('estado', 1)
         ->get();
 
+        $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+
+
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->where('estado', 1)->count();
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario', 'horarios'));
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario', 'horarios', 'lastCiclo'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
     {
         /* Validamos los campos del horario */
-        $errors = CursosValidacion::validateHoursAndDays($request);
+        $errors = CursosValidacion::validateHoursAndDays($request, 'update');
         if (!empty($errors)) {
             return back()->withInput()->with(['errorsHorario' => $errors]);
         }
         /* Validamos si hay algun curso solapado con otro horario. */
+
         $cursos = CursosValidacion::validateHorario($request);
         foreach ($cursos as $item)
             if ($item !== null && $item->id_curso !== $curso->id)
                 return redirect()->back()->withInput()->with(['cursosExistentes' => $cursos]);
-
+        
         /* Actualizamos el curso despues de sus validacoines */
         $curso->update($request->all());
 
-        if (count($request->horariosId) > 1) { /* Si el curso cuenta con mas de 1 horario realizamos un loop para realizar sus actualizaciones */
+        if (count($request->horariosId) > 1) {/* Si el curso cuenta con mas de 1 horario realizamos un loop para realizar sus actualizaciones */
             foreach ($request->horariosId as $key => $value) {
                 $horario->where('id', $value)
                     ->update(
@@ -230,7 +234,8 @@ class CursosController extends Controller
                     [
                         'dia' => $request->dia[0],
                         'hora_inicio' => $request->hora_inicio[0],
-                        'hora_final' => $request->hora_final[0]
+                        'hora_final' => $request->hora_final[0],
+                        'id_area' => $request->area,
                     ]
                 );
             /*Validamos si el usuario creo un segundo horario en editar*/

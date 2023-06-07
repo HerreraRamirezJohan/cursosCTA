@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
@@ -34,6 +35,8 @@ class HomeController extends Controller
     
     public function update(User $user, Request $request){
         // dd($request);
+        if(strcmp(Auth::user()->email, $request->email) != 0)
+            $request->validate(['email' => 'unique:users,email'], ['email.unique' => 'El :attribute ya esta registrado.',]);
         $user->where('id', $user->id)
         ->update([
             'name' => $request->name,

@@ -49,7 +49,7 @@
 </div>
 
 <div class="mb-3">
-    <label for="Codigo" class="">Codigo:</label>
+    <label for="Codigo" class="">Código:</label>
     <input type="text" name="codigo" value="{{ old('codigo', $curso->codigo) }}" id="codigo" class="form-control" required>
 </div>
 

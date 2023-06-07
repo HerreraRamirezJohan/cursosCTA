@@ -13,7 +13,7 @@
                 </div>
             @endif
             <div class="col-md-12 mx-auto">
-                <h1 class="text-center fw-normal mb-2">Resultados de la busqueda: </h1>
+                <h1 class="text-center fw-normal mb-2">Resultados de la búsqueda: </h1>
                 @php
                     $route = auth()->check() ? route('inicio') : route('index');
                     $totalCursos = $cursos->total();

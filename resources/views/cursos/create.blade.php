@@ -126,7 +126,7 @@
                         </div>
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
-                                <label for="Area">Area:</label>
+                                <label for="Area">Área:</label>
                                 <select id="area" class="form-select js-example-basic-single" name="area"
                                     class="form-control" required>
                                     <option selected disabled>Elegir</option>
@@ -182,7 +182,7 @@
                             </div>
 
                             <div class="mb-3 flex-grow-2">
-                                <label for="Codigo">Codigo del profesor:</label>
+                                <label for="Codigo">Código del profesor:</label>
                                 <input type="number" name="codigo" id="codigo" class="form-control" min="0"
                                     value="{{ old('codigo') }}" onKeyPress="if(this.value.length==8) return false;"
                                     required>
@@ -224,10 +224,10 @@
                                     <option selected disabled>Elegir</option>
                                     <option {{ old('dia.0') == 'Lunes' ? 'selected' : '' }}>Lunes</option>
                                     <option {{ old('dia.0') == 'Martes' ? 'selected' : '' }}>Martes</option>
-                                    <option {{ old('dia.0') == 'Miercoles' ? 'selected' : '' }}>Miercoles</option>
+                                    <option {{ old('dia.0') == 'Miércoles' ? 'selected' : '' }}>Miércoles</option>
                                     <option {{ old('dia.0') == 'Jueves' ? 'selected' : '' }}>Jueves</option>
                                     <option {{ old('dia.0') == 'Viernes' ? 'selected' : '' }}>Viernes</option>
-                                    <option {{ old('dia.0') == 'Sabado' ? 'selected' : '' }}>Sabado</option>
+                                    <option {{ old('dia.0') == 'Sábado' ? 'selected' : '' }}>Sábado</option>
                                 </select>
                                 @if ($errors->has('dia.0'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -277,10 +277,10 @@
                                     <option selected disabled>Elegir</option>
                                     <option {{ old('dia.1') == 'Lunes' ? 'selected' : '' }}>Lunes</option>
                                     <option {{ old('dia.1') == 'Martes' ? 'selected' : '' }}>Martes</option>
-                                    <option {{ old('dia.1') == 'Miercoles' ? 'selected' : '' }}>Miercoles</option>
+                                    <option {{ old('dia.1') == 'Miércoles' ? 'selected' : '' }}>Miércoles</option>
                                     <option {{ old('dia.1') == 'Jueves' ? 'selected' : '' }}>Jueves</option>
                                     <option {{ old('dia.1') == 'Viernes' ? 'selected' : '' }}>Viernes</option>
-                                    <option {{ old('dia.1') == 'Sabado' ? 'selected' : '' }}>Sabado</option>
+                                    <option {{ old('dia.1') == 'Sábado' ? 'selected' : '' }}>Sábado</option>
                                 </select>
                                 @if ($errors->has('dia.1'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -348,11 +348,6 @@
     </div>
 
     <script>
-        // validarDias();
-        // testVariablePHP({{empty($horarioErrors) ? null : $horarioErrors}})
-        // function testVariablePHP($data){
-        //     console.log(data);
-        // }
         function validarNumero(input) {
             input.value = input.value.replace(/\D/g, ''); // Remover cualquier carácter no numérico
         }

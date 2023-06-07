@@ -55,10 +55,10 @@
                 <option selected disabled>Elegir</option>
                 <option value="lunes">Lunes</option>
                 <option value="martes">Martes</option>
-                <option value="miercoles">Miercoles</option>
+                <option value="miércoles">Miércoles</option>
                 <option value="jueves">Jueves</option>
                 <option value="viernes">Viernes</option>
-                <option value="sabado">Sabado</option>
+                <option value="sábado">Sábado</option>
             </select>
         </div>
         {{-- InputTime para buscar por hora de inicio del curso --}}
@@ -72,7 +72,7 @@
     <div class="row mt-2">
         <div class="col-sm-12 col-md-12 col-lg-6 offset-lg-3">
             <div class="text-sm-start text-md-start text-lg-center">
-                <label for="area">Area</label>
+                <label for="area">Área</label>
             </div>
         <select id="area" class="form-select w-100 js-example-basic-single" name="area">
             <option selected disabled>Elegir</option>

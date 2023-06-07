@@ -5,7 +5,7 @@
             <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
                 {{ $item['curso']->curso_nombre }}
             </td>
-            <td colspan="2"><span class="fw-semibold">Area:</span>
+            <td colspan="2"><span class="fw-semibold">Área:</span>
                 {{ isset($item['area']->area) ? $item['area']->area : 'No registrada' }}</td>
         </tr>
         <tr>
@@ -62,7 +62,8 @@
         </tr>
         <tr>
             @auth
-                <td colspan="2" style="border-style: none none none solid;" class="fw-semibold">
+            @if ($lastCiclo == $item['curso']->ciclo)
+            <td colspan="2" style="border-style: none none none solid;" class="fw-semibold">
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-dark" data-bs-toggle="modal"
                         data-bs-target="#modal{{ $item->id }}">
@@ -81,7 +82,6 @@
                 <td colspan="2" style="border-style:none solid none none;">
                     <div class="d-flex">
                         {{-- Boton editar --}}
-                        @if ($lastCiclo == $item->ciclo)
                         <div class="d-flex w-50 justify-content-center align-items-center">
                             <a href="{{ route('editar', $item['curso']->id) }}"
                                 class="text-decoration-none d-flex btn btn-outline-dark">
@@ -108,10 +108,11 @@
                                 </svg>
                             </a>
                         </div>
-                        @endif
-
                     </div>
                 </td>
+                @else
+                    @include('cursos.layouts.optionsCard')
+                @endif
             @endauth
         </tr>
     </table>
