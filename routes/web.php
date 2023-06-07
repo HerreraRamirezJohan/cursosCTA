@@ -53,6 +53,7 @@ Route::get('perfil', function () {return view('user.editUser');})->name('perfil'
 Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
+Route::get('dt', function () {return view('cursos.layouts.exampleDT');})->name('dt')->middleware('auth');
 
 
 

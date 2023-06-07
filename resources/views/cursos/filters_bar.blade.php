@@ -4,7 +4,7 @@
         $('.js-example-basic-single').select2();
     });
 </script>
-<form action="{{ route('mostrar') }}">
+<form action="{{ route('mostrar') }}" id="form">
 
     {{-- [Nombre del curso] --}}
     <div class="row mt-2">
@@ -33,8 +33,8 @@
         <div>
             <label for="sede">Sede</label>
             <select id="sede" class="form-select" name="sede">
-                <option selected disabled>Elegir</option>
-                <option value="Belenes">Belenes</option>
+                {{-- <option selected disabled>Elegir</option> --}}
+                <option value="Belenes" selected>Belenes</option>
                 <option value="La Normal">La Normal</option>
             </select>
         </div>
@@ -75,7 +75,7 @@
                 <label for="area">Área</label>
             </div>
         <select id="area" class="form-select w-100 js-example-basic-single" name="area">
-            <option selected disabled>Elegir</option>
+            <option selected value="">Todas las áreas</option>
             @foreach ($cursos_area as $item)
                 <option value="{{ $item->id }}">
                     {{ $item->sede . ' - ' . $item->edificio . ' - ' . $item->area }}
@@ -98,3 +98,4 @@
     </div>
 
 </form>
+
