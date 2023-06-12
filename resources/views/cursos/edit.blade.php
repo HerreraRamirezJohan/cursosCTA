@@ -3,6 +3,7 @@
     @php
         $url = session('url'); // Obtener la URL de la variable de sesión
         $horarioErrors = collect(session('errorsHorario'));  //Obtenemos los errores de los horarios
+        // dd($horarioErrors);
     @endphp
 
     <script>

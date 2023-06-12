@@ -14,7 +14,7 @@ class CursosRequest{
                 ->havingRaw('COUNT(id_curso) >= 2');
         })
         ->where('estado', 1)
-        ->get()->toArray();
+        ->get();
 
         return $horarios;
     }

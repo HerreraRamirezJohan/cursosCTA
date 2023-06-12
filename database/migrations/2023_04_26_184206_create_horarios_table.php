@@ -19,7 +19,8 @@ class CreateHorariosTable extends Migration
 
             /* Se añadieron los campos de hora inicio y final de los cursos */
             $table->time('hora_inicio', $precision = 0);
-            $table->time('hora_final', $precision  = 0);
+            $table->time('hora_final', $precision = 0);
+            $table->boolean('estado')->default(1);
 
             $table->unsignedBigInteger('id_curso')->nullable();
             $table->unsignedBigInteger('id_area')->nullable();

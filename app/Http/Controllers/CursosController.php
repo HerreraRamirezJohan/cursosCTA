@@ -157,8 +157,8 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-        $cursos = $cursos->groupBy('id_curso')->orderBy('dia', 'asc')->orderBy('hora_inicio')->paginate(10);
-
+        $cursos = $cursos->groupBy('id_curso')->orderBy('dia', 'asc')->get();
+        // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
 
         $url = $request->fullUrl();
         session(['url' => $url]); // Almacenar la URL en la variable de sesión
@@ -192,7 +192,7 @@ class CursosController extends Controller
     public function update(Request $request, Cursos $curso, Horarios $horario)
     {
         /* Validamos los campos del horario */
-        $errors = CursosValidacion::validateHoursAndDays($request);
+        $errors = CursosValidacion::validateHoursAndDays($request, 'update');
         if (!empty($errors)) {
             return back()->withInput()->with(['errorsHorario' => $errors]);
         }
@@ -228,7 +228,8 @@ class CursosController extends Controller
                     [
                         'dia' => $request->dia[0],
                         'hora_inicio' => $request->hora_inicio[0],
-                        'hora_final' => $request->hora_final[0]
+                        'hora_final' => $request->hora_final[0],
+                        'id_area' => $request->area,
                     ]
                 );
             /*Validamos si el usuario creo un segundo horario en editar*/

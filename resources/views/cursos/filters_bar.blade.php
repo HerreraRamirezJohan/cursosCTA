@@ -85,15 +85,13 @@
         </select>
     </div>
     </div>
-
-    <div>
-
     </div>
     {{-- Final Selects [Departamento, Sede y Estatus] --}}
     {{-- Boton de filtros --}}
     <div class="row">
-        <div class="col-sm-12 col-md-6 col-lg-2 mx-auto">
-            <button type="submit" class="w-100 btn btn-primary mt-3">Filtrar</button>
+        <div class="col-sm-12 col-md-6 col-lg-2 d-flex mx-auto mb-4">
+            <button type="submit" class="w-50 btn btn-primary mt-3 mx-2">Filtrar</button>
+            <button class="w-50 btn btn-secondary mt-3 mx-2" onclick="reiniciarForm()">Limpiar</button>
         </div>
     </div>
 

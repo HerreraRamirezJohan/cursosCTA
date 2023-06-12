@@ -26,7 +26,6 @@
                 @auth
                     <div class="row mt-4 mx-2">
                         <div class="col-12 text-end">
-                            <button class="btn btn-secondary text-light" onclick="reiniciarForm()">LIMPIAR</button>
                             <a href="{{ route('crear') }}" class="btn btn-success text-light">AGREGAR CURSO</a>
                         </div>
                     </div>
@@ -45,6 +44,5 @@
     function reiniciarForm() {
         let formulario = document.getElementById("form"); // Obtenemos el formulario por su ID
         formulario.reset();     // Reseteamos el formulario
-        
     }
 </script>

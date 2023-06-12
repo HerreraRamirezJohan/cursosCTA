@@ -13,13 +13,19 @@
             </div>
             <div class="modal-body">
                 <table class="table table-bordered align-middle">
-                    <thead class="align-middle">
-                        <tr>
-                            <th scope="col">Profesor:</th>
-                            <th scope="col" class="fw-normal">{{$item['curso']->profesor}}</th>
-                        </tr>
-                    </thead>
                     <tbody>
+                        <tr>
+                            <th scope="row">Ciclo:</th>
+                            <td class="fw-normal">{{$item['curso']->ciclo}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Sede:</th>
+                            <td class="fw-normal">{{$item['area']->sede}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Profesor:</th>
+                            <td class="fw-normal">{{$item['curso']->profesor}}</td>
+                        </tr>
                         <tr>
                             <th scope="row">Código del profesor:</th>
                             <td class="fw-normal">{{$item['curso']->codigo}}</td>
@@ -40,6 +46,12 @@
                             <th scope="row">Alumnos registrados:</th>
                             <td class="fw-normal">{{$item['curso']->alumnos_registrados}}</td>
                         </tr>
+                        @if($item['curso']->observaciones =! 'Ninguna')
+                            <tr>
+                                <th scope="row">Observaciones:</th>
+                                <td class="fw-normal">{{$item['curso']->observaciones}}</td>
+                            </tr>
+                        @endif    
                     </tbody>
 
                 </table>

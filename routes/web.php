@@ -42,6 +42,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
+
 Route::get('/crear', [CursosController::class, 'create'])->name('crear')->middleware('auth');
 Route::post('/guardar', [CursosController::class, 'store'])->name('guardar')->middleware('auth');
 Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar')->middleware('auth');
@@ -53,7 +54,6 @@ Route::get('perfil', function () {return view('user.editUser');})->name('perfil'
 Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
-Route::get('dt', function () {return view('cursos.layouts.exampleDT');})->name('dt')->middleware('auth');
 
 
 
