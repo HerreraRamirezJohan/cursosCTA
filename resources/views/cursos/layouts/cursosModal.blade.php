@@ -46,7 +46,8 @@
                             <th scope="row">Alumnos registrados:</th>
                             <td class="fw-normal">{{$item['curso']->alumnos_registrados}}</td>
                         </tr>
-                        @if($item['curso']->observaciones =! 'Ninguna')
+                        {{-- @dd($item['curso']->observaciones) --}}
+                        @if($item['curso']->observaciones != 'Ninguna')
                             <tr>
                                 <th scope="row">Observaciones:</th>
                                 <td class="fw-normal">{{$item['curso']->observaciones}}</td>

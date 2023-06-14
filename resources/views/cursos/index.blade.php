@@ -30,7 +30,7 @@
                         </div>
                     </div>
                 @endauth
-                <div class="card-body">
+                <div class="card-body pb-0">
                     @include('cursos.filters_bar')
                 </div>
             </div>
@@ -41,8 +41,16 @@
 
 
 <script>
+  // Aseguramos de que el script se ejecute después de cargar el botón en el DOM
+  window.addEventListener("DOMContentLoaded", function () {
+    let limpiarBtn = document.getElementById("limpiarBtn");
+    // console.log(limpiarBtn); // Verificar si se encuentra el elemento
+
+    limpiarBtn.addEventListener("click", reiniciarForm);
+
     function reiniciarForm() {
-        let formulario = document.getElementById("form"); // Obtenemos el formulario por su ID
-        formulario.reset();     // Reseteamos el formulario
+      let formulario = document.getElementById("form");
+      formulario.reset();
     }
+  });
 </script>

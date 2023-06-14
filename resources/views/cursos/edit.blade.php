@@ -58,9 +58,7 @@
                             </div>
                             <div class="mb-3 w-100">
                                 <label for="cupo" class="">Cupo:</label>
-                                <input type="number" name="cupo" value="{{ old('cupo', $curso->cupo) }}" id="cupo"
-                                    min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
-                                    onKeyPress="if(this.value.length==2) return false;" required>
+                                <input type="number" name="cupo" value="{{ old('cupo', $curso->cupo) }}" id="cupo" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"                                    onKeyPress="if(this.value.length==2) return false;" required>
                                 @if ($errors->has('cupo'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('cupo') }}
@@ -70,11 +68,7 @@
 
                             <div class="mb-3 w-100">
                                 <label for="alumnos_registrados" class="">Alumnos registrados:</label>
-                                <input type="number" name="alumnos_registrados"
-                                    value="{{ old('alumnos_registrados', $curso->alumnos_registrados) }}"
-                                    id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+"
-                                    oninput="validarNumero(this)"
-                                    onKeyPress="if(this.value.length==2) return false;"required>
+                                <input type="number" name="alumnos_registrados" value="{{ old('alumnos_registrados', $curso->alumnos_registrados) }}" id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)" onKeyPress="if(this.value.length==2) return false;"required>
                                     @if ($errors->has('alumnos_registrados'))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->first('alumnos_registrados') }}
@@ -91,8 +85,7 @@
 
                             <div class="mb-3 w-100">
                                 <label for="Ciclo" class="">Ciclo:</label>
-                                <input type="text" name="ciclo" value="{{ old('ciclo', $curso->ciclo) }}"
-                                    id="ciclo" class="form-control" required readOnly>
+                                <input type="text" name="ciclo" value="{{ old('ciclo', $curso->ciclo) }}" id="ciclo" class="form-control" required readOnly>
                                 @if ($errors->has('ciclo'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('ciclo') }}
@@ -102,15 +95,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="Observaciones" class="">Observaciones:</label>
-                            <textarea name="observaciones" id="observaciones" class="form-control h-100"
-                                value="{{ old('observaciones', $curso->observaciones) }}">Ninguna</textarea>
+                            <textarea name="observaciones" id="observaciones" class="form-control h-100" value="{{ old('observaciones', $curso->observaciones) }}">{{$curso->observaciones ?? 'Ninguna'}}</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Área:</label>
-                                <select id="area" class="form-select js-example-basic-single" name="area"
-                                    class="form-control" required>
+                                <select id="area" class="form-select js-example-basic-single" name="area" class="form-control" required>
                                     @foreach ($cursos_area as $area)
                                         <option value="{{ $area->id }}"
                                             {{ $horariosDelCurso[0]->id_area === $area->id ? 'selected' : '' }}>
@@ -128,8 +119,7 @@
 
                             <div class="mb-3 w-100">
                                 <label for="Departamento" class="validationDefault04">Departamento:</label>
-                                <select id="validationDefault04" class="form-select js-example-basic-single"
-                                    name="departamento" class="form-control" required>
+                                <select id="validationDefault04" class="form-select js-example-basic-single" name="departamento" class="form-control" required>
                                     @foreach ($cursos_departamento as $item)
                                         <option {{ $item === $curso->departamento ? 'selected' : '' }}>
                                             {{ $item }}
@@ -147,8 +137,7 @@
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 flex-grow-2">
                                 <label for="Nivel" class="validationDefault04">Nivel:</label>
-                                <select id="validationDefault04" class="form-select" name="nivel" class="form-control"
-                                    required>
+                                <select id="validationDefault04" class="form-select" name="nivel" class="form-control" required>
                                     <option disabled>Elegir</option>
                                     {{-- Usamos operador ternario para saber cual es el elemento seleccionado --}}
                                     <option {{ $curso->nivel === 'Licenciatura' ? 'selected' : '' }}>Licenciatura</option>
@@ -163,9 +152,7 @@
                             </div>
                             <div class="mb-3 flex-grow-2">
                                 <label for="Codigo" class="">Código del profesor:</label>
-                                <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo"
-                                    min="0" class="form-control"
-                                    onKeyPress="if(this.value.length==8) return false;" required>
+                                <input type="number" name="codigo" value="{{ $curso->codigo }}" id="codigo" min="0" class="form-control" onKeyPress="if(this.value.length==8) return false;" required>
                                     @if ($errors->has('codigo'))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->first('codigo') }}
@@ -174,8 +161,7 @@
                             </div>
                             <div class="mb-3 flex-grow-1">
                                 <label for="Profesor" class="">Profesor:</label>
-                                <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor"
-                                    class="form-control" required>
+                                <input type="text" name="profesor" value="{{ $curso->profesor }}" id="profesor" class="form-control" required>
                                 @if ($errors->has('profesor'))
                                     <div class="alert alert-danger mt-2" role="alert">
                                         {{ $errors->first('profesor') }}
@@ -202,16 +188,10 @@
                             @if ($key == 1)
                                 <div class="d-flex align-items-center justify-content-end">
                                     <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}', 'Horario')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                            <path
-                                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z">
-                                            </path>
-                                            <path
-                                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z">
-                                            </path>
-                                        </svg>
-                                        <span class="text-white">Eliminar segundo horario</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
+                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
+                                        </svg><span class="text-white">Eliminar segundo horario</span>
                                     </a>
                                 </div>
                             @endif
@@ -220,11 +200,10 @@
                                 <input type="text" name="horariosId[]" hidden readonly value="{{ $horario->id }}">
                                 <div class="mb-3 w-100">
                                     <label for="dia1">Día</label>
-                                    <select id="dia{{ $key + 1 }}" class="form-select text-capitalize"
-                                        name="dia[]">
+                                    <select id="dia{{ $key + 1 }}" class="form-select text-capitalize" name="dia[]">
                                         {{-- Generamos un array de los option y mediante un operador ternario validamos cual 
                                             dia se encuentra en la DB para colocar el texto 'selected' para despues colocar el dia --}}
-                                        @foreach (['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] as $dia)
+                                        @foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $dia)
                                             <option value="{{ $dia }}"
                                                 {{ $horario->dia === $dia ? 'selected' : '' }}>
                                                 {{ $dia }}
@@ -240,9 +219,7 @@
 
                                 <div class="mb-3 w-100">
                                     <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
-                                    <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]"
-                                        class="form-control" min="07:00" max="21:00"
-                                        value="{{ $horario->hora_inicio }}">
+                                    <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]" class="form-control" min="07:00" max="21:00" value="{{ $horario->hora_inicio }}">
                                     @if ($errors->has('hora_inicio.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->get('hora_inicio.'.$key)[0] }}
@@ -252,9 +229,7 @@
 
                                 <div class="mb-3 w-100">
                                     <label for="horario" class="validationDefault04">Hora final del curso</label>
-                                    <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]"
-                                        class="form-control" min="07:00" max="21:00"
-                                        value="{{ $horario->hora_final }}">
+                                    <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]" class="form-control" min="07:00" max="21:00" value="{{ $horario->hora_final }}">
                                     @if ($errors->has('hora_final.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->get('hora_final.'.$key)[0] }}
@@ -268,15 +243,11 @@
                             @if ($validacion_horario == 1)
                                 {{-- Segundo horario --}}
                                 <div class="btn btn-success mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
-                                        fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                                        <path
-                                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                                     </svg>
-                                    <input class="flex-grow-1" type="button" value="Agregar nuevo horario"
-                                        id="btn" style="all:unset">
+                                    <input class="flex-grow-1" type="button" value="Agregar nuevo horario" id="btn" style="all:unset">
                                 </div>
 
                                 <div id="formulario" style="display:none">
@@ -300,8 +271,7 @@
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
-                                        <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control inputsHorario2"
-                                            min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}" >
+                                        <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control inputsHorario2" min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}" >
                                             @if ($errors->has('hora_inicio.1'))
                                             <div class="alert alert-danger mt-2" role="alert">
                                                 {{ $errors->get('hora_inicio.1')[0] }}
@@ -311,8 +281,7 @@
 
                                     <div class="mb-3 w-100">
                                         <label for="horario" class="validationDefault04">Hora final del curso</label>
-                                        <input id="hora_final" type="time" name="hora_final[]" class="form-control inputsHorario2"
-                                            min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
+                                        <input id="hora_final" type="time" name="hora_final[]" class="form-control inputsHorario2" min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
                                             @if ($errors->has('hora_final.1'))
                                             <div class="alert alert-danger mt-2" role="alert">
                                                 {{ $errors->get('hora_final.1')[0] }}
@@ -326,8 +295,7 @@
 
                 <div class="d-flex justify-content-center">
                     <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="button" class="btn btn-primary mx-2" id="editBtn"
-                        onclick="confirmEdit()">Actualizar</button>
+                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="confirmEdit()">Actualizar</button>
                 </div>
                 </form>
             </div>

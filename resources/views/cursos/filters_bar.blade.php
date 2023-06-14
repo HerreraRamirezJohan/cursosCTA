@@ -89,9 +89,9 @@
     {{-- Final Selects [Departamento, Sede y Estatus] --}}
     {{-- Boton de filtros --}}
     <div class="row">
-        <div class="col-sm-12 col-md-6 col-lg-2 d-flex mx-auto mb-4">
+        <div class="col-sm-12 col-md-6 col-lg-3 d-flex mx-auto mb-4">
             <button type="submit" class="w-50 btn btn-primary mt-3 mx-2">Filtrar</button>
-            <button class="w-50 btn btn-secondary mt-3 mx-2" onclick="reiniciarForm()">Limpiar</button>
+            <button type="button" id="limpiarBtn" class="w-50 btn btn-secondary mt-3 mx-2">Limpiar</button>
         </div>
     </div>
 

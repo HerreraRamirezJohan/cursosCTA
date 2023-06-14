@@ -52,14 +52,14 @@ class CursosController extends Controller
 
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
         $vallidationNrcName = CursosValidacion::validateNrc($request);
-        if($vallidationNrcName !== null)
+        if ($vallidationNrcName !== null)
             return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request, "store");
         foreach ($cursos as $curso)
             if ($curso !== null)
                 return back()->withInput()->with(['cursosExistentes' => $cursos]);
-        
+
         /* Creamos El curso con su primer horario */
         $curso = Cursos::create([
             'nrc' => $request->nrc,
@@ -157,15 +157,22 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-        $cursos = $cursos->groupBy('id_curso')->orderBy('dia', 'asc')->get();
+        // $cursos = $cursos->join('areas', 'horarios.id_curso', '=', 'areas.id')
+        //                 ->orderBy('horarios.dia')
+        //                 ->orderBy('horarios.hora_inicio')
+        //                 ->orderBy('areas.area')
+        //                 ->groupBy('horarios.id_curso')
+        //                 ->get();
+        // dd($cursos);
+
+        $cursos = $cursos->groupBy('id_curso')->orderBy('dia', 'asc')->orderBy('hora_inicio')->get();
         // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
 
         $url = $request->fullUrl();
         session(['url' => $url]); // Almacenar la URL en la variable de sesión
 
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-        // dd($cursos);
-        // return $total;
+
         return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios', 'lastCiclo'));
     }
 
@@ -181,12 +188,15 @@ class CursosController extends Controller
 
         /* Solicitamos los horarios que tenga el curso y esten activos*/
         $horariosDelCurso = Horarios::select('horarios.*')
-        ->where('id_curso', $curso->id)->where('estado', 1)
-        ->get();
+            ->where('id_curso', $curso->id)->where('estado', 1)
+            ->get();
+
+        $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+
 
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->where('estado', 1)->count();
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario', 'horarios'));
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horariosDelCurso', 'validacion_horario', 'horarios', 'lastCiclo'));
     }
 
     public function update(Request $request, Cursos $curso, Horarios $horario)
@@ -254,7 +264,7 @@ class CursosController extends Controller
         $eliminar = Cursos::findOrFail($id);
         $eliminar->update(['activo' => 0]);
 
-        return back()->with('success', 'Curso eliminado correctamente');
+        return back()->with('success', 'Curso eliminado correctamente.');
     }
 
     public function destroyHorario($id)
