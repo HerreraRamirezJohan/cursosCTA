@@ -51,6 +51,7 @@ Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eli
 Route::get('/eliminar_horario/{horario}', [CursosController::class, 'destroyHorario'])->name('eliminarHorario')->middleware('auth');
 
 Route::get('perfil', function () {return view('user.editUser');})->name('perfil')->middleware('auth');
+Route::get('importExcel', function () {return view('cursos.layouts.testExcelview');})->name('importExcel')->middleware('auth');
 Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
