@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             $query->where('tipo_espacio', 'Laboratorio')
                   ->orWhere('tipo_espacio', 'Aula');
         })->where('sede', 'Belenes')->where('activo', 1)->get();
-                // dd($areaIds);
+                // dd($areaIds);    
         foreach ($areaIds as $areaId) {
             foreach (['lunes','martes','miercoles','jueves','viernes','sabado'] as $key => $day) {
                 for($i=7; $i<=21; $i++){
