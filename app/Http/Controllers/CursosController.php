@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Areas;
 use App\Models\Cursos;
 use App\Models\Horarios;
+use App\Models\HorariosNew;
+
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+
+use DateTime;
 
 
 use App\Http\Controllers\CursosFunctions\CursosValidacion;
@@ -23,7 +27,7 @@ class CursosController extends Controller
 
         $cursos_area = CursosRequest::getAreas();
 
-        return view('cursos.index', compact(['cursos_departamento', 'cursos_ciclo', 'cursos_area']));
+        return view('cursos.index', compact('cursos_departamento', 'cursos_ciclo', 'cursos_area'));
     }
 
     public function create(Request $request)
@@ -32,15 +36,17 @@ class CursosController extends Controller
         $horarios = CursosRequest::obtenerDoblesHorarios();
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
-
+        
         $cursos_ciclo = CursosValidacion::getCiclo();
         // dd($primerCursoDelCiclo, $tiempoTranscurrido);
-
+        
         $cursos_area = CursosRequest::getAreas();
-
+        
         $curso = new Cursos();
+        
+        $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios', 'lastCiclo'));
     }
 
     public function store(Request $request)
@@ -73,23 +79,27 @@ class CursosController extends Controller
             'profesor' => $request->profesor,
             'codigo' => $request->codigo,
         ]);
-        $curso->horarios()->create([
-            'dia' => $request->dia[0],
-            'hora_inicio' => $request->hora_inicio[0],
-            'hora_final' => $request->hora_final[0],
-            'id_area' => $request->area,
-        ]);
-        /* La validacion del segundo horario se realiza en el metodo  CursosValidacion::validateHoursAndDays*/
-        /* Validamos solo si existe para crearlo. */
-        if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-            $curso->horarios()->create([
-                'id_curso' => $curso->id,
-                'dia' => $request->dia[1],
-                'hora_inicio' => $request->hora_inicio[1],
-                'hora_final' => $request->hora_final[1],
-                'id_area' => $request->area,
-            ]);
+
+
+        for ($i = 0; $i < count($request->dia); $i++) {
+            if ($request->filled(['hora_inicio.'.$i, 'hora_final.'.$i, 'dia.'.$i])) {
+                $hora_inicio = new DateTime($request->hora_inicio[$i]);
+                $hora_final = new DateTime($request->hora_final[$i]);
+                $duracion =  $hora_inicio->diff($hora_final);
+                $hora = (int) $hora_inicio->format('H');
+                for($j =0; $j<=$duracion->h; $j++){
+                    // print_r($j);
+                    HorariosNew::updateOrCreate(
+                        ['id_area' => $request->area, 'dia' => $request->dia[$i], 'hora' => $hora],
+                        ['id_curso' => $curso->id, 'status' => 1]
+                    );
+                    $hora += 1;
+                }
+                dd($duracion);    
+                
+            }
         }
+        
 
         return redirect()->route('inicio')->with('cursoCreado', 'Curso creado exitosamente.');
     }
@@ -157,15 +167,7 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-        // $cursos = $cursos->join('areas', 'horarios.id_curso', '=', 'areas.id')
-        //                 ->orderBy('horarios.dia')
-        //                 ->orderBy('horarios.hora_inicio')
-        //                 ->orderBy('areas.area')
-        //                 ->groupBy('horarios.id_curso')
-        //                 ->get();
-        // dd($cursos);
-
-        $cursos = $cursos->groupBy('id_curso')->orderBy('dia', 'asc')->orderBy('hora_inicio')->get();
+        $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->toSql();
         // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
 
         $url = $request->fullUrl();

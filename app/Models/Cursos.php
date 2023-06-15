@@ -27,6 +27,11 @@ class Cursos extends Model
     {
         return $this->hasMany(Horarios::class,'id_curso');
     }
+
+    public function horariosNew()
+    {
+        return $this->hasMany(horariosNew::class,'id_curso');
+    }
     
     
 }

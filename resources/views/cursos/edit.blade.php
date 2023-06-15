@@ -185,7 +185,7 @@
                         {{-- [Final] Alerts de validaciones de horario --}}
 
                         @foreach ($horariosDelCurso as $key => $horario)
-                            @if ($key == 1)
+                            @if ($key >= 1)
                                 <div class="d-flex align-items-center justify-content-end">
                                     <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}', 'Horario')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -295,7 +295,7 @@
 
                 <div class="d-flex justify-content-center">
                     <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="confirmEdit()">Actualizar</button>
+                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="guardarCurso()">Actualizar</button>
                 </div>
                 </form>
             </div>
@@ -331,24 +331,6 @@
 
         botonHorarioExtra();
 
-        function confirmEdit() {
-            let formSubmit = document.querySelector('#guardarCurso');
-
-            Swal.fire({
-                    title: '¿Deseas guardar los cambios?',
-                    showDenyButton: true,
-                    confirmButtonText: 'Guardar',
-                    denyButtonText: `Seguir editando`,
-                })
-                .then((result) => {
-                    /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed) {
-                        formSubmit.submit();
-                    } else if (result.isDenied) {
-                        Swal.fire('Datos no guardados', '', 'info')
-                    }
-                })
-        }
         //Formulario extra de horario
         function botonHorarioExtra() {
             var btn = document.getElementById('btn'),
@@ -382,27 +364,5 @@
             btn.addEventListener('click', cambio, true);
 
         }
-        function deleteConfirm(url, elemento='Curso') {
-                Swal.fire({
-                    title: `¿Estás seguro de eliminar el ${elemento}?`,
-                    text: "Esta acción no podrá ser revertida",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Eliminar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire(
-                            `${elemento} eliminado correctamente`,
-                            '',
-                            'success'
-                        ).then(() => {
-                            window.location.href = url; // Redirige a la URL de eliminación
-                        });
-                    }
-                });
-            }
     </script>
 @endsection

@@ -15,8 +15,8 @@
                 <table class="table table-bordered align-middle">
                     <tbody>
                         <tr>
-                            <th scope="col">Ciclo:</th>
-                            <th scope="col" class="fw-normal">{{$item->ciclo}}</th>
+                            <th scope="col">Nombre:</th>
+                            <th scope="col" class="fw-normal">{{$item->curso_nombre}}</th>
                         </tr>
                         <tr>
                             <th scope="col">Profesor:</th>
