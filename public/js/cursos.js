@@ -1,3 +1,24 @@
+function importarHorarios() {
+    let horarios = document.querySelector('#importSeeder');
+
+    Swal.fire({
+            title: '¿Deseas importar nuevos horarios?',
+            showDenyButton: true,
+            confirmButtonText: 'Importar',
+            denyButtonText: `Cancelar`,
+        })
+        .then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                horarios.submit();
+            } else if (result.isDenied) {
+                Swal.fire('Datos no importados', '', 'info')
+            }
+        })
+}
+
+
+
 function deleteConfirm(url, elemento='Curso') {
     Swal.fire({
         title: '¿Estás seguro de eliminar el curso?',

@@ -27,27 +27,6 @@ class CursosController extends Controller
 
         $cursos_area = CursosRequest::getAreas();
 
-
-        $areaIds = Areas::select('id')->where(function ($query) {
-            $query->where('tipo_espacio', 'Laboratorio')
-                  ->orWhere('tipo_espacio', 'Aula');
-        })->where('sede', 'Belenes')->where('activo', 1)->get();
-        
-        dd($areaIds);
-        $count = 0;
-        foreach ($areaIds as $areaId) {
-            foreach (['lunes','martes','miercoles','jueves','viernes','sabado'] as $key => $value) {
-                for($i=7; $i<=21; $i++){
-                    $count++;
-                    
-                    // \App\Models\HorariosNew::create([
-                    //     ''
-                    // ])
-                }
-            }
-        }
-        echo $count;
-
         return view('cursos.index', compact('cursos_departamento', 'cursos_ciclo', 'cursos_area'));
     }
 

@@ -1,23 +1,12 @@
 <?php
 
 use App\Http\Controllers\CursosController;
+use App\Http\Controllers\HorariosNewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 /* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
 use App\Http\Controllers\HomeController;
-
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -55,9 +44,6 @@ Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('upd
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
 
-
-
-// Route::get('/mostrar', function () {
-//     return view('cursos.mostrar');
-// })->name('mostrar');
+Route::get('/importar', function(){return view('cursos.import');})->name('indexImport')->middleware('auth');;
+Route::post('/importando', [HorariosNewController::class, 'importSeeder'])->name('importSeeder')->middleware('auth');;
 
