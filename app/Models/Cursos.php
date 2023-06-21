@@ -29,7 +29,7 @@ class Cursos extends Model
     }
 
     public function horariosNew()
-    {
+    {   
         return $this->hasMany(horariosNew::class,'id_curso');
     }
     

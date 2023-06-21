@@ -10,6 +10,7 @@
         </tr>
     </thead>
     <tbody>
+        {{-- @dd($cursos) --}}
         @foreach ($cursos->unique('id_curso') as $key => $item)
         <tr>
                 <td class="w-25">{{ $item['curso']->curso_nombre }}</td>

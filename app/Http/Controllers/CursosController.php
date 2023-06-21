@@ -95,7 +95,7 @@ class CursosController extends Controller
                     );
                     $hora += 1;
                 }
-                dd($duracion);    
+                // dd($duracion);    
                 
             }
         }
@@ -167,7 +167,9 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-        $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->toSql();
+        // $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->toSql();
+        $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->get();
+
         // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
 
         $url = $request->fullUrl();

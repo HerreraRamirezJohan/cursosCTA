@@ -18,6 +18,10 @@
     <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
 
 
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+
+
     <!-- Scripts -->
     <script src="{{asset('js/cursos.js')}}" defer></script>
     <script src="{{asset('js/nuevoHorario.js')}}" defer></script>
@@ -74,6 +78,7 @@
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('perfil') }}">{{ __('Perfil') }}</a>
+                                    <a class="dropdown-item" href="{{ route('areas') }}">{{ __('Áreas') }}</a>
                                     <a class="dropdown-item" href="{{ route('indexImport') }}">{{ __('Importar') }}</a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
@@ -92,6 +97,7 @@
             </div>
         </nav>
 
+        <script src="{{asset('js/agenda.js')}}" defer></script>
         <main class="py-4">
             @yield('content')
         </main>

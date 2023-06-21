@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AreasController;
+use App\Http\Controllers\AgendaController;
+
 use App\Http\Controllers\CursosController;
 use App\Http\Controllers\HorariosNewController;
 use Illuminate\Support\Facades\Route;
@@ -23,12 +26,9 @@ Route::middleware([
     Route::get('/inicio', [CursosController::class, 'index'])->name('inicio');
 });
 
-
-
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
 
@@ -44,6 +44,15 @@ Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('upd
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
 
-Route::get('/importar', function(){return view('cursos.import');})->name('indexImport')->middleware('auth');;
-Route::post('/importando', [HorariosNewController::class, 'importSeeder'])->name('importSeeder')->middleware('auth');;
+Route::get('/importar', function(){return view('cursos.import');})->name('indexImport')->middleware('auth');
+Route::post('/importando', [HorariosNewController::class, 'importSeeder'])->name('importSeeder')->middleware('auth');
 
+// Route::resource('areas', AreasController::class);
+Route::get('/areas', [AreasController::class, 'index'])->name('areas');
+
+Route::post('/mostrarAreas', [AreasController::class, 'show'])->name('mostrarAreas');
+
+Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda');
+Route::get('/agenda/mostrar', [AgendaController::class, 'show'])->name('agendaResultados');
+
+// Route::get('/areas', [AreasController::class, 'index'])->name('areas')->middleware('auth');
