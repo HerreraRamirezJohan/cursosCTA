@@ -97,7 +97,6 @@
             </div>
         </nav>
 
-        <script src="{{asset('js/agenda.js')}}" defer></script>
         <main class="py-4">
             @yield('content')
         </main>
