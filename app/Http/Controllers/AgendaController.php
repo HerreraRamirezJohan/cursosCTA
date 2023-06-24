@@ -22,6 +22,10 @@ class AgendaController extends Controller
     public function index(Request $request)
     {
 
+        $diaS = $request->dia;
+        // dd($diaS);
+
+        // dd($diaS);
         $edificioRequest = $request->edificio;
 
         $edificios = Areas::select('id', 'edificio', 'piso')
@@ -46,8 +50,7 @@ class AgendaController extends Controller
         $horasFiltradas = [];
 
         foreach ($aulas as $key => $aula) {
-            // dd($aula->id);
-            $horas = HorariosNew::with('curso')->select('id','id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', 'lunes')->
+            $horas = HorariosNew::with('curso')->select('id','id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
                 where('status', 1)->get();
             foreach ($horas as $key2 => $hora) {
                 // dd($hora->curso);
@@ -57,68 +60,12 @@ class AgendaController extends Controller
                     'id_area' => $hora->id_area,
                     'area' => $hora->area->area,
                     'nrc' => $hora->curso->nrc,
+                    'dia' => $hora->dia,
                     'hora' => $hora->hora,
                     'status' => $hora->status
                 ]);
             }
         }
-
-
-        // $nrc = [];
-        // foreach ($horasFiltradas as $key => $value) {
-        //     $nrc[] = $value['nrc'];
-        //     var_dump($nrc[$key]);
-        // }
-
-        // $areas = [];
-        // $horasPorArea = [];
-        // $cursos = [];
-
-        // foreach ($horasFiltradas as $key3 => $value2) {
-        //     $hora = $value2['hora'];
-        //     $idArea = $value2['id'];
-        //     $nrc = $value2['nrc'];
-
-        //     if (!in_array($idArea, $areas)) {
-        //         $areas[] = $idArea;
-        //     }
-        //     if (!isset($horasPorArea[$idArea])) {
-        //         $horasPorArea[$idArea] = [];
-        //     }
-        //     $horasPorArea[$idArea][] = $hora;
-
-        //     if (!isset($cursos[$idArea])) {
-        //         $cursos[$idArea] = [];
-        //     }
-        //     $cursos[$idArea][] = $nrc;
-
-        //     // dd($idArea);
-        // }
-
-        // // dd($cursos, $horasPorArea);
-
-        // $resultados = [];
-
-
-        // foreach ($areas as $key5 => $area) {
-        //     // dd($areas);
-        //     $resultados[] = [
-        //         'id_area' => $area,
-        //         'nrc' => $cursos[$area],
-        //         'horas' => $horasPorArea[$area]
-        //     ];
-        // }
-        // // dd($horasPorArea, $cursos);
-        // dd($resultados);
-        
-        // $allNrc = [];
-
-        // foreach ($resultados as $index => $resultado) {
-        //     // dd($resultado['nrc']);
-        //     $allNrc[] = $resultado['nrc'];
-        // }
-
- 
         return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));
@@ -139,30 +86,7 @@ class AgendaController extends Controller
 
     public function show(Horarios $horario)
     {
-        // $aulas = Areas::select('id','area', 'edificio')->where('edificio', $request->edificio)->get();
-        // dd($aulas);
-        // $agenda = DB::table('agenda')->get();
-
-        $horarios = HorariosNew::select('hora')->where('dia', 'lunes')->get();
-
-
-
-        foreach ($horarios as $key => $value) {
-            $hora = $value->hora;
-            $horaConverted = Carbon::createFromTimestamp($hora);
-
-
-            $timestamp = $horaConverted->timestamp;
-
-
-            // echo $timestamp;
-            // dd($timestamp);
-        }
-        $var = response()->json($timestamp);
-        dd($var);
-
-
-        // return response()->json($agenda);
+        
     }
 
 

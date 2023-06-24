@@ -54,4 +54,6 @@ Route::post('/mostrarAreas', [AreasController::class, 'show'])->name('mostrarAre
 
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda');
 
+
 // Route::get('/areas', [AreasController::class, 'index'])->name('areas')->middleware('auth');
+
