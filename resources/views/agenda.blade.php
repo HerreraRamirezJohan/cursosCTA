@@ -12,8 +12,6 @@
         $hourExists = null;
         $nrc = null;
         $dia = 'lunes';
-        $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-        // dd($horasFiltradas);
         foreach ($horasFiltradas as $key => $value) {
             $dia = $value['dia'];
         }
@@ -42,15 +40,15 @@
                             <button type="submit" class="btn btn-primary">Buscar</button>
                         </div>
                         <div class="d-flex align-items-center justify-content-around">
-                            <button class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                            <button class="btn" onclick="cambiarDia(event, 'anterior')"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                     fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
                                         d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
                                 </svg>
                             </button>
+                            <input id="diaInput" type="hidden" name="dia">
                             <h1 class="mt-3 mb-2 text-capitalize" id="diaDB">{{ $dia }}</h1>
-                            <input id="diaInput" type="hidden" name="dia" value="lunes">
-                            <button class="btn" onclick="cambiarDia(event)">
+                            <button class="btn" onclick="cambiarDia(event, 'siguiente')">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
                                     class="bi bi-arrow-right" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -125,64 +123,61 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('La página se ha recargado');
-    let diaInput = document.getElementById("diaInput");
-    let diaInputDB = document.getElementById("diaDB");
-    console.log(diaInput);
-    diaInput.value = diaInputDB.textContent;
-
-    console.log(diaInput.value);
-
+  let diaInput = document.getElementById("diaInput");
+  diaInput.value = document.getElementById("diaDB").textContent;
 });
 
-function cambiarDia(event) {
+function cambiarDia(event, direccion) {
   event.preventDefault(); // Evitar el envío del formulario
-  let diaInputDB = document.getElementById("diaDB");
   let diaInput = document.getElementById("diaInput");
   let diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
   let diaActual = diaInput.value;
   let indiceActual = diasSemana.indexOf(diaActual);
+  let nuevoIndice;
 
-  if (indiceActual !== -1) {
-    let siguienteIndice = (indiceActual + 1) % diasSemana.length;
-    let siguienteDia = diasSemana[siguienteIndice];
-    diaInput.value = siguienteDia;
-
-    // Obtener los parámetros actuales de la URL
-    let urlParams = new URLSearchParams(window.location.search);
-
-    // Construir la nueva URL con los parámetros actuales y el nuevo día
-    urlParams.set('dia', siguienteDia);
-    let nuevaURL = window.location.pathname + '?' + urlParams.toString();
-
-    // Actualizar la URL sin recargar la página
-    history.pushState({}, '', nuevaURL);
-
-    // Crear un formulario dinámicamente
-    let form = document.createElement('form');
-    form.method = 'GET';
-    form.action = '{{ route("agenda") }}';
-
-    // Recorrer los parámetros de la URL y agregarlos al formulario
-    urlParams.forEach((value, key) => {
-      let input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = value;
-      form.appendChild(input);
-    });
-    // console.log(input.value);
-
-
-    // Agregar el formulario al documento
-    document.body.appendChild(form);
-
-    // Enviar el formulario
-    form.submit();
-
-    // Eliminar el formulario después de enviarlo
-    document.body.removeChild(form);
+  if (direccion === 'anterior') {
+    nuevoIndice = (indiceActual - 1 + diasSemana.length) % diasSemana.length;
+  } else {
+    nuevoIndice = (indiceActual + 1) % diasSemana.length;
   }
+
+  let nuevoDia = diasSemana[nuevoIndice];
+  diaInput.value = nuevoDia;
+
+  // Obtener los parámetros actuales de la URL
+  let urlParams = new URLSearchParams(window.location.search);
+
+  // Construir la nueva URL con los parámetros actuales y el nuevo día
+  urlParams.set('dia', nuevoDia);
+
+  let nuevaURL = window.location.pathname + '?' + urlParams.toString();
+
+  // Actualizar la URL sin recargar la página
+  history.pushState({}, '', nuevaURL);
+
+  // Crear un formulario dinámicamente
+  let form = document.createElement('form');
+  form.method = 'GET';
+  form.action = '{{ route("agenda") }}';
+
+  // Recorrer los parámetros de la URL y agregarlos al formulario
+  urlParams.forEach((value, key) => {
+    let input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  // Agregar el formulario al documento
+  document.body.appendChild(form);
+
+  // Enviar el formulario
+  form.submit();
+
+  // Eliminar el formulario después de enviarlo
+  document.body.removeChild(form);
 }
+
 
 </script>
