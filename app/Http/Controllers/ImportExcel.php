@@ -16,15 +16,22 @@ class ImportExcel extends Controller
 
     public function store(Request $request)
     {
-        $variable = $request->input('variable');
-
-        $process = new Process(['python', base_path('public/scripts/testpython.py'), $variable]);
+        $variable = $request->input('ciclo');
+        $archivo = $request->file('fileExcel');
+        // Mueve el archivo a una ubicación temporal
+        $rutaArchivo = $archivo->store('temp');
+    
+        // Ruta completa del archivo
+        $rutaCompletaArchivo = storage_path('app/' . $rutaArchivo);
+    
+        // Ejecuta el script de Python
+        $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $variable]);
         $process->run();
-
+    
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
-
+    
         $response = $process->getOutput();
         return $response;
     }
