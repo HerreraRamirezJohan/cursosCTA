@@ -33,5 +33,12 @@ class CursosRequest{
         return $cursos_area;
     }
 
+    // public static function generarHorarios($request)
+    // {
+    //     foreach ($ as $key => $value) {
+    //         # code...
+    //     }
+    // }
+
 
 }
