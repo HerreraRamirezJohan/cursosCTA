@@ -9,8 +9,6 @@ use Symfony\Component\Process\Process;
 class ImportExcel extends Controller
 {
     public function index(){
-        // $result = exec('python /scripts/testpython.py');
-        $result = 'Hola mundo';
         return view('cursos.layouts.testExcelview');
     }
 

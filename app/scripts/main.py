@@ -29,7 +29,7 @@ frame.pack(expand=False)
 # Llenar table con el dataframe
 rute1 = r"D:\CTA\CleanExcelSchedule\Oferta academiaca 4635 cursos.xlsx"
 rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
-importExcel = ie.ImportExcel(rute2)
+importExcel = ie.ImportExcel(rute2, '2023A')
 df = importExcel.df
 
 # Crear la tabla

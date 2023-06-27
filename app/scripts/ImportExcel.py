@@ -1,19 +1,20 @@
 import pandas as pd
+from DBareasMerge import DBareasMerge as db
 
 class ImportExcel:
-    def __init__(self, file) -> None:
+    def __init__(self, file, ciclo) -> None:
         #Variable de horarios los cuales tienen mas de un dia en su horario
         self.newSchedules = pd.DataFrame()
         #Indices de los horarios anteriores
         self.indexNewSchedules = []
+        self.ciclo = ciclo
         
-        self.df = self.importFromExcelFile(file)
-        # print("Data: <br>")
-        # print()
-        # print(self.df.to_json(orient='records'))
+        self.df = self.importFromExcelFile(file, ciclo)
+        print('Exito.')
+        # print(self.df.to_json())
+       
         
-        
-    def importFromExcelFile(self, file):
+    def importFromExcelFile(self, file, ciclo):
         # Extraemos el excel que nos devuelve un array de hojas de excel.
         sheetExcel = pd.read_excel(file, sheet_name=None)
         dataframes = [df for _, df in sheetExcel.items()]
@@ -22,9 +23,15 @@ class ImportExcel:
         df = df.drop(['ST', 'Clave', 'Carga Horaria', 'Unnamed: 6', 'Sec', 'CR', 'DIS', 'Seccion ', 'Unnamed: 21', 'Periodo ', 'Sec.1'], axis=1)
         # Renombrar las columnas como en la DB 
         df.columns = ['nrc', 'departamento', 'curso_nombre', 'cupo', 'alumnos_registrados', 'horario', 'dia', df.columns[7], 'area', 'codigo', 'profesor', 'nivel']
+        df['ciclo'] = ciclo
         #Definimimos columnas
         df = self.defineTypeOfColumns(df)
         df = self.change_day_value(df)
+        
+        #Una vez limpios los datos realizamos el merge en relacion a las Areas
+        connectionDBAreas = db("localhost", "root", "", "cursos")
+        connectionDBAreas.mergeAreasWhitExcel(dfExcelClean=df)
+        
         # print('despues de eliminar y agregar:' + (str)(len(df)))
         
         
@@ -48,6 +55,11 @@ class ImportExcel:
         df['cupo'] = df['cupo'].apply(lambda x: int(x) if pd.notna(x) and pd.notnull(x) else None)
         
         df['dia'] = df['dia'].astype(str)
+        
+        #Definimos el dato de nivel a los datos que recive la DB
+        df['nivel'] = df['nivel'].astype(str)
+        #modificar prefijos a nombre completo de nivel
+        df['nivel'] = df['nivel'].apply(self.actualizar_nivel)
         
         df = self.detect_NaN_rows(df)
         return df
@@ -127,5 +139,13 @@ class ImportExcel:
                     newSchedulesOfCourse = pd.concat([newSchedulesOfCourse, pd.DataFrame([selected_row])], ignore_index=True)
             self.newSchedules = pd.concat([self.newSchedules, newSchedulesOfCourse], ignore_index=True)
     
-# file = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
-# import_excel = ImportExcel(file)  # Crear una instancia de la clase ImportExcel
+    #Funcion de validacion para cambiar el valor.
+    def actualizar_nivel(self, nivel):
+        if 'DO' in nivel:
+            return 'doctorado'
+        elif 'MA' in nivel:
+            return 'maestria'
+        elif 'LI' in nivel:
+            return 'licenciatura'
+        else:
+            return nivel
