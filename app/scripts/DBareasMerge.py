@@ -144,7 +144,7 @@ class DBareasMerge:
             while(start <= end):
                 # Ejemplo de update en MySQL
                 cursor = self.connection.cursor()
-                query = f"UPDATE horarios_news SET id_curso = %s WHERE id_area=%s AND hora=%s AND dia=%s"
+                query = f"UPDATE horarios_news SET id_curso = %s, status=1 WHERE id_area=%s AND hora=%s AND dia=%s"
                 values = (id_curso, id_area, start, dia)
                 start+=1
                 try:
