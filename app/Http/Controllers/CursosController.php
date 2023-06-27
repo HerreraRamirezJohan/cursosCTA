@@ -52,7 +52,7 @@ class CursosController extends Controller
     public function store(Request $request)
     {
         /* Validamos los campos del horario */
-        // $errors = CursosValidacion::validateHoursAndDays($request, "store");
+        $errors = CursosValidacion::validateHoursAndDays($request, "store");
         if (!empty($errors))
             return back()->withInput()->with(['errorsHorario' => $errors]);
 

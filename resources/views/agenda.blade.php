@@ -101,10 +101,10 @@
                                         }
                                     }
                                 @endphp
-                                <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}">
-                                    <a href="{{ $flag == true ? route('editar', $id) : route('crear') }}"
-                                        class="text-decoration-none text-light fw-medium">{{ $content ? $content : '' }}</a>
+                                <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}" onclick="redirectToLink('{{ $flag == true ? route('editar', $id) : route('crear') }}')">
+                                        <a href="{{ route('editar', $id) }}" class="text-decoration-none text-light fw-medium">{{ $content }}</a>
                                 </td>
+                                
                                 {{-- <td onclick="myFunction('{{ $flag }}', '{{ $id }}', '{{ $content }}')">
                                     <a class="text-decoration-none text-light">{{ $content ? $content : '' }}</a>
                                 </td> --}}
@@ -135,29 +135,16 @@
             diaDB.textContent = 'lunes';
             diaInput.value = 'lunes';
         }
-
-        // Obtener la referencia a la tabla
-        var tabla = document.getElementById("tablaAgenda");
-
-        // Obtener las referencias a las columnas que deseas intercambiar
-        var columna2 = tabla.getElementsByTagName("th")[1];
-        var columna2Datos = tabla.querySelectorAll("td:nth-child(2)");
-
-        var columna1 = tabla.getElementsByTagName("th")[0];
-        var columna1Datos = tabla.querySelectorAll("td:nth-child(1)");
-        console.log([columna2,columna2Datos,columna1, columna1Datos ]);
-        // Mover la columna 2 antes de la columna 1 en el encabezado de la tabla
-        tabla.tHead.insertBefore(columna2, columna1 );
-
-        // Mover los datos de la columna 2 antes de la columna 1 en cada fila de la tabla
-        for (var i = 0; i < columna2Datos.length; i++) {
-            tabla.rows[i + 1].insertBefore(columna2Datos[i], columna1Datos[i]);
-        }
-
-
-
-
     });
+
+    function redirectToLink(url) {
+        if (url) {
+            window.location.href = url;
+        }
+    }
+    // $(document).ready(function() {
+    //     $('td').css('cursor', 'pointer');
+    // });
 
     function cambiarDia(event, direccion) {
         event.preventDefault(); // Evitar el envío del formulario

@@ -21,7 +21,6 @@ class AgendaController extends Controller
 
     public function index(Request $request)
     {
-
         $diaS = $request->dia;
         // dd($diaS);
 
@@ -43,16 +42,24 @@ class AgendaController extends Controller
                     ->orWhere('tipo_espacio', 'Aula');
             })->where('activo', 1)->where('sede', 'belenes')->orderBy('area', 'asc')->get();
 
-        // sort($aulas, SORT_NUMERIC);
+        // Función de comparación personalizada
+        // if ($aulas !== null) {
+        $aulas = $aulas->sortBy(function ($a) {
+            $segundaPalabraA = null;
+            // if ($a['area'] !== null) {
+                $segundaPalabraA = intval(explode(' ', $a['area'])[1]);
+            // }
+            return $segundaPalabraA;
+        });
+        // }
 
         // dd($aulas);
 
-        // dd($aulas);
         //Datos del aula que estan ocupados
         $horasFiltradas = [];
 
         foreach ($aulas as $key => $aula) {
-            $horas = HorariosNew::with('curso')->select('id','id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
+            $horas = HorariosNew::with('curso')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
                 where('status', 1)->get();
             foreach ($horas as $key2 => $hora) {
                 // dd($hora->curso);
@@ -71,7 +78,7 @@ class AgendaController extends Controller
 
         // sort($horasFiltradas, SORT_NUMERIC);
 
-        dd($horasFiltradas);
+        // dd($horasFiltradas);
         return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));
@@ -92,13 +99,13 @@ class AgendaController extends Controller
 
     public function show(Horarios $horario)
     {
-        
+
     }
 
 
     public function edit($id)
     {
-        
+
     }
 
 
