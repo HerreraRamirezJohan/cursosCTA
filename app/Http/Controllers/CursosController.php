@@ -37,7 +37,7 @@ class CursosController extends Controller
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        $cursos_ciclo = CursosValidacion::getCiclo();
+        // $cursos_ciclo = CursosValidacion::getCiclo();
         // dd($primerCursoDelCiclo, $tiempoTranscurrido);
 
         $cursos_area = CursosRequest::getAreas();
@@ -46,13 +46,13 @@ class CursosController extends Controller
 
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'cursos_ciclo', 'horarios', 'lastCiclo'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'horarios', 'lastCiclo'));
     }
 
     public function store(Request $request)
     {
         /* Validamos los campos del horario */
-        $errors = CursosValidacion::validateHoursAndDays($request, "store");
+        // $errors = CursosValidacion::validateHoursAndDays($request, "store");
         if (!empty($errors))
             return back()->withInput()->with(['errorsHorario' => $errors]);
 
@@ -61,10 +61,10 @@ class CursosController extends Controller
         if ($vallidationNrcName !== null)
             return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
-        $cursos = CursosValidacion::validateHorario($request, "store");
-        foreach ($cursos as $curso)
-            if ($curso !== null)
-                return back()->withInput()->with(['cursosExistentes' => $cursos]);
+        // $cursos = CursosValidacion::validateHorario($request, "store");
+        // foreach ($cursos as $curso)
+        //     if ($curso !== null)
+        //         return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
         /* Creamos El curso con su primer horario */
         $curso = Cursos::create([
@@ -81,22 +81,18 @@ class CursosController extends Controller
         ]);
 
 
-        for ($i = 0; $i < count($request->dia); $i++) {
-            if ($request->filled(['hora_inicio.' . $i, 'hora_final.' . $i, 'dia.' . $i])) {
-                $hora_inicio = new DateTime($request->hora_inicio[$i]);
-                $hora_final = new DateTime($request->hora_final[$i]);
-                $duracion = $hora_inicio->diff($hora_final);
-                $hora = (int) $hora_inicio->format('H');
-                for ($j = 0; $j <= $duracion->h; $j++) {
-                    // print_r($j);
-                    HorariosNew::updateOrCreate(
-                        ['id_area' => $request->area, 'dia' => $request->dia[$i], 'hora' => $hora],
-                        ['id_curso' => $curso->id, 'status' => 1]
-                    );
-                    $hora += 1;
-                }
-                // dd($duracion);    
-
+        HorariosNew::where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
+        foreach ($request->dia as $key => $value) {
+            $start = (int) $request->hora_inicio[$key];
+            $end = (int) $request->hora_final[$key];
+            // dd($start, $end);
+            while ($start <= $end) {
+                // dd($value, $request->area, $start, $curso->id);
+                HorariosNew::where('dia', $value)->where('id_area', $request->area)->where('hora', $start)->update([
+                    'id_curso' => $curso->id,
+                    'status' => 1,
+                ]);
+                $start += 1;
             }
         }
 
@@ -195,9 +191,7 @@ class CursosController extends Controller
         //     ->where('id_curso', $curso->id)->where('estado', 1)
         //     ->get();+
         $horarios = HorariosNew::select(
-            'dia',
-            'id_area',
-            'id',
+            'id', 'id_curso', 'id_area', 'dia',
             DB::raw("TIME_FORMAT(CONCAT(MIN(hora), ':00'), '%H:%i') AS hora_inicio"),
             DB::raw("TIME_FORMAT(CONCAT(MAX(hora), ':00'), '%H:%i') AS hora_final")
         )
@@ -226,60 +220,20 @@ class CursosController extends Controller
         $curso->update($request->all());
 
         // dd(count($request->horariosId));
-        if (count($request->horariosId) >= 1) { /* Si el curso cuenta con mas de 1 horario realizamos un loop para realizar sus actualizaciones */
-            $horariosToDB = [];
-            foreach ($request->dia as $key => $value) {
-                $start = (int) $request->hora_inicio[$key];
-                $end = (int) $request->hora_final[$key];
-                // dd($start, $end);
-                while ($start < $end) {
-                    // $horario->where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
-                    // dd($value, $request->area, $start);
-                    $horario->where('dia', $value)->where('id_area', $request->area)->where('hora', $start)->update([
-                        'id_curso' => $curso->id,
-                        'status' => 1,
-                    ]);
-                    $start += 1;
-                }
-                // $horario->where('id', $value)
-                //     ->update(
-                //         [
-                //             'dia' => $request->dia[$key],
-                //             'hora_inicio' => $request->hora_inicio[$key],
-                //             'hora_final' => $request->hora_final[$key]
-                //         ]
-                //     );
-
-                // $horario->where('id', $value)
-                //     ->update([
-                //         'id_area' => $request->area,
-                //     ]);
+        $horario->where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
+        foreach ($request->dia as $key => $value) {
+            $start = (int) $request->hora_inicio[$key];
+            $end = (int) $request->hora_final[$key];
+            // dd($start, $end);
+            while ($start <= $end) {
+                // dd($value, $request->area, $start, $curso->id);
+                $horario->where('dia', $value)->where('id_area', $request->area)->where('hora', $start)->update([
+                    'id_curso' => $curso->id,
+                    'status' => 1,
+                ]);
+                $start += 1;
             }
         }
-        //  else {
-        /* Actualizamos el primero y creamos el segundo */
-        // $horario->where('id', $request->horariosId[0])
-        //     ->update(
-        //         [
-        //             'dia' => $request->dia[0],
-        //             'hora_inicio' => $request->hora_inicio[0],
-        //             'hora_final' => $request->hora_final[0],
-        //             'id_area' => $request->area,
-        //         ]
-        //     );
-        /*Validamos si el usuario creo un segundo horario en editar*/
-        //     if ($request->filled(['hora_inicio.1', 'hora_final.1', 'dia.1'])) {
-        //         Horarios::create([
-        //             'id_curso' => $curso->id,
-        //             'dia' => $request->dia[1],
-        //             'hora_inicio' => $request->hora_inicio[1],
-        //             'hora_final' => $request->hora_final[1],
-        //             'id_area' => $request->area,
-
-        //         ]);
-        //     }
-        // }
-
         return redirect()->back()->with('cursoModificado', 'Curso modificado correctamente.');
     }
 
@@ -292,11 +246,13 @@ class CursosController extends Controller
         return back()->with('success', 'Curso eliminado correctamente.');
     }
 
-    public function destroyHorario($id)
-    {
-        $eliminar_horario = Horarios::findOrFail($id);
-        $eliminar_horario->update(['estado' => 0]);
+        public function destroyHorario($id_curso, $dia)
+        {
+            // dd($horario);
+            $horarioNew = new HorariosNew();
+            // $eliminar_horario = HorariosNew::findOrFail($id);
+            $horarioNew->where('dia', $dia)->where('id_curso', $id_curso)->update(['id_curso' => null, 'status' => 0]);
 
-        return back()->with('success', 'Horario eliminado correctamente');
-    }
+            return back()->with('success', 'Horario eliminado correctamente');
+        }
 }

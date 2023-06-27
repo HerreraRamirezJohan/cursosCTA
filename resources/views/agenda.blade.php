@@ -11,7 +11,7 @@
     @php
         $hourExists = null;
         $nrc = null;
-
+        
     @endphp
 
     <div class="container">
@@ -63,18 +63,20 @@
             {{-- @dd($resultados) --}}
             <h4 class="fs-2 text-center">{{ $edificioRequest }}</h4>
         </div>
-        <table class="table table-bordered border-secondary">
+        <table class="table table-bordered border-secondary" id="tablaAgenda">
             <thead>
                 <tr>
                     <th></th>
                     @foreach ($aulas as $aula)
-                        <th class="fw-normal">
-                            @if (preg_match('/\d+/', $aula->area, $matches))
+                        @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
+                            <th class="fw-normal">
+                                @if (preg_match('/\d+/', $aula->area, $matches))
                                 {{ $matches[0] }}
-                            @else
+                                @else
                                 {{ $aula->area }}
-                            @endif
-                        </th>
+                                @endif
+                            </th>
+                        @endif
                     @endforeach
 
                 </tr>
@@ -84,28 +86,29 @@
                     <tr>
                         <td>{{ sprintf('%02d', $hour) }}:00</td>
                         @foreach ($aulas as $aula)
-                            @php
-                                $flag = null;
-                                $content = ''; // Variable para almacenar el contenido de la celda
-                                $id = '';
-                                foreach ($horasFiltradas as $item) {
-                                    if ($aula->id == $item['id_area'] && $hour == $item['hora']) {
-                                        $content = $item['nrc'];
-                                        $id = $item['id'];
-                                        $dia = $item['dia'];
-                                        $flag = true;
-                                        break; // Salir del bucle si se encuentra una coincidencia
+                            @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
+                                @php
+                                    $flag = null;
+                                    $content = ''; // Variable para almacenar el contenido de la celda
+                                    $id = '';
+                                    foreach ($horasFiltradas as $item) {
+                                        if ($aula->id == $item['id_area'] && $hour == $item['hora']) {
+                                            $content = $item['nrc'];
+                                            $id = $item['id'];
+                                            $dia = $item['dia'];
+                                            $flag = true;
+                                            break; // Salir del bucle si se encuentra una coincidencia
+                                        }
                                     }
-                                }
-                            @endphp
-                            <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}">
-                                <a href="{{ $flag == true ? route('editar', $id) : route('crear') }}"
-                                    class="text-decoration-none text-light fw-medium">{{ $content ? $content : '' }}</a>
-                            </td>
-
-                            {{-- <td onclick="myFunction('{{ $flag }}', '{{ $id }}', '{{ $content }}')">
+                                @endphp
+                                <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}">
+                                    <a href="{{ $flag == true ? route('editar', $id) : route('crear') }}"
+                                        class="text-decoration-none text-light fw-medium">{{ $content ? $content : '' }}</a>
+                                </td>
+                                {{-- <td onclick="myFunction('{{ $flag }}', '{{ $id }}', '{{ $content }}')">
                                     <a class="text-decoration-none text-light">{{ $content ? $content : '' }}</a>
                                 </td> --}}
+                            @endif
                         @endforeach
                     </tr>
                 @endforeach
@@ -128,10 +131,32 @@
         if (dia != null) {
             diaInput.value = dia;
             diaDB.textContent = diaInput.value;
-        }else{
+        } else {
             diaDB.textContent = 'lunes';
             diaInput.value = 'lunes';
         }
+
+        // Obtener la referencia a la tabla
+        var tabla = document.getElementById("tablaAgenda");
+
+        // Obtener las referencias a las columnas que deseas intercambiar
+        var columna2 = tabla.getElementsByTagName("th")[1];
+        var columna2Datos = tabla.querySelectorAll("td:nth-child(2)");
+
+        var columna1 = tabla.getElementsByTagName("th")[0];
+        var columna1Datos = tabla.querySelectorAll("td:nth-child(1)");
+        console.log([columna2,columna2Datos,columna1, columna1Datos ]);
+        // Mover la columna 2 antes de la columna 1 en el encabezado de la tabla
+        tabla.tHead.insertBefore(columna2, columna1 );
+
+        // Mover los datos de la columna 2 antes de la columna 1 en cada fila de la tabla
+        for (var i = 0; i < columna2Datos.length; i++) {
+            tabla.rows[i + 1].insertBefore(columna2Datos[i], columna1Datos[i]);
+        }
+
+
+
+
     });
 
     function cambiarDia(event, direccion) {

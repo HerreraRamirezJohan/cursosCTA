@@ -21,7 +21,7 @@ function importarHorarios() {
 
 function deleteConfirm(url, elemento='Curso') {
     Swal.fire({
-        title: '¿Estás seguro de eliminar el curso?',
+        title: `¿Estás seguro de eliminar el ${elemento}?`,
         text: "Esta acción no podrá ser revertida",
         icon: 'warning',
         showCancelButton: true,

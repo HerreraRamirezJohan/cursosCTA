@@ -43,9 +43,11 @@ class AgendaController extends Controller
                     ->orWhere('tipo_espacio', 'Aula');
             })->where('activo', 1)->where('sede', 'belenes')->orderBy('area', 'asc')->get();
 
+        // sort($aulas, SORT_NUMERIC);
+
         // dd($aulas);
 
-
+        // dd($aulas);
         //Datos del aula que estan ocupados
         $horasFiltradas = [];
 
@@ -66,6 +68,10 @@ class AgendaController extends Controller
                 ]);
             }
         }
+
+        // sort($horasFiltradas, SORT_NUMERIC);
+
+        dd($horasFiltradas);
         return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));
