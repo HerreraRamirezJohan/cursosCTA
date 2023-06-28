@@ -149,3 +149,7 @@ class ImportExcel:
             return 'licenciatura'
         else:
             return nivel
+
+
+rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
+importExcel = ImportExcel(rute2, '2023A')

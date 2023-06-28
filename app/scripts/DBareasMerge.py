@@ -1,6 +1,5 @@
 import pandas as pd
 import mysql.connector
-import ImportExcel as ie
 
 class DBareasMerge:
     def __init__(self, host, username, password, database):
@@ -50,19 +49,19 @@ class DBareasMerge:
         # Obtener las áreas no relacionadas
         areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
         
-        # # Imprimir las áreas relacionadas
-        # print("areas relacionadas:")
-        # print('<br>')
-        # for area in areas_relacionadas:
-        #     print(area)
-        #     print('<br>')
+        # Imprimir las áreas relacionadas
+        print("areas relacionadas:")
+        print('<br>')
+        for area in areas_relacionadas:
+            print(area)
+            print('<br>')
         
-        # # Imprimir las áreas no relacionadas
-        # print("areas no relacionadas:")
-        # print('<br>')
-        # for area in areas_no_relacionadas:
-        #     print(area)
-        #     print('<br>')
+        # Imprimir las áreas no relacionadas
+        print("areas no relacionadas:")
+        print('<br>')
+        for area in areas_no_relacionadas:
+            print(area)
+            print('<br>')
         
         #Asignamos el DF completo al realizar el merge
         df = dfMergeCompleate
@@ -123,7 +122,7 @@ class DBareasMerge:
             codigo = None if pd.isna(row['codigo']) else row['codigo']
             
             # Datos necesarios para generar los N registros por N horas de la duracion del curso
-            start = int(row['hora_inicio'].hour)
+            start = row['hora_inicio'].hour
             end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
             # Datos a exportar a horarios
             id_area = row['id_area']
@@ -153,7 +152,6 @@ class DBareasMerge:
                     self.connection.commit()
                 except Exception as e:
                     print(f"Error al ejecutar la consulta: {str(e)}")
-                break
         
 # tableHorarioNews = create_HorariosTable(df)
 
