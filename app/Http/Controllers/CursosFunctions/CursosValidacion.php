@@ -31,7 +31,7 @@ class CursosValidacion {
         if ($request->alumnos_registrados > $request->cupo) {
             $errors['alumnosMayor'] = 'El número de alumnos registrados sobrepasa el cupo del curso';
         }
-        /* Si exiuste un segundo horario, validamos que no coloque 2 horarios en el mismo dia. */
+        /* Si existe un segundo horario, validamos que no coloque 2 horarios en el mismo dia. */
         if(isset($request->dia[1]))
             if($request->dia[0] === $request->dia[1])
                 $errors[] = "¡No puedes tener 2 horarios en el mismo día!";
@@ -70,7 +70,6 @@ class CursosValidacion {
             $duracion =  $hora_inicio->diff($hora_final);
             $hora = (int) $hora_inicio->format('H');
         }
-
     }
     
 
@@ -86,16 +85,12 @@ class CursosValidacion {
             'nivel' => 'required',
             'profesor' => 'required',
             'codigo' => 'required|between:8,8',
-            'dia.0' => 'required',
-            'hora_inicio.0' => 'required',
-            'hora_final.0' => 'required',
+            // 'dia.0' => 'required',
+            // 'hora_inicio.0' => 'required',
+            // 'hora_final.0' => 'required',
         ]; 
-        // dd(isset($request->hora_inicio[1]), $request);
-        if(isset($request->dia[1]) || isset($request->hora_inicio[1]) || isset($request->hora_final[1])){
-            $validationRules['dia.1'] = 'required';
-            $validationRules['hora_inicio.1'] = 'required';
-            $validationRules['hora_final.1'] = 'required';
-        }
+
+
         $customMessages = [
             'curso_nombre.required' => 'El nombre del curso es obligatorio',
             'nrc.required' => 'El :attribute es obligatorio',
@@ -111,13 +106,24 @@ class CursosValidacion {
             'profesor.required' => 'El nombre del :attribute es obligatorio',
             'codigo.required' => 'El :attribute es obligatorio',
             'codigo.between' => 'El :attribute debe ser de 8 caracteres.',
-            'dia.0.required' => 'El día es obligatorio',
-            'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
-            'hora_final.0.required' => 'La hora final es obligatorio',
-            'dia.1.required' => 'El día es obligatorio',
-            'hora_inicio.1.required' => 'La hora de inicio es obligatorio',
-            'hora_final.1.required' => 'La hora final es obligatorio',
+            // 'dia.0.required' => 'El día es obligatorio',
+            // 'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
+            // 'hora_final.0.required' => 'La hora final es obligatorio',
+            // 'dia.1.required' => 'El día es obligatorio',
+            // 'hora_inicio.1.required' => 'La hora de inicio es obligatorio',
+            // 'hora_final.1.required' => 'La hora final es obligatorio',
         ];
+        foreach ($request->dia as $key => $value) {
+            if(isset($request->dia[$key]) || isset($request->hora_inicio[$key]) || isset($request->hora_final[$key])){
+                $validationRules['dia.' . $key] = 'required';
+                $validationRules['hora_inicio.' . $key] = 'required';
+                $validationRules['hora_final.'. $key] = 'required';
+                $customMessages['dia.' . $key . '.required'] = 'El día es obligatorio';
+                $customMessages['hora_inicio.' . $key .  '.required'] = 'La hora de inicio es obligatoria';
+                $customMessages['hora_final.'. $key . '.required'] = 'La hora final es obligatoria';
+            }
+        }
+        // dd($customMessages);
         $request->validate($validationRules, $customMessages);
     }
 
