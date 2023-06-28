@@ -117,6 +117,7 @@ class DBareasMerge:
             departamento = row['departamento']
             alumnos_registrados = row['alumnos_registrados']
             cupo = row['cupo']
+            ciclo = row['ciclo']
             nivel = None if pd.isna(row['nivel']) else row['nivel']
             profesor = None if pd.isna(row['profesor']) else row['profesor']
             codigo = None if pd.isna(row['codigo']) else row['codigo']
@@ -131,8 +132,8 @@ class DBareasMerge:
             
             # Ejemplo de inserción en MySQL
             cursor = self.connection.cursor()
-            query = f"INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s)"
-            values = (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo)
+            query = f"INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
+            values = (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo)
             cursor.execute(query, values)
             self.connection.commit()
             
