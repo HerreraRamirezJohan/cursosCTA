@@ -26,6 +26,13 @@
                 @auth
                     <div class="row mt-4 mx-2">
                         <div class="col-12 text-end">
+                            <a href="{{ route('importExcel') }}" class="btn btn-success text-light">Importar</a>
+                        </div>
+                    </div>
+                @endauth
+                @auth
+                    <div class="row mt-4 mx-2">
+                        <div class="col-12 text-end">
                             <a href="{{ route('crear') }}" class="btn btn-success text-light">AGREGAR CURSO</a>
                         </div>
                     </div>

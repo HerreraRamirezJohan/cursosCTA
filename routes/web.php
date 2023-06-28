@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 /* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
 use App\Http\Controllers\HomeController;
 
+use App\Http\Controllers\ImportExcel;
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -40,6 +42,10 @@ Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eli
 Route::get('/eliminar_horario/{id_curso}/{dia}', [CursosController::class, 'destroyHorario'])->name('eliminarHorario')->middleware('auth');
 
 Route::get('perfil', function () {return view('user.editUser');})->name('perfil')->middleware('auth');
+
+Route::get('importExcel', [ImportExcel::class, 'index'])->name('importExcel')->middleware('auth');
+Route::post('process-api', [ImportExcel::class, 'store'])->name('process.api');
+
 Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('updateProfile')->middleware('auth');
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
