@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 /* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
 use App\Http\Controllers\HomeController;
 
+use App\Http\Controllers\ImportExcel;
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });

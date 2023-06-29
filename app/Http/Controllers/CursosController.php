@@ -61,10 +61,10 @@ class CursosController extends Controller
         if ($vallidationNrcName !== null)
             return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
-        // $cursos = CursosValidacion::validateHorario($request, "store");
-        // foreach ($cursos as $curso)
-        //     if ($curso !== null)
-        //         return back()->withInput()->with(['cursosExistentes' => $cursos]);
+        $cursos = CursosValidacion::validateHorario($request, "store");
+        foreach ($cursos as $curso)
+            if ($curso !== null)
+                return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
         /* Creamos El curso con su primer horario */
         $curso = Cursos::create([
@@ -80,7 +80,7 @@ class CursosController extends Controller
             'codigo' => $request->codigo,
         ]);
 
-
+        /*Creamos los horarios*/
         HorariosNew::where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
@@ -197,7 +197,6 @@ class CursosController extends Controller
         )
             ->where('id_curso', $curso->id)
             ->groupBy('dia')->get();
-
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
 
@@ -214,6 +213,10 @@ class CursosController extends Controller
             return back()->withInput()->with(['errorsHorario' => $errors]);
         }
         /* Validamos si hay algun curso solapado con otro horario. */
+        $cursos = CursosValidacion::validateHorario($request);
+        foreach ($cursos as $curso)
+            if ($curso !== null)
+                return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
 
         /* Actualizamos el curso despues de sus validacoines */

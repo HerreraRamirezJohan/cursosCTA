@@ -40,7 +40,7 @@
                         @method('put')
                         <div class="mb-3">
                             {{-- <input type="hidden" name="filter_url" value="{{ url()->previous() }}"> --}}
-                            <label for="nombre" class="">Nombre del curso:</label>
+                            <label for="nombre" class="validationDefault04">Nombre del curso:</label>
                             <input type="text" name="curso_nombre"
                                 value="{{ old('curso_nombre', $curso->curso_nombre) }}" class="form-control" required>
                         </div>
@@ -51,7 +51,7 @@
                         @endif
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
-                                <label for="nrc" class="">Nrc:</label>
+                                <label for="nrc" class="validationDefault04">Nrc:</label>
                                 <input type="number" name="nrc" value="{{ old('nrc', $curso->nrc) }}" id="nrc"
                                     min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"
                                     onKeyPress="if(this.value.length==10) return false;" required>
@@ -62,7 +62,7 @@
                                 @endif
                             </div>
                             <div class="mb-3 w-100">
-                                <label for="cupo" class="">Cupo:</label>
+                                <label for="cupo" class="validationDefault04">Cupo:</label>
                                 <input type="number" name="cupo" value="{{ old('cupo', $curso->cupo) }}" id="cupo" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)"                                    onKeyPress="if(this.value.length==2) return false;" required>
                                 @if ($errors->has('cupo'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -72,7 +72,7 @@
                             </div>
 
                             <div class="mb-3 w-100">
-                                <label for="alumnos_registrados" class="">Alumnos registrados:</label>
+                                <label for="alumnos_registrados" class="validationDefault04">Alumnos registrados:</label>
                                 <input type="number" name="alumnos_registrados" value="{{ old('alumnos_registrados', $curso->alumnos_registrados) }}" id="alumnos_registrados" min="0" class="form-control" pattern="[0-9]+" oninput="validarNumero(this)" onKeyPress="if(this.value.length==2) return false;"required>
                                     @if ($errors->has('alumnos_registrados'))
                                         <div class="alert alert-danger mt-2" role="alert">
@@ -89,7 +89,7 @@
                             </div>
 
                             <div class="mb-3 w-100">
-                                <label for="Ciclo" class="">Ciclo:</label>
+                                <label for="Ciclo" class="validationDefault04">Ciclo:</label>
                                 <input type="text" name="ciclo" value="{{ old('ciclo', $curso->ciclo) }}" id="ciclo" class="form-control" required readOnly>
                                 @if ($errors->has('ciclo'))
                                     <div class="alert alert-danger mt-2" role="alert">
@@ -99,7 +99,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="Observaciones" class="">Observaciones:</label>
+                            <label for="Observaciones" class="validationDefault04">Observaciones:</label>
                             <textarea name="observaciones" id="observaciones" class="form-control h-100" value="{{ old('observaciones', $curso->observaciones) }}">{{$curso->observaciones ?? 'Ninguna'}}</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>

@@ -42,6 +42,7 @@
                 {{ isset($item['area']->sede) ? $item['area']->sede : 'No asignada' }}
             </td>
             <td>
+                {{-- {{$item['hora']}} --}}
                 {{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
             </td>
             {{-- Foreach horarios para las horas --}}

@@ -16,7 +16,7 @@ class ImportExcel:
         
     def importFromExcelFile(self, file, ciclo):
         # Extraemos el excel que nos devuelve un array de hojas de excel.
-        sheetExcel = pd.read_excel(file, sheet_name=None)
+        sheetExcel = pd.read_excel(file, sheet_name=None, engine='openpyxl')
         dataframes = [df for _, df in sheetExcel.items()]
         # Obtenemos las columnas que nos interesa
         df = dataframes[0]
@@ -31,7 +31,7 @@ class ImportExcel:
         df = self.change_day_value(df)
         
         #Una vez limpios los datos realizamos el merge en relacion a las Areas
-        connectionDBAreas = db("localhost", "root", "", "cursos")
+        connectionDBAreas = db("localhost", "root", "", "sige")
         connectionDBAreas.mergeAreasWhitExcel(dfExcelClean=df)
         
         # print('despues de eliminar y agregar:' + (str)(len(df)))
