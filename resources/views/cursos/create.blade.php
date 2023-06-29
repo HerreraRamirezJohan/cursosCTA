@@ -108,8 +108,8 @@
 
                             <div class="mb-3 w-100">
                                 <label for="Ciclo">Ciclo:</label>
-                                <input id="ciclo" class="form-control" name="ciclo" {{-- {{ $cursos_ciclo ? "readOnly value=$cursos_ciclo" : '' }} --}}
-                                    onKeyPress="if(this.value.length==5) return false;">
+                                <input id="ciclo" class="form-control" name="ciclo" value="{{ old('ciclo') }}" {{-- {{ $cursos_ciclo ? "readOnly value=$cursos_ciclo" : '' }} --}}
+                                    onKeyPress="if(this.value.length==5) return false;" >
                                 @if (session('errorsHorario'))
                                     @if (isset($horarioErrors['ciclo']))
                                         <div class="alert alert-danger mt-2" role="alert">

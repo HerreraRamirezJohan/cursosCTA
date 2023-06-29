@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CursosFunctions;
 use App\Models\Horarios;
 use App\Models\Cursos;
 
+use App\Models\HorariosNew;
 use DateTime;
 use Exception;
 
@@ -60,17 +61,33 @@ class CursosValidacion {
         return $errors;
     }
 
-    public static function validateHorario($request, $action = null, $index = 0)
+    public static function validateHorario($request, $action = null)
     {
+        $horasOcupadas = [];
+        $nrcs = [];
         self::validateFilledInputs($request, $action);
-        
-        foreach ($request->dia as $key => $value){
-            $hora_inicio = new DateTime($request->hora_inicio[$key]);
-            $hora_final = new DateTime($request->hora_final[$key]);
-            $duracion =  $hora_inicio->diff($hora_final);
-            $hora = (int) $hora_inicio->format('H');
+        foreach ($request->dia as $key => $value) {
+            $start = (int) $request->hora_inicio[$key];
+            $end = (int) $request->hora_final[$key];
+            // dd($start, $end);
+            while ($start <= $end) {
+                // dd($value, $request->area, $start, $curso->id);
+                $horaOcupada = HorariosNew::with('curso', 'area')
+                ->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
+                // print_r($horaOcupada->curso->id . '-');
+                if (isset($horaOcupada->curso->id)) {
+                    if(!in_array($horaOcupada->curso->nrc, $nrcs)){
+                        $nrcs[] = $horaOcupada->curso->nrc;
+                        array_push($horasOcupadas,$horaOcupada);   
+                    }
+                }
+                $start += 1;
+            }
         }
+        // dd($horasOcupadas);
+        return $horasOcupadas;
     }
+
     
 
     private static function validateFilledInputs($request, $action){
