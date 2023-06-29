@@ -126,7 +126,7 @@ class CursosController extends Controller
         ];
 
         /*Valida de que se mande un ciclo cada que se intente filtrar*/
-        $cursos = Horarios::with('curso', 'area')->whereHas(
+        $cursos = HorariosNew::with('curso', 'area')->whereHas(
             'curso',
             function ($query) use ($request) {
                 $query->where('ciclo', $request->ciclo);
@@ -164,7 +164,7 @@ class CursosController extends Controller
         }
 
         // $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->toSql();
-        $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->get();
+        $cursos = $cursos->orderBy('dia', 'asc')->get();
 
         // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
 
@@ -214,8 +214,10 @@ class CursosController extends Controller
         }
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request);
-        foreach ($cursos as $curso)
-            if ($curso !== null)
+        // dd($cursos);
+        foreach ($cursos as $item)
+        // dd($item[0]->id_curso);
+            if ($item !== null && $item->id_curso !== $curso->id)
                 return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
 

@@ -24,7 +24,7 @@ class HorariosSeeder extends Seeder
             foreach (['lunes','martes','miercoles','jueves','viernes','sabado'] as $key => $day) {
                 for($i=7; $i<=21; $i++){
                     \App\Models\HorariosNew::create([
-                        'id_curso'  => Cursos::all()->random()->id,
+                        // 'id_curso'  => Cursos::all()->random()->id,
                         'id_area' => $areaId->id,
                         'dia' => $day,
                         'hora' => $i

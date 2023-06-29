@@ -1,5 +1,6 @@
 <div class="col-12 col-lg-6 mb-5">
 {{-- <div class="h-100 table-responsive-sm"> --}}
+    {{-- @dd($item->hora_inicio,$item->hora_final ) --}}
     <table class="table table-bordered border-dark align-middle h-100">
         <tr>
             <td colspan="2" rowspan="2" class="col-6 fw-bolder align-middle">
@@ -42,24 +43,31 @@
                 {{ isset($item['area']->sede) ? $item['area']->sede : 'No asignada' }}
             </td>
             <td>
-                {{-- {{$item['hora']}} --}}
-                {{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
+            {{-- @php
+                $horas = $cursos[1]; // Obtén el arreglo de horas
+                sort($horas); // Ordena el arreglo de forma ascendente
+                $hora_minima = sprintf('%02d', $horas[0]); // Obtiene la hora mínima
+                $hora_maxima = sprintf('%02d',end($horas)); // Obtiene la hora máxima
+            @endphp --}}
+                {{-- {{ $hora_minima . '-' . $hora_maxima }} --}}
+                {{ $item->hora_inicio . '-' . $item->hora_final }}
+
             </td>
             {{-- Foreach horarios para las horas --}}
             {{-- @dd($horarios) --}}
-            @foreach ($horarios as $horario)
+            {{-- @foreach ($horarios as $horario) --}}
             {{-- Validamos que de los horarios que trajo solo muestre los activos--}}
                 {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
-                @if ($item->id_curso == $horario['id_curso'])
+                {{-- @if ($item->id_curso == $horario['id_curso']) --}}
                     {{-- Si el dia del curso es diferente al dia que tiene 2 horarios muestra la celda --}}
                     {{-- Esto se hizo teniendo en cuenta que no existen un curso con el mismo dia en caso de tener dos horarios --}}
-                    @if ($item->dia != $horario['dia'])
+                    {{-- @if ($item->dia != $horario['dia'])
                     <td>
                         {{ date('H:i', strtotime($horario['hora_inicio'])) . '-' . date('H:i', strtotime($horario['hora_final'])) }}
                     </td>
                     @endif
                 @endif
-            @endforeach
+            @endforeach --}}
         </tr>
         <tr>
             @auth

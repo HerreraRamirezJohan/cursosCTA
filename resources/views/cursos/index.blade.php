@@ -52,9 +52,7 @@
   window.addEventListener("DOMContentLoaded", function () {
     let limpiarBtn = document.getElementById("limpiarBtn");
     // console.log(limpiarBtn); // Verificar si se encuentra el elemento
-
     limpiarBtn.addEventListener("click", reiniciarForm);
-
     function reiniciarForm() {
       let formulario = document.getElementById("form");
       formulario.reset();

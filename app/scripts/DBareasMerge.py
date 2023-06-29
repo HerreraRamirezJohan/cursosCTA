@@ -50,18 +50,18 @@ class DBareasMerge:
         areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
         
         # Imprimir las áreas relacionadas
-        print("areas relacionadas:")
-        print('<br>')
-        for area in areas_relacionadas:
-            print(area)
-            print('<br>')
+        # print("areas relacionadas:")
+        # print('<br>')
+        # for area in areas_relacionadas:
+        #     print(area)
+        #     print('<br>')
         
-        # Imprimir las áreas no relacionadas
-        print("areas no relacionadas:")
-        print('<br>')
-        for area in areas_no_relacionadas:
-            print(area)
-            print('<br>')
+        # # Imprimir las áreas no relacionadas
+        # print("areas no relacionadas:")
+        # print('<br>')
+        # for area in areas_no_relacionadas:
+        #     print(area)
+        #     print('<br>')
         
         #Asignamos el DF completo al realizar el merge
         df = dfMergeCompleate
@@ -105,6 +105,7 @@ class DBareasMerge:
                 dfHorariosConHora = dfHorariosConHora.drop(['hora_inicio', 'hora_final'], axis=1)
                 # print('Horka:' + str(start))
                 start+=1
+                
             # print()
         return dfHorariosConHora
 
@@ -138,7 +139,8 @@ class DBareasMerge:
             
             # Obtener el ID del curso insertado
             id_curso = cursor.lastrowid
-            
+            print(id_curso, end=' - ')
+            print(nrc)
             cursor.close()
             
             while(start <= end):
@@ -146,10 +148,15 @@ class DBareasMerge:
                 cursor = self.connection.cursor()
                 query = f"UPDATE horarios_news SET id_curso = %s, status=1 WHERE id_area=%s AND hora=%s AND dia=%s"
                 values = (id_curso, id_area, start, dia)
+                # if (nrc == '193956'):
+                #     print(query)
+                #     print(values)
                 start+=1
+                
                 try:
                     cursor.execute(query, values)
                     self.connection.commit()
+                    cursor.close()
                 except Exception as e:
                     print(f"Error al ejecutar la consulta: {str(e)}")
         

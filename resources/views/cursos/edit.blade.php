@@ -30,7 +30,6 @@
                 </div>
             </div>
         @endif
-
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Editar curso</h1>
@@ -103,6 +102,7 @@
                             <textarea name="observaciones" id="observaciones" class="form-control h-100" value="{{ old('observaciones', $curso->observaciones) }}">{{$curso->observaciones ?? 'Ninguna'}}</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>
+                        {{-- @dd($horarios) --}}
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Área:</label>
@@ -272,8 +272,6 @@
                         <div id="formulariosContainer">
                             <!-- Aquí se agregarán los formularios -->
                         </div>
-
-
                 <div class="d-flex justify-content-center">
                     <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
                     <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="guardarCurso()">Actualizar</button>
@@ -283,16 +281,15 @@
         </div>
         {{-- Inicio de cursos existentes --}}
         @if (session('cursosExistentes'))
-            <div class="alert alert-danger align-items-center text-center mt-3">
+        <div class="alert alert-danger align-items-center text-center mt-3">
                 @php
                     $cursos = collect(session('cursosExistentes'));
                 @endphp
-                {{-- @dd($cursos) --}}
                 {{-- @dd($cursos['curso']->id) --}}
                 <h3>Curso con el que interfiere:</h3>
                 <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
-                    {{-- {{dd($curso->id)}} --}}
-                    @foreach ($cursos->unique('id_curso') as $key => $item)
+                    @foreach ($cursos as $key => $item) 
+                    {{-- @dd($item['hora_inicio']) --}}
                         @if (isset($item) && $item->id_curso !== $curso->id)
                             @include('cursos.layouts.cursosCard')
                         @endif

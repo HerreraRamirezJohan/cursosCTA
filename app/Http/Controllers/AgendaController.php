@@ -59,10 +59,11 @@ class AgendaController extends Controller
         $horasFiltradas = [];
 
         foreach ($aulas as $key => $aula) {
-            $horas = HorariosNew::with('curso')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
+            $horas = HorariosNew::with('curso', 'area')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
                 where('status', 1)->get();
+                // dd($horas);
             foreach ($horas as $key2 => $hora) {
-                // dd($hora->curso);
+                // print_r($hora->curso->id . '-');
                 // Guaradamos en el arreglo el id y la hora de todas las aulas del edificio seleccionado
                 array_push($horasFiltradas, [
                     'id' => $hora->curso->id,
@@ -78,7 +79,6 @@ class AgendaController extends Controller
 
         // sort($horasFiltradas, SORT_NUMERIC);
 
-        // dd($horasFiltradas);
         return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));

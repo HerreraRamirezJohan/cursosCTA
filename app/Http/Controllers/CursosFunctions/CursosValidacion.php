@@ -9,6 +9,9 @@ use App\Models\HorariosNew;
 use DateTime;
 use Exception;
 
+use Illuminate\Support\Facades\DB;
+
+
 use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\returnSelf;
 
@@ -76,16 +79,38 @@ class CursosValidacion {
                 ->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
                 // print_r($horaOcupada->curso->id . '-');
                 if (isset($horaOcupada->curso->id)) {
-                    if(!in_array($horaOcupada->curso->nrc, $nrcs)){
-                        $nrcs[] = $horaOcupada->curso->nrc;
-                        array_push($horasOcupadas,$horaOcupada);   
+                    if(!in_array($horaOcupada->curso->id, $nrcs)){
+                        $nrcs[] = $horaOcupada->curso->id;
+                        // array_push($horasOcupadas,$horaOcupada);   
                     }
                 }
                 $start += 1;
             }
         }
-        // dd($horasOcupadas);
-        return $horasOcupadas;
+        $cursosSolapados= HorariosNew::with('curso', 'area')->select(
+            'id', 'id_curso', 'id_area', 'dia',
+            DB::raw("TIME_FORMAT(CONCAT(MIN(hora), ':00'), '%H:%i') AS hora_inicio"),
+            DB::raw("TIME_FORMAT(CONCAT(MAX(hora), ':00'), '%H:%i') AS hora_final")
+        )
+            ->whereIn('id_curso', $nrcs)
+            ->groupBy('dia')->toSql();
+
+        dd($nrcs);
+
+        
+        
+        $horas = [];
+        foreach ($horasOcupadas as $key => $value) {
+            $horasCurso = HorariosNew::where('id_curso', $value->id_curso)->where('id_area', $value->id_area)
+            ->where('dia', $value->dia)->get()->toArray();
+            foreach ($horasCurso as $key => $item) {
+                // dd($item['hora']);
+                $horas[] = $item['hora'];
+            }
+        }
+        // dd($horas);
+        return $cursosSolapados;
+        // return [$horasOcupadas, $horas];
     }
 
     
