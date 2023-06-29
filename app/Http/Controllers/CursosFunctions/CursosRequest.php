@@ -21,16 +21,26 @@ class CursosRequest{
 
     public static function getAreas(){
         $cursos_area = Areas::select('id', 'sede', 'edificio', 'area')
-            ->Where(function ($query) {
+            ->where(function ($query) {
                 $query->whereIn('sede', ['La Normal', 'Belenes']);
             })
-            ->Where(function ($query) {
+            ->where(function ($query) {
                 $query->whereIn('tipo_espacio', ['Laboratorio', 'Aula']);
-            })->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
+            })->where('activo', 1)
+            ->distinct()->orderBy('sede')->orderBy('edificio')->orderBy('area')
             ->get();
 
         return $cursos_area;
     }
+
+    
+
+    // public static function generarHorarios($request)
+    // {
+    //     foreach ($ as $key => $value) {
+    //         # code...
+    //     }
+    // }
 
 
 }

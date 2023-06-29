@@ -20,6 +20,8 @@ class ImportExcel:
         dataframes = [df for _, df in sheetExcel.items()]
         # Obtenemos las columnas que nos interesa
         df = dataframes[0]
+        # print(df.columns)
+        # return 
         df = df.drop(['ST', 'Clave', 'Carga Horaria', 'Unnamed: 6', 'Sec', 'CR', 'DIS', 'Seccion ', 'Unnamed: 21', 'Periodo ', 'Sec.1'], axis=1)
         # Renombrar las columnas como en la DB 
         df.columns = ['nrc', 'departamento', 'curso_nombre', 'cupo', 'alumnos_registrados', 'horario', 'dia', df.columns[7], 'area', 'codigo', 'profesor', 'nivel']
@@ -149,7 +151,3 @@ class ImportExcel:
             return 'licenciatura'
         else:
             return nivel
-
-
-# rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
-# importExcel = ImportExcel(rute2, '2023A')

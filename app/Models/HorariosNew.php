@@ -5,22 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Horarios extends Model
+class HorariosNew extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['id_curso', 'id_area','dia', 'hora', 'status'];
+
+
     
-    protected $fillable = [
-        'dia',
-        'hora_inicio',
-        'hora_final',
-        'id_curso',
-        'id_area',
-        'estado'
-    ];
-
-
-    // Relaciones inversas
     public function curso()
     {   
         
@@ -31,4 +23,5 @@ class Horarios extends Model
     {
         return $this->belongsTo(Areas::class,'id_area');   
     }
+
 }

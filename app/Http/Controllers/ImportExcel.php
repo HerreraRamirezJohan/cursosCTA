@@ -24,6 +24,7 @@ class ImportExcel extends Controller
     
         // Ejecuta el script de Python
         $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $variable]);
+        $process->setTimeout(120);
         $process->run();
     
         if (!$process->isSuccessful()) {

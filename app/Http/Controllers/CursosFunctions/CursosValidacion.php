@@ -60,48 +60,19 @@ class CursosValidacion {
         return $errors;
     }
 
-    public static function validateHorario($request, $action = null)
+    public static function validateHorario($request, $action = null, $index = 0)
     {
         self::validateFilledInputs($request, $action);
-
-        /* Obtenemos el curso que interfiere con el horario 1*/
-        $existingCourse1 = Horarios::with(['curso' => function ($query) {
-            $query->where('activo', true);
-            }, 'area'])
-            ->where('id_area', $request->area)
-            ->where('dia', $request->dia[0])
-            ->where('estado', 1)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('hora_inicio', [$request->hora_inicio[0], $request->hora_final[0]]);
-                $query->orWhereBetween('hora_final', [$request->hora_inicio[0], $request->hora_final[0]]);
-            })
-            ->first();
-        // dd($existingCourse1);
-        /* Validamos el 2do horario en caso que lo haya */
-        $existingCourse2 = null;
-        if (count($request->dia) > 1) {
-            $existingCourse2 = Horarios::with(['curso' => function ($query) {
-                $query->where('activo', true);
-                }, 'area'])
-                ->where('id_area', $request->area)
-                ->where('dia', $request->dia[1])
-                ->where('estado', 1)
-                ->where(function ($query) use ($request) {
-                    $query->whereBetween('hora_inicio', [$request->hora_inicio[1], $request->hora_final[1]]);
-                    $query->orWhereBetween('hora_final', [$request->hora_inicio[1], $request->hora_final[1]]);
-                })
-                ->first();
+        
+        foreach ($request->dia as $key => $value){
+            $hora_inicio = new DateTime($request->hora_inicio[$key]);
+            $hora_final = new DateTime($request->hora_final[$key]);
+            $duracion =  $hora_inicio->diff($hora_final);
+            $hora = (int) $hora_inicio->format('H');
         }
-        // dd($existingCourse2);
-        /*Hacemos una condicion de que si hay un curso existente en la misma area y entre esas horas
-            las introducimos en un array para mandar el mensaje de error*/
-        $cursos = [];
-        array_push($cursos, $existingCourse1 ?  $existingCourse1 : null);
-        array_push($cursos, $existingCourse2 ?  $existingCourse2 : null);
-        // dd($cursos);
 
-        return $cursos;
     }
+    
 
     private static function validateFilledInputs($request, $action){
         $validationRules = [

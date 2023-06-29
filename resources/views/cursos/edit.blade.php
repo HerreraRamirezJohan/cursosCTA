@@ -13,6 +13,11 @@
         });
     </script>
     <div class="container">
+        @if (session('success'))
+            <div id="alert" class="alert alert-danger align-items-center text-center mt-3">
+                {{ session('success') }}
+            </div>
+        @endif
         @if (session('cursoModificado'))
             <div class="alert alert-success mt-3 d-flex justify-content-between" role="alert">
                 <div>{{ session('cursoModificado') }}</div>
@@ -104,7 +109,7 @@
                                 <select id="area" class="form-select js-example-basic-single" name="area" class="form-control" required>
                                     @foreach ($cursos_area as $area)
                                         <option value="{{ $area->id }}"
-                                            {{ $horariosDelCurso[0]->id_area === $area->id ? 'selected' : '' }}>
+                                            {{ $horarios[0]->id_area === $area->id ? 'selected' : '' }}>
                                             {{ $area->sede . ' - ' . $area->edificio . ' - ' . $area->area }}
                                         </option>
                                         {{-- Datos del DB --}}
@@ -183,15 +188,14 @@
                                 @endforeach
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
-
-                        @foreach ($horariosDelCurso as $key => $horario)
-                            @if ($key == 1)
+                        @foreach ($horarios as $key => $horario)
+                            @if ($key >= 1)
                                 <div class="d-flex align-items-center justify-content-end">
-                                    <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', $horario->id)}}', 'Horario')">
+                                    <a id="eliminar" class=" ms-3 text-decoration-none btn btn-danger" onclick="deleteConfirm('{{route('eliminarHorario', ['id_curso' => $horario->id_curso, 'dia' => $horario->dia])}}', 'Horario')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
                                             <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
-                                        </svg><span class="text-white">Eliminar segundo horario</span>
+                                        </svg><span class="text-white">Eliminar horario</span>
                                     </a>
                                 </div>
                             @endif
@@ -219,7 +223,8 @@
 
                                 <div class="mb-3 w-100">
                                     <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
-                                    <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]" class="form-control" min="07:00" max="21:00" value="{{ $horario->hora_inicio }}">
+                                    {{-- @dd($horario) --}}
+                                    <input id="hora_inicio{{ $key + 1 }}" type="time" name="hora_inicio[]" class="form-control" min="07:00" max="21:00" value="{{ $horario->hora_inicio  }}">
                                     @if ($errors->has('hora_inicio.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->get('hora_inicio.'.$key)[0] }}
@@ -239,63 +244,39 @@
                             </div>
 
                             {{-- Segundo horario Final --}}
-                            {{-- @dd($validacion_horario) --}}
-                            @if ($validacion_horario == 1)
-                                {{-- Segundo horario --}}
-                                <div class="btn btn-success mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
-                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                    </svg>
-                                    <input class="flex-grow-1" type="button" value="Agregar nuevo horario" id="btn" style="all:unset">
-                                </div>
-
-                                <div id="formulario" style="display:none">
-                                    <div class="mb-3 w-100">
-                                        <label for="dia">Día</label>
-                                        <select id="dia" class="form-select inputsHorario2" name="dia[]">
-                                            <option selected disabled>Elegir</option>
-                                            <option value="lunes">Lunes</option>
-                                            <option value="martes">Martes</option>
-                                            <option value="miércoles">Miércoles</option>
-                                            <option value="jueves">Jueves</option>
-                                            <option value="viernes">Viernes</option>
-                                            <option value="sábado">Sábado</option>
-                                        </select>
-                                        @if ($errors->has('dia.1'))
-                                        <div class="alert alert-danger mt-2" role="alert">
-                                            {{ $errors->get('dia.1')[0] }}
-                                        </div>
-                                    @endif
-                                    </div>
-
-                                    <div class="mb-3 w-100">
-                                        <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
-                                        <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control inputsHorario2" min="07:00" max="21:00" value="{{ old('hora_inicio.1') }}" >
-                                            @if ($errors->has('hora_inicio.1'))
-                                            <div class="alert alert-danger mt-2" role="alert">
-                                                {{ $errors->get('hora_inicio.1')[0] }}
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="mb-3 w-100">
-                                        <label for="horario" class="validationDefault04">Hora final del curso</label>
-                                        <input id="hora_final" type="time" name="hora_final[]" class="form-control inputsHorario2" min="07:00" max="21:00" value="{{ old('hora_final.1') }}">
-                                            @if ($errors->has('hora_final.1'))
-                                            <div class="alert alert-danger mt-2" role="alert">
-                                                {{ $errors->get('hora_final.1')[0] }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
                 @endforeach
+
+                            {{-- Botones y cotenido en caso de querer agregar mas horarios --}}
+                        {{-- Segundo horario --}}
+                        <div class="d-flex me-3" id="containerButtons">
+                            <div class="btn btn-success mb-4 me-3" id="btnAgregar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                    fill="currentColor" class="bi bi-plus-square me-2" viewBox="0 0 16 16">
+                                    <path
+                                        d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg>
+                                <input class="flex-grow-1" type="button" value="Agregar nuevo horario" id="btn"
+                                    style="all:unset">
+                            </div>
+                            <div class="btn btn-danger mb-4 me-2 d-none" id="btnEliminar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
+                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
+                                </svg>
+                                <input class="flex-grow-1" type="button" value="Eliminar horario" style="all:unset">             
+                            </div>
+                        </div>
+
+                        <div id="formulariosContainer">
+                            <!-- Aquí se agregarán los formularios -->
+                        </div>
+
 
                 <div class="d-flex justify-content-center">
                     <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="confirmEdit()">Actualizar</button>
+                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="guardarCurso()">Actualizar</button>
                 </div>
                 </form>
             </div>
@@ -331,24 +312,6 @@
 
         botonHorarioExtra();
 
-        function confirmEdit() {
-            let formSubmit = document.querySelector('#guardarCurso');
-
-            Swal.fire({
-                    title: '¿Deseas guardar los cambios?',
-                    showDenyButton: true,
-                    confirmButtonText: 'Guardar',
-                    denyButtonText: `Seguir editando`,
-                })
-                .then((result) => {
-                    /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed) {
-                        formSubmit.submit();
-                    } else if (result.isDenied) {
-                        Swal.fire('Datos no guardados', '', 'info')
-                    }
-                })
-        }
         //Formulario extra de horario
         function botonHorarioExtra() {
             var btn = document.getElementById('btn'),
@@ -382,27 +345,5 @@
             btn.addEventListener('click', cambio, true);
 
         }
-        function deleteConfirm(url, elemento='Curso') {
-                Swal.fire({
-                    title: `¿Estás seguro de eliminar el ${elemento}?`,
-                    text: "Esta acción no podrá ser revertida",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Eliminar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire(
-                            `${elemento} eliminado correctamente`,
-                            '',
-                            'success'
-                        ).then(() => {
-                            window.location.href = url; // Redirige a la URL de eliminación
-                        });
-                    }
-                });
-            }
     </script>
 @endsection

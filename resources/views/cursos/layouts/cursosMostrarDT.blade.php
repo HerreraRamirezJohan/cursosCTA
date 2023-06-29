@@ -10,11 +10,12 @@
         </tr>
     </thead>
     <tbody>
+        {{-- @dd($cursos) --}}
         @foreach ($cursos->unique('id_curso') as $key => $item)
         <tr>
                 <td class="w-25">{{ $item['curso']->curso_nombre }}</td>
                 <td class="w-25">{{ $item['curso']->departamento }}</td>
-                <td class="text-capitalize">
+                <td class="text-capitalize" style="width:90px;">
                     {{$item->dia }}
                     @foreach ($horarios as $horario)
                         {{-- Validamos que de los horarios que trajo solo muestre los activos --}}
@@ -29,7 +30,7 @@
                         @endif
                     @endforeach
                 </td>
-        <td>{{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
+        <td style="width:90px;">{{ date('H:i', strtotime($item->hora_inicio)) . '-' . date('H:i', strtotime($item->hora_final)) }}
             @foreach ($horarios as $horario)
             {{-- Validamos que de los horarios que trajo solo muestre los activos--}}
                 {{-- Validamos que el id del curso sea igual al id del curso de los que tienen 2 horarios  --}}
@@ -68,6 +69,7 @@
                     </svg>
                 </a>
                 @endauth
+            @endif
                 
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal"
@@ -82,7 +84,6 @@
             @include('cursos.layouts.cursosModal')
         </div>
     </td>
-    @endif
 
     </tr>
         @endforeach

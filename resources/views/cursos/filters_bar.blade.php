@@ -15,10 +15,12 @@
     </div>
     
     <div class="row">
-        <div class="col-sm-12 text-sm-start col-md-12 text-md-start col-lg-6 text-lg-center offset-lg-3">
-            <label for="departamento">Departamento</label>
-            <select id="departamento" class="form-select w-100 mb-3" name="departamento">
-                <option selected disabled>Elegir</option>
+        <div class="col-sm-12 col-md-12 col-lg-6 offset-lg-3">
+            <div class="text-sm-start text-md-start text-lg-center">
+                <label for="departamento">Departamento</label>
+            </div>
+            <select id="departamento" class="form-select w-100 js-example-basic-single" name="departamento">
+                <option selected value="">Todos los departamentos</option>
                 @foreach ($cursos_departamento as $item)
                     <option value="{{ $item }}">{{ $item }}</option>
                     {{-- Datos del DB --}}
@@ -28,7 +30,7 @@
     </div>
     
     {{-- Inicio Selects [Departamento, Sede y Estatus] --}}
-    <div class="row row-cols-lg-auto align-items-center justify-content-center mt-0" style="gap:1rem 2rem">
+    <div class="row row-cols-lg-auto align-items-center justify-content-center mt-3" style="gap:1rem 2rem">
         {{-- [Sede] --}}
         <div>
             <label for="sede">Sede</label>

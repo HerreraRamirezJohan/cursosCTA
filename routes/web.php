@@ -1,23 +1,15 @@
 <?php
 
+use App\Http\Controllers\AreasController;
+use App\Http\Controllers\AgendaController;
+
 use App\Http\Controllers\CursosController;
+use App\Http\Controllers\HorariosNewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 /* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ImportExcel;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -34,12 +26,9 @@ Route::middleware([
     Route::get('/inicio', [CursosController::class, 'index'])->name('inicio');
 });
 
-
-
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
 
@@ -48,7 +37,7 @@ Route::post('/guardar', [CursosController::class, 'store'])->name('guardar')->mi
 Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar')->middleware('auth');
 Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar')->middleware('auth');
 Route::get('/eliminar/{curso}', [CursosController::class, 'destroy'])->name('eliminar')->middleware('auth');
-Route::get('/eliminar_horario/{horario}', [CursosController::class, 'destroyHorario'])->name('eliminarHorario')->middleware('auth');
+Route::get('/eliminar_horario/{id_curso}/{dia}', [CursosController::class, 'destroyHorario'])->name('eliminarHorario')->middleware('auth');
 
 Route::get('perfil', function () {return view('user.editUser');})->name('perfil')->middleware('auth');
 
@@ -59,9 +48,16 @@ Route::put('updateProfile/{user}', [HomeController::class, 'update'])->name('upd
 Route::put('changePassword/{user}', [HomeController::class, 'restartPassword'])->name('changePassword')->middleware('auth');
 
 
+Route::get('/importar', function(){return view('cursos.import');})->name('indexImport')->middleware('auth');
+Route::post('/importando', [HorariosNewController::class, 'importSeeder'])->name('importSeeder')->middleware('auth');
+
+// Route::resource('areas', AreasController::class);
+Route::get('/areas', [AreasController::class, 'index'])->name('areas');
+
+Route::post('/mostrarAreas', [AreasController::class, 'show'])->name('mostrarAreas');
+
+Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda');
 
 
-// Route::get('/mostrar', function () {
-//     return view('cursos.mostrar');
-// })->name('mostrar');
+// Route::get('/areas', [AreasController::class, 'index'])->name('areas')->middleware('auth');
 
