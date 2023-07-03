@@ -84,29 +84,29 @@ class DBareasMerge:
         return tableCursos
         
 
-    def create_HorariosTable(self, df = pd.DataFrame(), tableCursos = pd.DataFrame()):
-        horariosSinhora = df[['id_area', 'nrc', 'dia', 'hora_inicio', 'hora_final']].copy()
-        horariosSinhora = pd.merge(horariosSinhora, tableCursos[['id', 'nrc']], on='nrc', how='inner')
-        horariosSinhora = horariosSinhora.drop(['nrc'], axis=1)
-        horariosSinhora.rename(columns={'id' : 'id_curso'}, inplace=True)
+    # def create_HorariosTable(self, df = pd.DataFrame(), tableCursos = pd.DataFrame()):
+    #     horariosSinhora = df[['id_area', 'nrc', 'dia', 'hora_inicio', 'hora_final']].copy()
+    #     horariosSinhora = pd.merge(horariosSinhora, tableCursos[['id', 'nrc']], on='nrc', how='inner')
+    #     horariosSinhora = horariosSinhora.drop(['nrc'], axis=1)
+    #     horariosSinhora.rename(columns={'id' : 'id_curso'}, inplace=True)
         
-        dfHorariosConHora = pd.DataFrame()
+    #     dfHorariosConHora = pd.DataFrame()
         
-        for index, row in horariosSinhora.iterrows():
+    #     for index, row in horariosSinhora.iterrows():
                     
-            start = int(row['hora_inicio'].hour)
-            end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
-            # print('hora_inicio = ' + str(start))
-            # print('hora_final = ' + str(end))
-            while(start <= end):
-                selected_row = row.copy()
-                selected_row['hora'] = start
-                dfHorariosConHora = pd.concat([dfHorariosConHora, pd.DataFrame([selected_row])], ignore_index=True)
-                dfHorariosConHora = dfHorariosConHora.drop(['hora_inicio', 'hora_final'], axis=1)
-                # print('Horka:' + str(start))
-                start+=1
-            # print()
-        return dfHorariosConHora
+    #         start = int(row['hora_inicio'].hour)
+    #         end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
+    #         # print('hora_inicio = ' + str(start))
+    #         # print('hora_final = ' + str(end))
+    #         while(start <= end):
+    #             selected_row = row.copy()
+    #             selected_row['hora'] = start
+    #             dfHorariosConHora = pd.concat([dfHorariosConHora, pd.DataFrame([selected_row])], ignore_index=True)
+    #             dfHorariosConHora = dfHorariosConHora.drop(['hora_inicio', 'hora_final'], axis=1)
+    #             # print('Horka:' + str(start))
+    #             start+=1
+    #         # print()
+    #     return dfHorariosConHora
 
     def exportCursosAndHorarios(self, tablaCursos = pd.DataFrame()):
         for index, row in tablaCursos.iterrows():
@@ -152,6 +152,7 @@ class DBareasMerge:
                     self.connection.commit()
                 except Exception as e:
                     print(f"Error al ejecutar la consulta: {str(e)}")
+                cursor.close()
         
 # tableHorarioNews = create_HorariosTable(df)
 
