@@ -49,19 +49,19 @@ class DBareasMerge:
         # Obtener las áreas no relacionadas
         areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
         
-        # Imprimir las áreas relacionadas
-        print("areas relacionadas:")
-        print('<br>')
-        for area in areas_relacionadas:
-            print(area)
-            print('<br>')
+        # # Imprimir las áreas relacionadas
+        # print("areas relacionadas:")
+        # print('<br>')
+        # for area in areas_relacionadas:
+        #     print(area)
+        #     print('<br>')
         
-        # Imprimir las áreas no relacionadas
-        print("areas no relacionadas:")
-        print('<br>')
-        for area in areas_no_relacionadas:
-            print(area)
-            print('<br>')
+        # # Imprimir las áreas no relacionadas
+        # print("areas no relacionadas:")
+        # print('<br>')
+        # for area in areas_no_relacionadas:
+        #     print(area)
+        #     print('<br>')
         
         #Asignamos el DF completo al realizar el merge
         df = dfMergeCompleate
@@ -109,18 +109,33 @@ class DBareasMerge:
     #     return dfHorariosConHora
 
     def exportCursosAndHorarios(self, tablaCursos = pd.DataFrame()):
+        nrcs = []
         for index, row in tablaCursos.iterrows():
             # print([index, row])
             nrc = row['nrc']
-            curso_nombre = row['curso_nombre']
-            departamento = row['departamento']
-            alumnos_registrados = row['alumnos_registrados']
-            cupo = row['cupo']
-            ciclo = row['ciclo']
-            nivel = None if pd.isna(row['nivel']) else row['nivel']
-            profesor = None if pd.isna(row['profesor']) else row['profesor']
-            codigo = None if pd.isna(row['codigo']) else row['codigo']
-            
+            id_curso = None
+            if not nrc in nrcs:
+                nrcs.append(nrc) 
+                curso_nombre = row['curso_nombre']
+                departamento = row['departamento']
+                alumnos_registrados = row['alumnos_registrados']
+                cupo = row.get('cupo')
+                ciclo = row.get('ciclo')
+                nivel = row.get('nivel')
+                profesor = row.get('profesor')
+                codigo = row.get('codigo')
+                
+                # Ejemplo de inserción en MySQL
+                cursor = self.connection.cursor()
+                query = f"INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
+                values = (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo)
+                cursor.execute(query, values)
+                self.connection.commit()
+                
+                # Obtener el ID del curso insertado
+                id_curso = cursor.lastrowid
+                
+                cursor.close()            
             # Datos necesarios para generar los N registros por N horas de la duracion del curso
             start = row['hora_inicio'].hour
             end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
@@ -128,18 +143,6 @@ class DBareasMerge:
             id_area = row['id_area']
             dia = row['dia']
 
-            
-            # Ejemplo de inserción en MySQL
-            cursor = self.connection.cursor()
-            query = f"INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
-            values = (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo)
-            cursor.execute(query, values)
-            self.connection.commit()
-            
-            # Obtener el ID del curso insertado
-            id_curso = cursor.lastrowid
-            
-            cursor.close()
             
             while(start <= end):
                 # Ejemplo de update en MySQL

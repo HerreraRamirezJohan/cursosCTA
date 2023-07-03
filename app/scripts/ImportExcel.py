@@ -16,29 +16,27 @@ class ImportExcel:
         
     def importFromExcelFile(self, file, ciclo):
         # Extraemos el excel que nos devuelve un array de hojas de excel.
-        sheetExcel = pd.read_excel(file, sheet_name=None, engine='openpyxl')
-        dataframes = [df for _, df in sheetExcel.items()]
-        # Obtenemos las columnas que nos interesa
-        df = dataframes[0]
-        # print(df.columns)
-        # return 
-        df = df.drop(['ST', 'Clave', 'Carga Horaria', 'Unnamed: 6', 'Sec', 'CR', 'DIS', 'Seccion ', 'Unnamed: 21', 'Periodo ', 'Sec.1'], axis=1)
-        # Renombrar las columnas como en la DB 
-        df.columns = ['nrc', 'departamento', 'curso_nombre', 'cupo', 'alumnos_registrados', 'horario', 'dia', df.columns[7], 'area', 'codigo', 'profesor', 'nivel']
-        df['ciclo'] = ciclo
+        necesaryColumns = ['NRC', 'Departamento', 'Materia', 'Carga Horaria', 'CUP', 'REG', 'Hora', 'Codigo ', 'Aula ', 'Profesores', 'Nivel']
+        # dtypes = {'NRC':str, 'Departamento':str, 'Materia':str, 'Carga Horaria':str, 'CUP':str, 'REG':int, 'Hora':str, 'Codigo ':str, 'Aula ':str, 'Profesores':str, 'Nivel':str}
+        sheetExcel = pd.read_excel(file, sheet_name='Hoja1', usecols=necesaryColumns, engine='openpyxl')
+        # Renombrar las columnas como en la DB
+        sheetExcel.columns = ['nrc', 'departamento', 'curso_nombre', 'dia',  'cupo', 'alumnos_registrados','horario', 'area', 'codigo', 'profesor', 'nivel']
+        sheetExcel['ciclo'] = ciclo
         #Definimimos columnas
-        df = self.defineTypeOfColumns(df)
-        df = self.change_day_value(df)
+        sheetExcel = self.defineTypeOfColumns(sheetExcel)
+        print(f'Registros Totales = {len(sheetExcel)}')
+        sheetExcel = self.change_day_value(sheetExcel)
+        # print(f'Registros Horarios separados = {len(sheetExcel)}')
         
-        #Una vez limpios los datos realizamos el merge en relacion a las Areas
-        connectionDBAreas = db("localhost", "root", "", "sige")
-        connectionDBAreas.mergeAreasWhitExcel(dfExcelClean=df)
+        # #Una vez limpios los datos realizamos el merge en relacion a las Areas
+        # connectionDBAreas = db("localhost", "root", "", "cursos")
+        # connectionDBAreas.mergeAreasWhitExcel(dfExcelClean=df)
         
         # print('despues de eliminar y agregar:' + (str)(len(df)))
         
         
         # Retornamos el unico en formato dataframe para asignarlo en el constructor
-        return df
+        return sheetExcel
     
     def defineTypeOfColumns(self, df = pd.DataFrame()):
         # Separar la columna 'horario' en 'hora_inicio' y 'hora_final'
@@ -46,43 +44,41 @@ class ImportExcel:
         # Convertir las columnas 'hora_inicio' y 'hora_final' al formato de tiempo
         df['hora_inicio'] = pd.to_datetime(df['hora_inicio'], format='%H%M').dt.time
         df['hora_final'] = pd.to_datetime(df['hora_final'], format='%H%M').dt.time
-        #eliminamos la columna orginal (no es necesaria)
-        df = df.drop(['horario'], axis=1)
-        
-        # Convertir la columna 'nrc' a int para no tener decimales, nan o SIN CRN dejando los datos originales en X
-        df['nrc'] = df['nrc'].astype(object)
-        df['nrc'] = df['nrc'].apply(lambda x: str(int(x)) if not pd.isna(x) and x != 'SIN CRN' else x)
-        #Pasar el cupo y alumnos registrados a tipo entero
-        df['alumnos_registrados'] = df['alumnos_registrados'].apply(lambda x: int(x) if pd.notna(x) and pd.notnull(x) else None)
-        df['cupo'] = df['cupo'].apply(lambda x: int(x) if pd.notna(x) and pd.notnull(x) else None)
-        
-        df['dia'] = df['dia'].astype(str)
-        
-        #Definimos el dato de nivel a los datos que recive la DB
-        df['nivel'] = df['nivel'].astype(str)
-        #modificar prefijos a nombre completo de nivel
+        # Eliminar la columna original (no es necesaria)
+        df.drop(['horario'], axis=1, inplace=True)
+
+        # Pasamos a str el codigo
+        df['codigo'] = df['codigo'].apply(lambda x: str(x).replace('.0', '') if pd.notnull(x) else x)
+
+        # Pasar el cupo y alumnos registrados a tipo entero
+        df['alumnos_registrados'] = pd.to_numeric(df['alumnos_registrados'], errors='coerce').fillna(0).astype(int)
+        df['cupo'] = pd.to_numeric(df['cupo'], errors='coerce').fillna(0).astype(int)
+
+        df[['dia', 'nivel']] = df[['dia', 'nivel']].astype(str)
+
+        # Modificar prefijos a nombre completo de nivel
         df['nivel'] = df['nivel'].apply(self.actualizar_nivel)
-        
+
         df = self.detect_NaN_rows(df)
         return df
     
-    def detect_NaN_rows(self, df = pd.DataFrame()):
-        for index, row in df.iterrows():#Iteramos por cada row del DataFrame
-            if(pd.isna(row['nrc'])):#Detectamos una row con NRC en NaN o Null
-                df = self.compare_to_rows(row, df.loc[index-1], index, df)
+    def detect_NaN_rows(self, df):
+        NaN_rows = df['nrc'].isna()  # Obtener una máscara booleana de filas con NaN en la columna 'nrc'
+        NaN_indices = NaN_rows[NaN_rows].index  # Obtener los índices de las filas con NaN en la columna 'nrc'
+
+        for index in NaN_indices:
+            previusRow = df.loc[index - 1]  # Obtener la fila anterior
+            self.compare_to_rows(df.loc[index], previusRow, index, df)
+
         return df
-                
-    def compare_to_rows(self, rowNaN, previusRow, index, df = pd.DataFrame()):
-        #comparamos ambas con la row superir la cual siempre sera el nrc de la nan
-        #Comparamos y eliminamos todos los valores NaN
+
+    def compare_to_rows(self, rowNaN, previusRow, index, df):
+        # Comparamos ambas filas y eliminamos los valores NaN
         for column in previusRow.index:
-            if(pd.isna(previusRow[column]) ):
-                if not(pd.isna(rowNaN[column])):
-                    df.loc[index-1, column] = rowNaN[column]
-            else:
-                if(pd.isna(rowNaN[column]) ):
-                    df.loc[index, column] = previusRow[column]
-        return df
+            if pd.isna(previusRow[column]) and not pd.isna(rowNaN[column]):
+                df.loc[index - 1, column] = rowNaN[column]
+            elif pd.isna(rowNaN[column]) and not pd.isna(previusRow[column]):
+                df.loc[index, column] = previusRow[column]
             
     def change_day_value(self, df = pd.DataFrame()):
         for index, row in df.iterrows():#Iteramos por cada row del DataFrame para generar los registros y obtener los index a eliminar
@@ -93,6 +89,7 @@ class ImportExcel:
         df = df.drop(self.indexNewSchedules)
         #Agregamos todos los registros con los dias separados
         df = pd.concat([df, self.newSchedules], ignore_index=True)
+        print(f'Registros Horarios separados = {len(self.newSchedules)}')
                 
             # print(str(type(row['dia'])) + 'nrc: ' + str(row['nrc']))
             # #Convertimos el codigo del dia a nombre
@@ -127,7 +124,7 @@ class ImportExcel:
         if 'J' in schedule['dia']: schedules['jueves'] = True
         if 'V' in schedule['dia']: schedules['viernes'] = True
         if 'S' in schedule['dia']: schedules['sabado'] = True
-        
+        daysRow=schedule['dia']
         # Averiguamos cuantos dias tiene registrados el curso.
         count = sum(value == True for value in schedules.values())
         
@@ -139,6 +136,7 @@ class ImportExcel:
                     selected_row = df.loc[index].copy()
                     selected_row['dia'] = day
                     newSchedulesOfCourse = pd.concat([newSchedulesOfCourse, pd.DataFrame([selected_row])], ignore_index=True)
+                    print(f'Tiene los horarios {daysRow} y su array de horarios es: {len(newSchedulesOfCourse)}')
             self.newSchedules = pd.concat([self.newSchedules, newSchedulesOfCourse], ignore_index=True)
     
     #Funcion de validacion para cambiar el valor.
