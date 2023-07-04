@@ -17,12 +17,12 @@ class CursosValidacion {
         $errors = [];
         self::validateFilledInputs($request, $action);
         /* Validar el input del ciclo. */
-        if($action != 'update'){
-            $validacionCiclo = self::validarCiclo($request->ciclo);
-            if ($validacionCiclo !== null) {
-                $errors['ciclo'] = $validacionCiclo;
-            }
-        }
+        // if($action != 'update'){
+        //     $validacionCiclo = self::validarCiclo($request->ciclo);
+        //     if ($validacionCiclo !== null) {
+        //         $errors['ciclo'] = $validacionCiclo;
+        //     }
+        // }
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
         // $vallidationNrcName = self::validateNrc($request);
         // if($vallidationNrcName !== null)
@@ -184,47 +184,47 @@ class CursosValidacion {
         $request->validate($validationRules, $customMessages);
     }
 
-    private static function validarCiclo($ciclo){
-        $year = intval(substr($ciclo, 0, 4));//obtenemos el año
-        if(!$year)
-            return 'Formato de ciclo registrado inválido debe ser YYYY[A-B]';  
-        $letra = substr($ciclo, 4, 1);//obtenemos la letra
-        $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-        $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
-        $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
+    // private static function validarCiclo($ciclo){
+    //     $year = intval(substr($ciclo, 0, 4));//obtenemos el año
+    //     if(!$year)
+    //         return 'Formato de ciclo registrado inválido debe ser YYYY[A-B]';  
+    //     $letra = substr($ciclo, 4, 1);//obtenemos la letra
+    //     $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+    //     $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
+    //     $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
 
-        if(strcmp(self::getCiclo(), $ciclo) !== 0){
-            if($letra === 'A' || $letra === 'B'){
-                if($letra_actual === 'A'){
-                    if($year_actual !== $year)
-                        return 'El ciclo siguiente debe ser: ' . $year_actual . 'B';
-                    if($letra === $letra_actual)
-                        return 'El ciclo debe ser B';
-                }elseif($letra_actual === 'B'){
-                    if($year !== $year_actual+1)
-                        return 'El ciclo siguiente debe ser: '. (string)($year_actual+1) . 'A';
-                    if($letra === $letra_actual)
-                        return 'El ciclo debe ser A';
-                }
-            }else
-                return 'El ciclo ingresado es inválido, debe ser un año vigente y tener el ciclo A o B correspondiente';
-        }
+    //     if(strcmp(self::getCiclo(), $ciclo) !== 0){
+    //         if($letra === 'A' || $letra === 'B'){
+    //             if($letra_actual === 'A'){
+    //                 if($year_actual !== $year)
+    //                     return 'El ciclo siguiente debe ser: ' . $year_actual . 'B';
+    //                 if($letra === $letra_actual)
+    //                     return 'El ciclo debe ser B';
+    //             }elseif($letra_actual === 'B'){
+    //                 if($year !== $year_actual+1)
+    //                     return 'El ciclo siguiente debe ser: '. (string)($year_actual+1) . 'A';
+    //                 if($letra === $letra_actual)
+    //                     return 'El ciclo debe ser A';
+    //             }
+    //         }else
+    //             return 'El ciclo ingresado es inválido, debe ser un año vigente y tener el ciclo A o B correspondiente';
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    public static function getCiclo(){
-        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
-        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
-        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
-        $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
+    // public static function getCiclo(){
+    //     $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+    //     /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
+    //     $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
+    //     $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
+    //     $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
 
-        /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
-        lo que permitira poder ingresar un ciclo manualmente
-        en caso contrario mando el ciclo actual que se cursa */
-        return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
-    }
+    //     /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
+    //     lo que permitira poder ingresar un ciclo manualmente
+    //     en caso contrario mando el ciclo actual que se cursa */
+    //     return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
+    // }
 
     public static function validateNrc($request){
         /* validamos si el curso ya existe */

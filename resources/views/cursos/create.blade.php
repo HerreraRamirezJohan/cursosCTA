@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('content')
     @php
+        $hour = request()->segment(2); // Obtener el valor de la URL
+        $horaURL = sprintf('%02d:00', $hour); // Convertir el entero en una cadena de tiempo válida (ejemplo: "07:00" para $hour = 7)
+        $diaURL  = request()->segment(4);
+        $areaURL  = request()->segment(3);
         $contador = 0;
         $horarioErrors = collect(session('errorsHorario'));
         $cursoMismoCiclo = collect(session('cursoMismoCiclo'));
@@ -13,24 +17,19 @@
             $('.js-example-basic-single').select2();
         });
     </script>
-    @if ($errors->has('alert'))
-        <script>
-            alert("{{ $errors->first('alert') }}");
-        </script>
-    @endif
     <div class="container">
         @while ($errors->has('hora_inicio.' . $contador))
-        @foreach(['hora_inicio', 'hora_final', 'dia'] as $campo)
-            @if ($errors->has($campo . '.' . $contador))
-                <div class="alert alert-danger mt-2" role="alert">
-                    {{ $errors->get($campo . '.' . $contador)[0] }}
-                </div>
-            @endif
-        @endforeach
-        @php
-            $contador++;
-        @endphp
-    @endwhile
+            @foreach (['hora_inicio', 'hora_final', 'dia'] as $campo)
+                @if ($errors->has($campo . '.' . $contador))
+                    <div class="alert alert-danger mt-2" role="alert">
+                        {{ $errors->get($campo . '.' . $contador)[0] }}
+                    </div>
+                @endif
+            @endforeach
+            @php
+                $contador++;
+            @endphp
+        @endwhile
         <div class="row">
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Crear curso</h1>
@@ -108,8 +107,8 @@
 
                             <div class="mb-3 w-100">
                                 <label for="Ciclo">Ciclo:</label>
-                                <input id="ciclo" class="form-control" name="ciclo" value="{{ old('ciclo') }}" {{-- {{ $cursos_ciclo ? "readOnly value=$cursos_ciclo" : '' }} --}}
-                                    onKeyPress="if(this.value.length==5) return false;" >
+                                <input id="ciclo" class="form-control" name="ciclo" value="{{ old('ciclo') }}"
+                                    {{-- {{ $cursos_ciclo ? "readOnly value=$cursos_ciclo" : '' }} --}} onKeyPress="if(this.value.length==5) return false;">
                                 @if (session('errorsHorario'))
                                     @if (isset($horarioErrors['ciclo']))
                                         <div class="alert alert-danger mt-2" role="alert">
@@ -134,12 +133,15 @@
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Área:</label>
-                                <select id="area" class="form-select js-example-basic-single" name="area"
-                                    class="form-control" required>
+                                <select id="area" class="form-select js-example-basic-single" name="area" class="form-control" required>
                                     <option selected disabled>Elegir</option>
                                     @foreach ($cursos_area as $item)
-                                        <option value="{{ $item->id }}"
-                                            {{ old('area') == $item->id ? 'selected' : '' }}>
+                                        <option value="{{ $item->id }}" 
+                                            @if ($areaURL != null)
+                                                {{$areaURL  == $item->id ? 'selected' : '' }}>
+                                            @else
+                                                {{ old('area') == $item->id ? 'selected' : '' }}>
+                                            @endif
                                             {{ $item->sede . ' - ' . $item->edificio . ' - ' . $item->area }}
                                         </option>
                                         {{-- Datos del DB --}}
@@ -221,23 +223,34 @@
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
                         {{-- Primer horario --}}
+                        @php
+                            $selectedDay = strtolower($diaURL ?? old('dia.0'));
+                            $selectedDay = strtr($selectedDay, 'áéíóú', 'aeiou');
+                        @endphp
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
+                                {{-- @dd($selectedDay) --}}
                                 <label for="estatus">Día</label>
                                 <select id="estatus" class="form-select" name="dia[]" required>
                                     <option selected disabled>Elegir</option>
-                                    <option {{ old('dia.0') == 'Lunes' ? 'selected' : '' }}>Lunes</option>
-                                    <option {{ old('dia.0') == 'Martes' ? 'selected' : '' }}>Martes</option>
-                                    <option {{ old('dia.0') == 'Miércoles' ? 'selected' : '' }}>Miércoles</option>
-                                    <option {{ old('dia.0') == 'Jueves' ? 'selected' : '' }}>Jueves</option>
-                                    <option {{ old('dia.0') == 'Viernes' ? 'selected' : '' }}>Viernes</option>
-                                    <option {{ old('dia.0') == 'Sábado' ? 'selected' : '' }}>Sábado</option>
+                                    <option {{ $selectedDay == 'lunes' ? 'selected' : '' }}>Lunes</option>
+                                    <option {{ $selectedDay == 'martes' ? 'selected' : '' }}>Martes</option>
+                                    <option {{ $selectedDay == 'miercoles' ? 'selected' : '' }}>Miércoles</option>
+                                    <option {{ $selectedDay == 'jueves' ? 'selected' : '' }}>Jueves</option>
+                                    <option {{ $selectedDay == 'viernes' ? 'selected' : '' }}>Viernes</option>
+                                    <option {{ $selectedDay == 'sabado' ? 'selected' : '' }}>Sábado</option>
                                 </select>
                             </div>
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora de inicio del curso</label>
-                                <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control"
-                                    min="07:00" max="21:00" value="{{ old('hora_inicio.0') }}" required>
+                                {{-- @dd($horaURL) --}}
+                                <input id="hora_inicio" type="time" name="hora_inicio[]" class="form-control" min="07:00" max="21:00" required
+                                @if ($horaURL != "00:00")
+                                    value="{{$horaURL}}" 
+                                @else
+                                    value="{{old('hora_inicio.0')}}"
+                                @endif
+                                >
                             </div>
                             <div class="mb-3 w-100">
                                 <label for="horario" class="validationDefault04">Hora final del curso</label>

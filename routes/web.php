@@ -8,6 +8,8 @@ use App\Http\Controllers\HorariosNewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+
+use Illuminate\Http\Request;
 /* Obtenemos el metodo que creamos para actualizar el perfil del usuario */
 use App\Http\Controllers\HomeController;
 
@@ -16,7 +18,6 @@ use App\Http\Controllers\ImportExcel;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-
 Route::get('/', [CursosController::class,'index'])->name('index');
 
 
@@ -34,7 +35,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/mostrar', [CursosController::class, 'show'])->name('mostrar');
 
-Route::get('/crear', [CursosController::class, 'create'])->name('crear')->middleware('auth');
+Route::get('/crear/{hour?}/{aula?}/{dia?}', [CursosController::class, 'create'])->name('crear')->middleware('auth');
 Route::post('/guardar', [CursosController::class, 'store'])->name('guardar')->middleware('auth');
 Route::get('/editar/{curso}/edit', [CursosController::class, 'edit'])->name('editar')->middleware('auth');
 Route::put('editar/{curso}', [CursosController::class, 'update'])->name('actualizar')->middleware('auth');

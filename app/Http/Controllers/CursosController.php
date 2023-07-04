@@ -31,7 +31,7 @@ class CursosController extends Controller
         return view('cursos.index', compact('cursos_departamento', 'cursos_ciclo', 'cursos_area'));
     }
 
-    public function create(Request $request)
+    public function create(Request $request, $hour = null, $aula = null, $dia = null)
     {
         /*Consulta para ver que cursos tienen 2 horarios*/
         $horarios = CursosRequest::obtenerDoblesHorarios();

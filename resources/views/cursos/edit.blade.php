@@ -190,7 +190,7 @@
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
                         {{-- @dd(session('cursosExistentes')) --}}
-                                       
+   
                         @foreach ($horarios as $key => $horario)
                             @if ($key >= 1)
                                 <div class="d-flex align-items-center justify-content-end">
@@ -237,7 +237,8 @@
 
                                 <div class="mb-3 w-100">
                                     <label for="horario" class="validationDefault04">Hora final del curso</label>
-                                    <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]" class="form-control" min="07:00" max="21:00" value="{{ $horario->hora_final }}">
+                                    <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]" class="form-control" min="07:00" max="21:00"
+                                    value="{{ date('H:i', strtotime($horario->hora_final . ' +55 minutes')) }}">
                                     @if ($errors->has('hora_final.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->get('hora_final.'.$key)[0] }}
@@ -308,41 +309,4 @@
         function validarNumero(input) {
             input.value = input.value.replace(/\D/g, ''); // Remover cualquier carácter no numérico
         }
-
-        botonHorarioExtra();
-
-        //Formulario extra de horario
-        function botonHorarioExtra() {
-            var btn = document.getElementById('btn'),
-                formulario = document.getElementById('formulario1');
-            contador = 1;
-
-            function cambio() {
-                if (contador == 0) {
-                    formulario.style.display = "none";
-                    btn.value = "Agregar nuevo horario";
-                    formulario.classList.remove('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
-                    contador = 1;
-
-                    let inputs = document.querySelectorAll('.inputsHorario2');
-                    inputs.forEach(input => {
-                        if (input.type === 'select-one') {
-                            input.value = 'Elegir';
-                        } else {
-                            input.value = null;
-                        }
-                    });
-                } else {
-                    formulario.classList.add('d-block', 'd-md-flex', 'd-lg-flex', 'justify-content-between', 'gap-5');
-                    // formulario.classList.add('d-flex', 'justify-content-between', 'gap-5'
-                    
-                    // formulario.style.display = "block";
-                    btn.value = "Quitar horario";
-                    contador = 0;
-                }
-            }
-            btn.addEventListener('click', cambio, true);
-
-        }
-    </script>
 @endsection

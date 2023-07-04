@@ -23,7 +23,7 @@
                     <form action="{{ route('agenda') }}" method="GET" id="form">
                         <div class="d-flex gap-3 align-items-center my-0">
                             <select id="area" class="form-select w-100 js-example-basic-single" name="edificio">
-                                <option selected value="">Todos los edificios</option>
+                                <option selected value="">Selecciona el edificio</option>
                                 @foreach ($edificios->unique('edificio') as $item)
                                     @if ($item->edificio != '-')
                                         <option value="{{ $item->edificio }}">
@@ -81,13 +81,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (range(7, 21) as $hour)
+                @foreach (range(7, 20) as $hour)
                     <tr>
                         <td>{{ sprintf('%02d', $hour) }}:00</td>
                         @foreach ($aulas as $aula)
                             @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
                                 @php
                                     $flag = null;
+                                    $dia = null;
                                     $content = ''; // Variable para almacenar el contenido de la celda
                                     $id = '';
                                     foreach ($horasFiltradas as $item) {
@@ -97,10 +98,12 @@
                                             $dia = $item['dia'];
                                             $flag = true;
                                             break; // Salir del bucle si se encuentra una coincidencia
+                                        }else {
+                                            $dia = $item['dia'];
                                         }
                                     }
                                 @endphp
-                                <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}" onclick="redirectToLink('{{ $flag == true ? route('editar', $id) : route('crear') }}')">
+                                <td style="background-color:{{ $flag == true ? '#70233b' : '#fafae1' }}" onclick="redirectToLink('{{ $flag == true ? route('editar', $id) : route('crear', [$hour, $aula, $dia] ) }}')">
                                         <a href="{{ route('editar', $id) }}" class="text-decoration-none text-light fw-medium">{{ $content }}</a>
                                 </td>
                                 

@@ -44,13 +44,17 @@ class AgendaController extends Controller
 
         // Función de comparación personalizada
         // if ($aulas !== null) {
-        $aulas = $aulas->sortBy(function ($a) {
-            $segundaPalabraA = null;
-            // if ($a['area'] !== null) {
-                $segundaPalabraA = intval(explode(' ', $a['area'])[1]);
-            // }
-            return $segundaPalabraA;
-        });
+            $aulas = $aulas->sortBy(function ($a) {
+                $segundaPalabraA = null;
+                if ($a['area'] !== null) {
+                    $palabras = explode(' ', $a['area']);
+                    if (count($palabras) > 1) {
+                        $segundaPalabraA = intval($palabras[1]);
+                    }
+                }
+                return $segundaPalabraA;
+            });
+            
         // }
 
         // dd($aulas);
