@@ -11,7 +11,6 @@
     @php
         $hourExists = null;
         $nrc = null;
-        
     @endphp
 
     <div class="container">

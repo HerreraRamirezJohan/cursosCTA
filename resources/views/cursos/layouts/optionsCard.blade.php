@@ -1,4 +1,4 @@
-<td colspan="4" class="fw-semibold">
+<td colspan="6" class="fw-semibold">
     <div class="d-flex justify-content-end">
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-dark" data-bs-toggle="modal"
@@ -13,5 +13,5 @@
 </button>
 </div>
 
-    @include('cursos.layouts.cursosModal')
+    @include('cursos.layouts.cursosSolapadosModal')
 </td>

@@ -22,10 +22,11 @@ class CursosController extends Controller
     {
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
-
         $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
-
         $cursos_area = CursosRequest::getAreas();
+
+        $url = route('inicio');
+        session(['url' => $url]); // Almacenar la URL en la variable de sesión
 
         return view('cursos.index', compact('cursos_departamento', 'cursos_ciclo', 'cursos_area'));
     }
@@ -107,7 +108,7 @@ class CursosController extends Controller
         $validarDatos = $request->validate($rules);
 
         /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = CursosRequest::obtenerDoblesHorarios();
+        // $horarios = CursosRequest::obtenerDoblesHorarios();
 
         /* Areglo que define los aributos mandados */
         $filtros = [
@@ -132,7 +133,6 @@ class CursosController extends Controller
                 $query->where('ciclo', $request->ciclo);
             }
         );
-
         foreach ($conditions as $condition) {
             if ($condition['value']) {
                 $cursos->whereHas('curso', function ($query) use ($condition) {
@@ -163,33 +163,71 @@ class CursosController extends Controller
             $cursos->where('hora_inicio', '>=', $request->hora_inicio);
         }
 
-        // $cursos = $cursos->orderBy('dia', 'asc')->orderBy('hora_inicio')->toSql();
         $cursos = $cursos->orderBy('dia', 'asc')->get();
+        
+        /*Array para meter los cursos sin repetir, habra dos subarrays, uno de dias y otro de horas */
+        $horarios = [];
 
-        // $cursos = $cursos->groupBy('id_curso')->orderBy('hora_inicio', 'asc')->paginate(10);
-
+        foreach ($cursos as $value) {
+            $idCurso = $value['id_curso'];
+            $dia = $value['dia'];
+            $cursoExistente = collect($horarios)->firstWhere('id_curso', $idCurso); //Creamos coleccion de horarios y buscamos el idCurso
+            
+            if ($cursoExistente) {
+                $horas = HorariosNew::with('curso', 'area')->where('id_curso', $idCurso)->pluck('hora')->toArray();
+                $cursoExistente['dias'][] = $dia; // Agregar el día al arreglo de días sin comprobar duplicados
+                // Filtrar las horas correspondientes al día específico
+                $horasPorDia = array_filter($horas, function ($hora) use ($dia) {
+                    return $hora['dia'] === $dia;
+                });
+                // Obtener solo los valores de las horas filtradas
+                $horasPorDia = array_column($horasPorDia, 'hora');
+                // Evitamos datos duplicados
+                $cursoExistente['horas'][$dia] = array_unique(array_merge($cursoExistente['horas'][$dia], $horasPorDia));
+            } else {
+                $horas = HorariosNew::with('curso', 'area')->where('id_curso', $idCurso)->get(['hora', 'dia'])->toArray();
+                $dias = HorariosNew::where('id_curso', $idCurso)->pluck('dia')->unique()->toArray(); // Obtener todos los días sin repetir
+                // Inicializar un arreglo asociativo vacío para las horas de cada día
+                $horasPorDia = [];
+                foreach ($dias as $d) {
+                    $horasPorDia[$d] = [];
+                }
+                // Agregar cada hora al día correspondiente
+                foreach ($horas as $hora) {
+                    $horasPorDia[$hora['dia']][] = $hora['hora'];
+                }
+                $datosCurso = [
+                    'id_curso' => $idCurso,
+                    'dias' => $dias, // Guardar los días sin repetir directamente en el subarreglo 'dias'
+                    'horas' => $horasPorDia, // Utilizar el arreglo $horasPorDia en lugar de un arreglo simple
+                ];
+                $horarios[] = $datosCurso;
+            }
+        }
+        // Obtener las relaciones de los cursos en una sola consulta
+        $relaciones = HorariosNew::with('curso', 'area')->whereIn('id_curso', array_column($horarios, 'id_curso'))->get();
+        // Agregar las relaciones al arreglo de horarios
+        //Pasamos por referencia curso, esto para hacerle saber que el valor va a ser modificado directamente
+        foreach ($horarios as &$curso) {
+            $relacion = $relaciones->firstWhere('id_curso', $curso['id_curso']);
+            if ($relacion) {
+                $curso['curso'] = $relacion->curso->toArray();
+                $curso['area'] = $relacion->area->toArray();
+                // unset($curso['relacion']);
+            }
+        }
+        // dd($horarios);
         $url = $request->fullUrl();
         session(['url' => $url]); // Almacenar la URL en la variable de sesión
-
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-
-        return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios', 'lastCiclo'));
+        return view('cursos.mostrar', compact('cursos', 'filtros', 'horarios','lastCiclo'));
     }
 
     public function edit(Cursos $curso)
     {
-        /*Consulta para ver que cursos tienen 2 horarios*/
-        // $horarios = CursosRequest::obtenerDoblesHorarios();
-
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
-
         /* Valores para select de areas */
         $cursos_area = CursosRequest::getAreas();
-
-        /* Solicitamos los horarios que tenga el curso y esten activos*/
-        // $horariosDelCurso = Horarios::select('horarios.*')
-        //     ->where('id_curso', $curso->id)->where('estado', 1)
-        //     ->get();+
         $horarios = HorariosNew::select(
             'id', 'id_curso', 'id_area', 'dia',
             DB::raw("TIME_FORMAT(CONCAT(MIN(hora), ':00'), '%H:%i') AS hora_inicio"),
@@ -198,8 +236,6 @@ class CursosController extends Controller
             ->where('id_curso', $curso->id)
             ->groupBy('dia')->get();
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-
-
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
         $validacion_horario = Horarios::where('id_curso', $curso->id)->where('estado', 1)->count();
         return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'validacion_horario', 'horarios', 'lastCiclo'));
@@ -214,17 +250,13 @@ class CursosController extends Controller
         }
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request);
-        // dd($cursos);
-        foreach ($cursos as $item)
-        // dd($item[0]->id_curso);
-            if ($item !== null && $item->id_curso !== $curso->id)
+        foreach ($cursos[0] as $item)
+            if ($item !== null && $item['id_curso'] !== $curso->id)
                 return back()->withInput()->with(['cursosExistentes' => $cursos]);
-
 
         /* Actualizamos el curso despues de sus validacoines */
         $curso->update($request->all());
 
-        // dd(count($request->horariosId));
         $horario->where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
@@ -239,6 +271,7 @@ class CursosController extends Controller
                 $start += 1;
             }
         }
+
         return redirect()->back()->with('cursoModificado', 'Curso modificado correctamente.');
     }
 

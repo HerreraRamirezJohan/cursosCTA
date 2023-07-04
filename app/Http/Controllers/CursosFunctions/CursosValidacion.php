@@ -9,9 +9,6 @@ use App\Models\HorariosNew;
 use DateTime;
 use Exception;
 
-use Illuminate\Support\Facades\DB;
-
-
 use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\returnSelf;
 
@@ -77,43 +74,61 @@ class CursosValidacion {
                 // dd($value, $request->area, $start, $curso->id);
                 $horaOcupada = HorariosNew::with('curso', 'area')
                 ->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
-                // print_r($horaOcupada->curso->id . '-');
-                if (isset($horaOcupada->curso->id)) {
-                    if(!in_array($horaOcupada->curso->id, $nrcs)){
-                        $nrcs[] = $horaOcupada->curso->id;
-                        // array_push($horasOcupadas,$horaOcupada);   
-                    }
+                if (isset($horaOcupada->curso->id) && !in_array($horaOcupada->curso->nrc, $nrcs)) {
+                        $nrcs[] = $horaOcupada->curso->nrc;
+                        array_push($horasOcupadas,$horaOcupada);   
                 }
                 $start += 1;
             }
         }
-        $cursosSolapados= HorariosNew::with('curso', 'area')->select(
-            'id', 'id_curso', 'id_area', 'dia',
-            DB::raw("TIME_FORMAT(CONCAT(MIN(hora), ':00'), '%H:%i') AS hora_inicio"),
-            DB::raw("TIME_FORMAT(CONCAT(MAX(hora), ':00'), '%H:%i') AS hora_final")
-        )
-            ->whereIn('id_curso', $nrcs)
-            ->groupBy('dia')->toSql();
-
-        dd($nrcs);
-
-        
-        
+        // dd($horasOcupadas);
+        /*Guardamos todas las horas que tiene cada curso solapado*/
         $horas = [];
-        foreach ($horasOcupadas as $key => $value) {
-            $horasCurso = HorariosNew::where('id_curso', $value->id_curso)->where('id_area', $value->id_area)
-            ->where('dia', $value->dia)->get()->toArray();
-            foreach ($horasCurso as $key => $item) {
-                // dd($item['hora']);
-                $horas[] = $item['hora'];
+        /*Iteramos para buscar todos los horarios que tiene el curso solapado*/
+        foreach ($horasOcupadas as $value) {
+            $horasCurso = HorariosNew::with('curso')->where('id_curso', $value->id_curso)
+                ->where('id_area', $value->id_area)
+                // ->where('dia', $value->dia)
+                ->get()
+                ->toArray();
+            foreach ($horasCurso as $item) {
+                $horaConDatos = [
+                    'id_area' => $item['id_area'],
+                    'hora' => $item['hora'],
+                    'dia' => $item['dia'],
+                    // 'nrc' => $value->curso->nrc,
+                    'id_curso' =>$value->curso->id
+                ];
+                $horas[] = $horaConDatos;
             }
         }
         // dd($horas);
-        return $cursosSolapados;
-        // return [$horasOcupadas, $horas];
+        //Agrupar y simplificar. El array ordenara los cursos con sus horas correspondientes.
+        $horariosArray = []; 
+        foreach ($horas as $value) {
+            $idCurso = $value['id_curso'];
+            $dia = $value['dia'];
+            $hora = $value['hora'];
+        
+            if (!isset($horariosArray[$dia])) {
+                $horariosArray[$dia] = [];
+            }
+        
+            if (!isset($horariosArray[$dia][$idCurso])) {
+                $horariosArray[$dia][$idCurso] = [
+                    'id_curso' => $idCurso,
+                    'dia' => $dia,
+                    'horas' => []
+                ];
+            }
+        
+            $horariosArray[$dia][$idCurso]['horas'][] = $hora;
+        }
+        /*Ordenamos e indexamos el arreglo*/
+        $horariosArray = array_values($horariosArray);
+        // dd($horariosArray);
+        return [$horasOcupadas, $horariosArray];
     }
-
-    
 
     private static function validateFilledInputs($request, $action){
         $validationRules = [

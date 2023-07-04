@@ -5,6 +5,7 @@
         $horarioErrors = collect(session('errorsHorario'));  //Obtenemos los errores de los horarios
         // dd($horarioErrors);
     @endphp
+    {{-- @dd($horarios) --}}
 
     <script>
         // In your Javascript (external .js resource or <script> tag)
@@ -22,7 +23,7 @@
             <div class="alert alert-success mt-3 d-flex justify-content-between" role="alert">
                 <div>{{ session('cursoModificado') }}</div>
                 <div>
-                    <a href="{{ $url }}" class="align-bottom"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                    <a href="{{ $url}}" class="align-bottom"><svg xmlns="http://www.w3.org/2000/svg" width="20"
                             height="20" fill="currentColor" class="bi bi-arrow-left align-middle" viewBox="0 0 16 16">
                             <path fill-rule="evenodd"
                                 d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
@@ -34,7 +35,8 @@
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Editar curso</h1>
                 <div class="col-md-5 w-100">
-                    <form action="{{ route('actualizar', $curso) }}" method="post" id="guardarCurso">
+                    {{-- @dd($curso) --}}
+                    <form action="{{ route('actualizar', $curso->id) }}" method="post" id="guardarCurso">
                         @csrf
                         @method('put')
                         <div class="mb-3">
@@ -48,6 +50,7 @@
                                 {{ $errors->first('curso_nombre') }}
                             </div>
                         @endif
+                        
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="nrc" class="validationDefault04">Nrc:</label>
@@ -102,7 +105,6 @@
                             <textarea name="observaciones" id="observaciones" class="form-control h-100" value="{{ old('observaciones', $curso->observaciones) }}">{{$curso->observaciones ?? 'Ninguna'}}</textarea>
                             {{-- <text type="text" name="email" value="{{isset( $employe->email)?$employe->email:''}}" id="email"> --}}
                         </div>
-                        {{-- @dd($horarios) --}}
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Área:</label>
@@ -121,7 +123,6 @@
                                     </div>
                                 @endif
                             </div>
-
                             <div class="mb-3 w-100">
                                 <label for="Departamento" class="validationDefault04">Departamento:</label>
                                 <select id="validationDefault04" class="form-select js-example-basic-single" name="departamento" class="form-control" required>
@@ -188,6 +189,8 @@
                                 @endforeach
                         @endif
                         {{-- [Final] Alerts de validaciones de horario --}}
+                        {{-- @dd(session('cursosExistentes')) --}}
+                                       
                         @foreach ($horarios as $key => $horario)
                             @if ($key >= 1)
                                 <div class="d-flex align-items-center justify-content-end">
@@ -242,10 +245,8 @@
                                     @endif
                                 </div>
                             </div>
-
                             {{-- Segundo horario Final --}}
-                @endforeach
-
+                        @endforeach
                             {{-- Botones y cotenido en caso de querer agregar mas horarios --}}
                         {{-- Segundo horario --}}
                         <div class="d-flex me-3" id="containerButtons">
@@ -268,13 +269,13 @@
                                 <input class="flex-grow-1" type="button" value="Eliminar horario" style="all:unset">             
                             </div>
                         </div>
-
+                        
                         <div id="formulariosContainer">
                             <!-- Aquí se agregarán los formularios -->
                         </div>
-                <div class="d-flex justify-content-center">
-                    <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
-                    <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="guardarCurso()">Actualizar</button>
+                        <div class="d-flex justify-content-center">
+                            <a href="{{ $url }}" class="btn btn-danger mx-2">Cancelar</a>
+                            <button type="button" class="btn btn-primary mx-2" id="editBtn" onclick="guardarCurso()">Actualizar</button>
                 </div>
                 </form>
             </div>
@@ -285,11 +286,12 @@
                 @php
                     $cursos = collect(session('cursosExistentes'));
                 @endphp
-                {{-- @dd($cursos['curso']->id) --}}
+                {{-- @dd($cursos[2], $cursos[0]) --}}
+                {{-- @dd($cursos[0]) --}}
                 <h3>Curso con el que interfiere:</h3>
                 <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
-                    @foreach ($cursos as $key => $item) 
-                    {{-- @dd($item['hora_inicio']) --}}
+                    @foreach ($cursos[0] as $key => $item) 
+                    {{-- @dd($item, $cursos[2]) --}}
                         @if (isset($item) && $item->id_curso !== $curso->id)
                             @include('cursos.layouts.cursosCard')
                         @endif
@@ -312,7 +314,7 @@
         //Formulario extra de horario
         function botonHorarioExtra() {
             var btn = document.getElementById('btn'),
-                formulario = document.getElementById('formulario');
+                formulario = document.getElementById('formulario1');
             contador = 1;
 
             function cambio() {

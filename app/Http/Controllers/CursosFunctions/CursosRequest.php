@@ -16,6 +16,8 @@ class CursosRequest{
         ->where('estado', 1)
         ->get();
 
+        // dd($horarios);
+
         return $horarios;
     }
 

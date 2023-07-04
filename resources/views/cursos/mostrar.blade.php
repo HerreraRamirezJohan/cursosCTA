@@ -15,8 +15,9 @@
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center fw-normal mb-2">Resultados de la búsqueda: </h1>
                 @php
+                // dd($horarios);
                     $route = auth()->check() ? route('inicio') : route('index');
-                    $totalCursos = $cursos->count();
+                    $totalCursos = count($horarios);
                     $mensaje = $totalCursos == 1 ? '1 curso encontrado' : ($totalCursos == 0 ? 'No se encontraron cursos.' : "$totalCursos cursos encontrados");
                 @endphp
 

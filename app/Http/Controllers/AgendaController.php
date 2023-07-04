@@ -77,6 +77,9 @@ class AgendaController extends Controller
             }
         }
 
+        $url = $request->fullUrl();
+        session(['url' => $url]); // Almacenar la URL en la variable de sesión
+
         // sort($horasFiltradas, SORT_NUMERIC);
 
         return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));

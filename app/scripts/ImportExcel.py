@@ -30,7 +30,7 @@ class ImportExcel:
         
         #Una vez limpios los datos realizamos el merge en relacion a las Areas
         connectionDBAreas = db("localhost", "root", "", "sige")
-        connectionDBAreas.mergeAreasWhitExcel(dfExcelClean=df)
+        connectionDBAreas.mergeAreasWithExcel(dfExcelClean=df)
         
         # print('despues de eliminar y agregar:' + (str)(len(df)))
         
@@ -151,5 +151,5 @@ class ImportExcel:
             return nivel
 
 
-rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
-importExcel = ImportExcel(rute2, '2023A')
+# rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
+# importExcel = ImportExcel(rute2, '2023A')
