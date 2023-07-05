@@ -38,7 +38,7 @@ class DBareasMerge:
         return df
     
     # Funcion para obtener el id_area en relacion de la columna de area de la base de datos.
-    def mergeAreasWhitExcel(self, dfExcelClean):
+    def mergeAreasWithExcel(self, dfExcelClean):
                 
         dfAreas = self.get_areas_dataframe()
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')

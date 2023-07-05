@@ -55,9 +55,8 @@ Route::get('/importar', function(){return view('cursos.import');})->name('indexI
 Route::post('/importando', [HorariosNewController::class, 'importSeeder'])->name('importSeeder')->middleware('auth');
 
 // Route::resource('areas', AreasController::class);
-Route::get('/areas', [AreasController::class, 'index'])->name('areas');
-
-Route::post('/mostrarAreas', [AreasController::class, 'show'])->name('mostrarAreas');
+// Route::get('/areas', [AreasController::class, 'index'])->name('areas');
+// Route::post('/mostrarAreas', [AreasController::class, 'show'])->name('mostrarAreas');
 
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda');
 
