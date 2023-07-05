@@ -22,7 +22,7 @@ class ImportExcel:
         sheetExcel = self.change_day_value(sheetExcel)
         
         # Exportamos los datos a la base de datos.
-        dbConecction = db('localhost', 'root', '', 'cursos')
+        dbConecction = db('localhost', 'root', '', 'sige')
         sheetExcel=dbConecction.mergeAreasWithExcel(sheetExcel)
         # Retornamos el unico en formato dataframe para asignarlo en el constructor
         return sheetExcel

@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 import json
+
 
 import mysql.connector
 
@@ -37,11 +39,14 @@ class DBareasMerge:
         result = self.executeSelect(query)
         df = pd.DataFrame(result, columns=["id", "area"])
         df.columns = ["id_area", "area"]
+        
         return df
     
     # Funcion para obtener el id_area en relacion de la columna de area de la base de datos.
     def mergeAreasWithExcel(self, dfExcelClean = pd.DataFrame()):
         dfAreas = self.get_areas_dataframe()
+        # Eliminar el carácter "-" de la columna "area"
+        dfExcelClean['area'] = dfExcelClean['area'].str.replace('-', ' ')
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')
         dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
         
@@ -53,7 +58,7 @@ class DBareasMerge:
         #exportar cursos
         data = tableCursos[['nrc', 'curso_nombre', 'departamento', 'alumnos_registrados', 'cupo', 'ciclo' , 'nivel', 'profesor' ,'codigo']].values.tolist()
         # print(f"Registros del query: {len(data)}")
-        query = "INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
+        query = "INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, ciclo , nivel, profesor ,codigo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
         # Array para almacenar los IDs y correos electrónicos generados
         id_nrc_array = []
         
@@ -82,7 +87,7 @@ class DBareasMerge:
         
         #exportar horarios
         dataHorario = dfHorarios[['id_curso', 'id_area', 'dia', 'hora']].values.tolist()
-        query = "UPDATE horarios_news SET id_curso = %s WHERE id_area=%s and dia=%s and hora=%s"
+        query = "UPDATE horarios_news SET id_curso = %s, status = 1 WHERE id_area=%s and dia=%s and hora=%s"
         
         cursor = self.connection.cursor()
         # Insertar los registros en lotes
@@ -129,25 +134,22 @@ class DBareasMerge:
         return tableCursos
         
 
-    def create_HorariosTable(self, df = pd.DataFrame()):
-        # df.rename(columns={'id' : 'id_curso'}, inplace=True)
-        
-        dfHorariosConHora = pd.DataFrame()
-        
-        for index, row in df.iterrows():
-                    
-            start = int(row['hora_inicio'].hour)
-            end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
-            # print('hora_inicio = ' + str(start))
-            # print('hora_final = ' + str(end))
-            while(start <= end):
-                selected_row = row.copy()
-                selected_row['hora'] = start
-                dfHorariosConHora = pd.concat([dfHorariosConHora, pd.DataFrame([selected_row])], ignore_index=True)
-                dfHorariosConHora = dfHorariosConHora.drop(['hora_inicio', 'hora_final'], axis=1)
-                # print('Horka:' + str(start))
-                start+=1
-                
-            # print()
 
-        return dfHorariosConHora
+    def create_HorariosTable(self, df=pd.DataFrame()):
+        # Generar un rango de horas para cada fila y convertir a enteros
+        # df['hora'] = df.apply(lambda row: list(range(int(row['hora_inicio'].hour), int(row['hora_final'].hour + 1 ))), axis=1).astype(object)
+        df['hora'] = df.apply(lambda row: list(range(int(row['hora_inicio'].hour), int(row['hora_final'].hour))) if int(row['hora_final'].minute) == 0 else list(range(int(row['hora_inicio'].hour), int(row['hora_final'].hour +1))), axis=1).astype(object)
+        # df['hora'] = df.apply(lambda row: (print(True) or list(range(int(row['hora_inicio'].hour), int(row['hora_final'].hour + 1)))) if int(row['hora_final'].minute) == 0 else (print(False) or list(range(int(row['hora_inicio'].hour), int(row['hora_final'].hour)))), axis=1).astype(object)
+        # Explotar la columna 'hora' solo si es una lista
+        dfHorariosConHora = df.explode('hora', ignore_index=True) if isinstance(df['hora'].iloc[0], list) else df.copy()
+
+        # Limpiar valores no finitos (NaN o infinito) en la columna 'hora'
+        dfHorariosConHora = dfHorariosConHora.dropna(subset=['hora']).replace([np.inf, -np.inf], np.nan)
+
+        # Convertir los valores de 'hora' a enteros
+        dfHorariosConHora['hora'] = dfHorariosConHora['hora'].astype(float).astype(int)
+        # print(f"Registros de horarios: {len(dfHorariosConHora)}")
+
+        # print(dfHorariosConHora['hora'].sample(10))
+        # return 
+        return dfHorariosConHora.drop(['hora_inicio', 'hora_final'], axis=1)

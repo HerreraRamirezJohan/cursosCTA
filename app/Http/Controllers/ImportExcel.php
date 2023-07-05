@@ -32,6 +32,6 @@ class ImportExcel extends Controller
         }
     
         $response = $process->getOutput();
-        return $response;
+        return json_decode($response);
     }
 }
