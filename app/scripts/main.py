@@ -31,6 +31,7 @@ rute1 = r"D:\CTA\CleanExcelSchedule\Oferta academiaca 4635 cursos.xlsx"
 rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
 importExcel = ie.ImportExcel(rute2, '2023A')
 df = importExcel.df
+print(f"Registros en horarios news: {len(df)}")
 
 # Crear la tabla
 table = ttk.Treeview(frame)
