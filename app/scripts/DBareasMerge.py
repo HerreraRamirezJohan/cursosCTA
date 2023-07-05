@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+import json
 
 import mysql.connector
 
@@ -43,18 +43,16 @@ class DBareasMerge:
     def mergeAreasWithExcel(self, dfExcelClean = pd.DataFrame()):
         dfAreas = self.get_areas_dataframe()
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')
-        tableCursos = self.create_CursosTable(dfMergeCompleate)
+        dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
         
+        # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
+        tableCursos = self.create_CursosTable(dfMergeCompleate)
+        # print(f"Cursos unicos: {len(tableCursos)}")
         tableCursos['profesor'] = tableCursos['profesor'].fillna(value='')
-        tableCursos['nrc'] = tableCursos['nrc'].astype(str).replace('\.0', '', regex=True)
-
-
-        # tableCursos = tableCursos.fillna(value=None)
-        # return tableCursos
-        # print(f'Cursos Unicos: {len(tableCursos)}')
         
         #exportar cursos
         data = tableCursos[['nrc', 'curso_nombre', 'departamento', 'alumnos_registrados', 'cupo', 'ciclo' , 'nivel', 'profesor' ,'codigo']].values.tolist()
+        # print(f"Registros del query: {len(data)}")
         query = "INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
         # Array para almacenar los IDs y correos electrónicos generados
         id_nrc_array = []
@@ -76,19 +74,15 @@ class DBareasMerge:
 
         # Cerrar la conexión
         cursor.close()
-
-        # Imprimir los pares de ID y correo electrónico
-        # for id, nrc in id_nrc_array:
-        #     print(f"ID: {id}, Email: {nrc}")
         
         # Convertir id_nrc_array en un DataFrame
         df_id_nrc = pd.DataFrame(id_nrc_array, columns=['id_curso', 'nrc'])
-        dfIdCursos = pd.merge(tableCursos, df_id_nrc, on='nrc', how='inner')
+        dfIdCursos = pd.merge(dfMergeCompleate, df_id_nrc, on='nrc', how='inner')
         dfHorarios = self.create_HorariosTable(dfIdCursos)
         
         #exportar horarios
         dataHorario = dfHorarios[['id_curso', 'id_area', 'dia', 'hora']].values.tolist()
-        query = "INSERT INTO horarios_news (id_curso, id_area, dia, hora) VALUES (%s, %s, %s, %s)"
+        query = "UPDATE horarios_news SET id_curso = %s WHERE id_area=%s and dia=%s and hora=%s"
         
         cursor = self.connection.cursor()
         # Insertar los registros en lotes
@@ -101,36 +95,25 @@ class DBareasMerge:
         # Cerrar la conexión
         cursor.close()
         
-        self.disconnect()
-        return
         # Obtener las áreas relacionadas
         areas_relacionadas = dfMergeCompleate['area'].unique().tolist()
     
         # Obtener las áreas no relacionadas
         areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
+        areas_no_relacionadas.discard(float('nan'))
+        areas_no_relacionadas.discard(None)
         
-        # # Imprimir las áreas relacionadas
+        # Imprimir las áreas relacionadas en formato JSON
         # print("areas relacionadas:")
-        # print('<br>')
-        # for area in areas_relacionadas:
-        #     print(area)
-        #     print('<br>')
-        
-        # # Imprimir las áreas no relacionadas
+        print(json.dumps(areas_relacionadas))
+
+        # Imprimir las áreas no relacionadas en formato JSON
         # print("areas no relacionadas:")
-        # print('<br>')
-        # for area in areas_no_relacionadas:
-        #     print(area)
-        #     print('<br>')
-        
-        #Asignamos el DF completo al realizar el merge
-        df = dfMergeCompleate
-        # self.cursosTable = self.create_CursosTable(df)
-        # self.horariosTable = self.create_HorariosTable(df)
-        self.exportCursosAndHorarios(df)
-        print('Cursos exportados')
+        print(json.dumps(list(areas_no_relacionadas)))
         
         self.disconnect()
+                
+        return dfHorarios
         
 
 # print(df.columns)
@@ -145,7 +128,7 @@ class DBareasMerge:
         
 
     def create_HorariosTable(self, df = pd.DataFrame()):
-        df.rename(columns={'id' : 'id_curso'}, inplace=True)
+        # df.rename(columns={'id' : 'id_curso'}, inplace=True)
         
         dfHorariosConHora = pd.DataFrame()
         
@@ -164,82 +147,3 @@ class DBareasMerge:
                 start+=1
             # print()
         return dfHorariosConHora
-
-    # def exportCursosAndHorarios(self, tablaCursos = pd.DataFrame()):
-    #     nrcs = []
-    #     for index, row in tablaCursos.iterrows():
-    #         # print([index, row])
-    #         nrc = row['nrc']
-    #         id_curso = None
-    #         if not nrc in nrcs:
-    #             nrcs.append(nrc) 
-    #             curso_nombre = row['curso_nombre']
-    #             departamento = row['departamento']
-    #             alumnos_registrados = row['alumnos_registrados']
-    #             cupo = row.get('cupo')
-    #             ciclo = row.get('ciclo')
-    #             nivel = row.get('nivel')
-    #             profesor = row.get('profesor')
-    #             codigo = row.get('codigo')
-                
-    #             # Ejemplo de inserción en MySQL
-    #             cursor = self.connection.cursor()
-    #             query = f"INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
-    #             values = (nrc, curso_nombre, departamento, alumnos_registrados, cupo, nivel, profesor, codigo, ciclo)
-    #             cursor.execute(query, values)
-    #             self.connection.commit()
-                
-    #             # Obtener el ID del curso insertado
-    #             id_curso = cursor.lastrowid
-                
-    #             cursor.close()            
-    #         # Datos necesarios para generar los N registros por N horas de la duracion del curso
-    #         start = row['hora_inicio'].hour
-    #         end = row['hora_final'].hour if row['hora_final'].minute != 0 else row['hora_final'].hour - 1
-    #         # Datos a exportar a horarios
-    #         id_area = row['id_area']
-    #         dia = row['dia']
-
-            
-    #         while(start <= end):
-    #             # Ejemplo de update en MySQL
-    #             cursor = self.connection.cursor()
-    #             query = f"UPDATE horarios_news SET id_curso = %s, status=1 WHERE id_area=%s AND hora=%s AND dia=%s"
-    #             values = (id_curso, id_area, start, dia)
-    #             start+=1
-    #             try:
-    #                 cursor.execute(query, values)
-    #                 self.connection.commit()
-    #             except Exception as e:
-    #                 print(f"Error al ejecutar la consulta: {str(e)}")
-    #             cursor.close()
-        
-# tableHorarioNews = create_HorariosTable(df)
-
-# print(tableHorarioNews.columns)
-# for index, row in tableHorarioNews.iterrows():
-#     print([index, row])
-#     id_area = row['id_area']
-#     id_curso = row['id_curso'] + 1
-#     hora = row['hora']
-#     dia = row['dia']
-
-#     # Obtener los valores de las demás columnas que necesites
-    
-#     # Ejemplo de update en MySQL
-#     cursor = connector.connection.cursor()
-#     query = f"UPDATE horarios_news SET id_curso = %s WHERE id_area=%s AND hora=%s AND dia=%s"
-#     values = (id_curso, id_area, hora, dia)
-#     try:
-#         cursor.execute(query, values)
-#         connector.connection.commit()
-#     except Exception as e:
-#         print(f"Error al ejecutar la consulta: {str(e)}")
-#     break
-
-
-
-# print(tableHorarioNews.columns)
-# print('Se crearon: ' + str(len(tableHorarioNews)) + ' registros de horarios.')
-# tableCursos.to_csv('DataBase/Cursos.csv', index=False, encoding='ISO-8859-1')
-# tableHorarioNews.to_csv('DataBase/Horarios.csv', index=False, encoding='ISO-8859-1')

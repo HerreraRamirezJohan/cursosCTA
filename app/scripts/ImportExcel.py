@@ -6,7 +6,7 @@ class ImportExcel:
     def __init__(self, file, ciclo) -> None:
         self.ciclo = ciclo
         self.df = self.importFromExcelFile(file, ciclo)
-        print('Exito.')
+        # print('Exito.')
        
         
     def importFromExcelFile(self, file, ciclo):
@@ -131,5 +131,5 @@ class ImportExcel:
         return days
 
 
-rute = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx" 
-obj = ImportExcel(rute, '2023B')
+# rute = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx" 
+# obj = ImportExcel(rute, '2023B')
