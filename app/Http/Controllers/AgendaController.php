@@ -61,25 +61,35 @@ class AgendaController extends Controller
 
         //Datos del aula que estan ocupados
         $horasFiltradas = [];
+        /*Edificio A FBA 3 excel viejo*/
+        // foreach ($aulas as $key => $value) {
+            // print_r($value->area . ':'. $value->id);
+        // }
 
         foreach ($aulas as $key => $aula) {
-            $horas = HorariosNew::with('curso', 'area')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
+                $horas = HorariosNew::with('curso', 'area')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
                 where('status', 1)->get();
+                foreach ($horas as $key2 => $hora) {
                 // dd($horas);
-            foreach ($horas as $key2 => $hora) {
+                // if ($aula->id == 176) {
+                //     print_r($hora->id . '-' );
+                // }
                 // print_r($hora->curso->id . '-');
                 // Guaradamos en el arreglo el id y la hora de todas las aulas del edificio seleccionado
+                // print_r($hora);
+                // print_r($hora['curso']['id'] . '-');
                 array_push($horasFiltradas, [
-                    'id' => $hora->curso->id,
+                    'id' => $hora['curso']->id,
                     'id_area' => $hora->id_area,
-                    'area' => $hora->area->area,
-                    'nrc' => $hora->curso->nrc,
+                    'area' => $hora['area']->area,
+                    'nrc' => $hora['curso']->nrc,
                     'dia' => $hora->dia,
                     'hora' => $hora->hora,
                     'status' => $hora->status
                 ]);
             }
         }
+
 
         $url = $request->fullUrl();
         session(['url' => $url]); // Almacenar la URL en la variable de sesión

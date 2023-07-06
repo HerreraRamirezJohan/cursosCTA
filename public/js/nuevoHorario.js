@@ -65,16 +65,20 @@ function botonHorarioExtra() {
         }
     }
 
-    // Agregar un evento al nuevo div
-    btnAgregar.addEventListener('click', function() {
-            agregarFormulario();
-            console.log(contador);
-
-    });
-
-    btnEliminar.addEventListener('click', function(){
-            quitarFormulario();
-    });
+    // Verificar si btnAgregar existe antes de agregar el evento
+    if (btnAgregar) {
+        btnAgregar.addEventListener('click', function() {
+          agregarFormulario();
+          // console.log(contador);
+        });
+      }
+      
+      // Verificar si btnEliminar existe antes de agregar el evento
+      if (btnEliminar) {
+        btnEliminar.addEventListener('click', function(){
+          quitarFormulario();
+        });
+      }
 
 
     

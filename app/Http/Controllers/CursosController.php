@@ -38,7 +38,7 @@ class CursosController extends Controller
 
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
-        // $cursos_ciclo = CursosValidacion::getCiclo();
+        $cursos_ciclo = CursosValidacion::getCiclo();
         // dd($primerCursoDelCiclo, $tiempoTranscurrido);
 
         $cursos_area = CursosRequest::getAreas();
@@ -47,7 +47,7 @@ class CursosController extends Controller
 
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'horarios', 'lastCiclo'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'horarios', 'lastCiclo', 'cursos_ciclo'));
     }
 
     public function store(Request $request)
@@ -85,6 +85,9 @@ class CursosController extends Controller
         HorariosNew::where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
+            // if ($hora_final[$key] ) {
+            //     # code...
+            // }
             $end = (int) $request->hora_final[$key];
             // dd($start, $end);
             while ($start <= $end) {
@@ -160,12 +163,14 @@ class CursosController extends Controller
 
         /* Verificamos si el usuario ingreso una hora de inicio  y se  aplica el filtro where */
         if ($request['hora_inicio']) {
-            $cursos->where('hora_inicio', '>=', $request->hora_inicio);
+            $cursos->where('hora', '>=', $request->hora_inicio);
         }
 
         $cursos = $cursos->orderBy('dia', 'asc')->get();
-        
+        // dd($cursos);
         /*Array para meter los cursos sin repetir, habra dos subarrays, uno de dias y otro de horas */
+        // 1:38 con coleccion
+        // 1:30 sin coleccion
         $horarios = [];
 
         foreach ($cursos as $value) {

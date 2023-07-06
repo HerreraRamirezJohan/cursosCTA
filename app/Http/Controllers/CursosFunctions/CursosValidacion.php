@@ -213,18 +213,18 @@ class CursosValidacion {
     //     return null;
     // }
 
-    // public static function getCiclo(){
-    //     $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-    //     /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
-    //     $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
-    //     $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
-    //     $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
+    public static function getCiclo(){
+        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
+        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
+        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
+        $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
 
-    //     /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
-    //     lo que permitira poder ingresar un ciclo manualmente
-    //     en caso contrario mando el ciclo actual que se cursa */
-    //     return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
-    // }
+        /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
+        lo que permitira poder ingresar un ciclo manualmente
+        en caso contrario mando el ciclo actual que se cursa */
+        return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
+    }
 
     public static function validateNrc($request){
         /* validamos si el curso ya existe */

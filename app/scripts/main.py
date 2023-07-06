@@ -28,9 +28,11 @@ frame.pack(expand=False)
 
 # Llenar table con el dataframe
 rute1 = r"D:\CTA\CleanExcelSchedule\Oferta academiaca 4635 cursos.xlsx"
-rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
-importExcel = ie.ImportExcel(rute2, '2023A')
-df = importExcel.df
+# rute2 = r"C:\PyhonProyects\CleanDataSchedule\Oferta academiaca 4635 cursos.xlsx"
+rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
+
+obj = ie.ImportExcel(rute2, '2023A')
+df = obj.df
 print(f"Registros en horarios news: {len(df)}")
 
 # Crear la tabla

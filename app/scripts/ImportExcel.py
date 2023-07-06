@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
-
+import unicodedata
 from DBareasMerge import DBareasMerge as db
 
 class ImportExcel:
@@ -20,7 +21,7 @@ class ImportExcel:
         #Definimimos columnas
         sheetExcel = self.defineTypeOfColumns(sheetExcel)
         sheetExcel = self.change_day_value(sheetExcel)
-        
+        # return sheetExcel
         # Exportamos los datos a la base de datos.
         dbConecction = db('localhost', 'root', '', 'sige')
         sheetExcel=dbConecction.mergeAreasWithExcel(sheetExcel)
@@ -43,10 +44,12 @@ class ImportExcel:
         df['alumnos_registrados'] = pd.to_numeric(df['alumnos_registrados'], errors='coerce').fillna(0).astype(int)
         df['cupo'] = pd.to_numeric(df['cupo'], errors='coerce').fillna(0).astype(int)
 
-        df[['dia', 'nivel']] = df[['dia', 'nivel']].astype(str)
+        df[['dia', 'nivel','area']] = df[['dia', 'nivel','area']].astype(str)
 
         # Modificar prefijos a nombre completo de nivel
         df['nivel'] = df['nivel'].apply(self.actualizar_nivel)
+        df['area'] = df['area'].apply(lambda x: unicodedata.normalize('NFKD', x).encode('ASCII', 'ignore').decode('utf-8'))
+
 
         df = self.detect_NaN_rows(df)
         return df
@@ -131,5 +134,5 @@ class ImportExcel:
         return days
 
 
-# rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
-# importExcel = ImportExcel(rute2, '2023A')
+    # rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
+    # importExcel = ImportExcel(rute2, '2023A')

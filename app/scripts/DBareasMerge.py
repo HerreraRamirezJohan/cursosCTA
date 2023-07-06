@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import pandas as pd
 import numpy as np
+from response import response
 import json
 
 
@@ -7,6 +10,7 @@ import mysql.connector
 
 class DBareasMerge:
     def __init__(self, host, username, password, database):
+        self.response = response()
         self.host = host
         self.username = username
         self.password = password
@@ -49,9 +53,9 @@ class DBareasMerge:
         dfExcelClean['area'] = dfExcelClean['area'].str.replace('-', ' ')
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')
         dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
-        
         # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
         tableCursos = self.create_CursosTable(dfMergeCompleate)
+        self.response.setCursosImportados(len(tableCursos))
         # print(f"Cursos unicos: {len(tableCursos)}")
         tableCursos['profesor'] = tableCursos['profesor'].fillna(value='')
         
@@ -111,11 +115,15 @@ class DBareasMerge:
 
         # Imprimir las áreas relacionadas en formato JSON
         # print("areas relacionadas:")
-        print(json.dumps(areas_relacionadas))
+        self.response.setAreasReg(areas_relacionadas)
+        self.response.setAreasOcup(list(areas_no_relacionadas))
+
+        self.response.printJSON()
+        # print(json.dumps(areas_relacionadas))
 
         # Imprimir las áreas no relacionadas en formato JSON
         # print("areas no relacionadas:")
-        print(json.dumps(list(areas_no_relacionadas)))
+        # print(json.dumps(list(areas_no_relacionadas)))
 
         
         self.disconnect()

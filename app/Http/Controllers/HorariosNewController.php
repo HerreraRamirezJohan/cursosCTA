@@ -14,6 +14,7 @@ class HorariosNewController extends Controller
     }
     public function importSeeder()
     {
+        // Tiempo: 52 seg.
         Artisan::call('db:seed', ['--class' => 'HorariosSeeder']);
         // return view('cursos.imports.import');
 

@@ -1,8 +1,8 @@
 function importarHorarios() {
-    let horarios = document.querySelector('#importSeeder');
+    let horarios = document.querySelector('#importCursos');
 
     Swal.fire({
-            title: '¿Deseas importar nuevos horarios?',
+            title: '¿Deseas importar nuevos cursos?',
             showDenyButton: true,
             confirmButtonText: 'Importar',
             denyButtonText: `Cancelar`,
