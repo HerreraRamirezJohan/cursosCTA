@@ -238,7 +238,9 @@
                                 <div class="mb-3 w-100">
                                     <label for="horario" class="validationDefault04">Hora final del curso</label>
                                     <input id="hora_final{{ $key + 1 }}" type="time" name="hora_final[]" class="form-control" min="07:00" max="21:00"
-                                    value="{{ date('H:i', strtotime($horario->hora_final . ' +55 minutes')) }}">
+                                    value="{{ date('H:i', strtotime($horario->hora_final . ' +55 minutes')) }}"
+                                    {{-- value="{{$horario->hora_final}}" --}}
+                                    >
                                     @if ($errors->has('hora_final.'.$key))
                                         <div class="alert alert-danger mt-2" role="alert">
                                             {{ $errors->get('hora_final.'.$key)[0] }}
@@ -292,7 +294,7 @@
                 <h3>Curso con el que interfiere:</h3>
                 <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
                     @foreach ($cursos[0] as $key => $item) 
-                    {{-- @dd($item, $cursos[2]) --}}
+                    {{-- @dd($cursos[0], $cursos[1]) --}}
                         @if (isset($item) && $item->id_curso !== $curso->id)
                             @include('cursos.layouts.cursosCard')
                         @endif

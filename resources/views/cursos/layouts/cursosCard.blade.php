@@ -1,3 +1,5 @@
+{{-- @dd($cursos[1], $item) --}}
+
 <div class="col-12 col-lg-6 mb-5">
     {{-- <div class="h-100 table-responsive-sm"> --}}
     <table class="table table-bordered border-dark align-middle h-100">
@@ -17,23 +19,31 @@
             <td colspan="2">
                 {{ $item['curso']->departamento }}
             </td>
-            @foreach ($cursos[1] as $key => $horario)
-                <td class="align-middle text-capitalize">
-                    {{-- Mostramos todos los dias --}}
-                    {{ $horario[$item->id_curso]['dia'] }}
-                </td>
+            @foreach($cursos[1] as $key => $horario)
+            {{-- @dd($horario[6351]) --}}
+            {{-- @dd($cursos[1]) --}}
+            {{-- Mostramos todos los dias --}}
+            @if (isset($horario[$item->id_curso]) && $horario[$item->id_curso]['id_curso'] == $item->id_curso)
+            <td class="text-capitalize">
+                    {{-- @dd($horario) --}}
+                        {{ $horario[$item->id_curso]['dia'] }}
+            </td>
+                    {{-- @break --}}
+                    @endif
             @endforeach
         </tr>
         <tr>
             <td colspan="2"><span class="fw-semibold">Sede:</span>
                 {{ isset($item['area']->sede) ? $item['area']->sede : 'No asignada' }}
             </td>
-            @foreach ($cursos[1] as $key => $horario)
-            @if ($horario[$item->id_curso]['id_curso'] == $item->id_curso)
+            @foreach($cursos[1] as $key => $horario)
+            {{-- @dd($cursos[0],$cursos[1])  --}}
+            @if (isset($horario[$item->id_curso]) && $horario[$item->id_curso]['id_curso'] == $item->id_curso)
                 <td>
                     {{-- Mostramos todas las horas --}}
-                    {{ sprintf('%02d', min($horario[$item->id_curso]['horas'])) . ':00' . '-' . sprintf('%02d', max($horario[$item->id_curso]['horas'])) . ':00' . ''}}
+                    {{ sprintf('%02d', min($horario[$item->id_curso]['horas'])) . ':00' . '-' . sprintf('%02d', max($horario[$item->id_curso]['horas'])) . ':55' . ''}}
                 </td>
+            {{-- @break --}}
             @endif
             @endforeach
         </tr>
@@ -55,7 +65,7 @@
                         @include('cursos.layouts.cursosSolapadosModal')
                         <span class="d-none d-sm-inline">Opciones de Curso:</span>
                     </td>
-                    <td colspan="2" style="border-style:none solid none none;">
+                    <td colspan="6" style="border-style:none solid none none;">
                         <div class="d-flex">
                             {{-- Boton editar --}}
                             <div class="d-flex w-50 justify-content-center align-items-center">

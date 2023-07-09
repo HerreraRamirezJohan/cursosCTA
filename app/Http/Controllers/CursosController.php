@@ -7,6 +7,7 @@ use App\Models\Cursos;
 use App\Models\Horarios;
 use App\Models\HorariosNew;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -63,7 +64,7 @@ class CursosController extends Controller
             return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request, "store");
-        foreach ($cursos as $curso)
+        foreach ($cursos[0] as $curso)
             if ($curso !== null)
                 return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
@@ -85,10 +86,15 @@ class CursosController extends Controller
         HorariosNew::where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
-            // if ($hora_final[$key] ) {
-            //     # code...
-            // }
-            $end = (int) $request->hora_final[$key];
+            // dd($request->hora_final[$key]);
+            /*Validamos que si los minutos son igual a cero que les reste 5 minutos*/
+            if (Carbon::parse($request->hora_final[$key])->minute === 0) {
+                $newEndTime = Carbon::parse($request->hora_final[$key])->subMinutes(5)->format('H:i');
+                // dd($newEndTime);
+                $end = (int) $newEndTime;
+            } else {
+                $end = (int) $request->hora_final[$key];
+            }
             // dd($start, $end);
             while ($start <= $end) {
                 // dd($value, $request->area, $start, $curso->id);
@@ -136,6 +142,7 @@ class CursosController extends Controller
                 $query->where('ciclo', $request->ciclo);
             }
         );
+        
         foreach ($conditions as $condition) {
             if ($condition['value']) {
                 $cursos->whereHas('curso', function ($query) use ($condition) {
@@ -264,8 +271,16 @@ class CursosController extends Controller
 
         $horario->where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
         foreach ($request->dia as $key => $value) {
+            // dd($request->hora_final[$key]);
             $start = (int) $request->hora_inicio[$key];
-            $end = (int) $request->hora_final[$key];
+            /*Validamos que si los minutos son igual a cero que les reste 5 minutos*/
+            if (Carbon::parse($request->hora_final[$key])->minute === 0) {
+                $newEndTime = Carbon::parse($request->hora_final[$key])->subMinutes(5)->format('H:i');
+                // dd($newEndTime);
+                $end = (int) $newEndTime;
+            } else {
+                $end = (int) $request->hora_final[$key];
+            }
             // dd($start, $end);
             while ($start <= $end) {
                 // dd($value, $request->area, $start, $curso->id);

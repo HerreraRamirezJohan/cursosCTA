@@ -83,7 +83,7 @@
             <tbody>
                 @foreach (range(7, 20) as $hour)
                     <tr>
-                        <td>{{ sprintf('%02d', $hour) }}:00{{'-' . sprintf('%02d', $hour+1) }}:00</td>
+                        <td>{{ sprintf('%02d', $hour) }}:00{{'-' . sprintf('%02d', $hour) }}:55</td>
                         @foreach ($aulas as $aula)
                             @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
                                 @php

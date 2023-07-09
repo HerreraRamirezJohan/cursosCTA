@@ -307,8 +307,9 @@
                 @endphp
                 <h3>Curso con el que interfiere:</h3>
                 <div class="row d-flex justify-content-center">{{-- Contenedor de cursos solapados --}}
-                    @foreach ($cursos->unique('id_curso') as $key => $item)
-                        @if (isset($item['curso']))
+                    {{-- @foreach ($cursos->unique('id_curso') as $key => $item) --}}
+                    @foreach ($cursos[0] as $key => $item)     
+                    @if (isset($item['curso']))
                             {{-- ¿Existe horario solapado? --}}
                             @include('cursos.layouts.cursosCard')
                         @endif

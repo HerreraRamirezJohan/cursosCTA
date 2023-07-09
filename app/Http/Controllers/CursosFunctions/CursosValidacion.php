@@ -63,22 +63,28 @@ class CursosValidacion {
 
     public static function validateHorario($request, $action = null)
     {
+
         $horasOcupadas = [];
         $nrcs = [];
+        
         self::validateFilledInputs($request, $action);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
             $end = (int) $request->hora_final[$key];
+            // dd($start == $end);
             // dd($start, $end);
             while ($start <= $end) {
                 // dd($value, $request->area, $start, $curso->id);
                 $horaOcupada = HorariosNew::with('curso', 'area')
                 ->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
+            
                 if (isset($horaOcupada->curso->id) && !in_array($horaOcupada->curso->nrc, $nrcs)) {
                         $nrcs[] = $horaOcupada->curso->nrc;
                         array_push($horasOcupadas,$horaOcupada);   
                 }
-                $start += 1;
+                // if ($start > $end) {
+                    $start += 1;
+                // }
             }
         }
         // dd($horasOcupadas);
@@ -126,7 +132,10 @@ class CursosValidacion {
         }
         /*Ordenamos e indexamos el arreglo*/
         $horariosArray = array_values($horariosArray);
+        // dd($horariosArray, $horasOcupadas);
         // dd($horariosArray);
+        //$horasOcupadas nos servira para saber cuantas itereaciones dar
+        //$horariosArray nos pertmitira acceder a todos los horarios de esos cursos
         return [$horasOcupadas, $horariosArray];
     }
 

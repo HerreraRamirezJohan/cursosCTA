@@ -23,7 +23,7 @@
                 <td class="text-capitalize" style="width:100px;">
                     {{-- Nos traemos las keys de horas, (dia o los dias que tenga el curso) --}}
                     @foreach (array_keys($horario['horas']) as $diaHora)
-                        {{ sprintf('%02d', min($horario['horas'][$diaHora])) . ':00' . '-' . sprintf('%02d', max($horario['horas'][$diaHora])) . ':00' . '' }}
+                        {{ sprintf('%02d', min($horario['horas'][$diaHora])) . ':00' . '-' . sprintf('%02d', max($horario['horas'][$diaHora])) . ':55' . '' }}
                     <br>
                     @endforeach
                 </td>
