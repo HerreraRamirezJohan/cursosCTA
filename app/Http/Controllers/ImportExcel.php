@@ -72,8 +72,5 @@ class ImportExcel extends Controller
         // dd($coleccion);
         $msgSuccess = 'Los datos fueron importados correctamente.';
         return redirect()->back()->with(['coleccion' => $coleccion, 'msgSuccess' => $msgSuccess]);
-        // return view('cursos.import', compact('coleccion', 'msgSuccess'));
-        // dd($coleccion);
-        // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
     }
 }

@@ -12,9 +12,10 @@ class ImportExcel:
         
     def importFromExcelFile(self, file, ciclo):
         # Extraemos el excel que nos devuelve un array de hojas de excel.
-        necesaryColumns = ['NRC', 'Departamento', 'Materia', 'Dia', 'CUP', 'REG', 'Hora', 'Codigo ', 'Aula ', 'Profesores', 'Nivel']
+        # necesaryColumns = ['NRC', 'Departamento', 'Materia', 'Dia', 'CUP', 'REG', 'Hora', 'Codigo ', 'Aula ', 'Profesores', 'Nivel']
         # dtypes = {'NRC':str, 'Departamento':str, 'Materia':str, 'Carga Horaria':str, 'CUP':str, 'REG':int, 'Hora':str, 'Codigo ':str, 'Aula ':str, 'Profesores':str, 'Nivel':str}
-        sheetExcel = pd.read_excel(file, sheet_name='Hoja1', usecols=necesaryColumns, engine='openpyxl')
+        sheetExcel = pd.read_excel(file, sheet_name='Hoja1', engine='openpyxl', header=None)
+        sheetExcel = sheetExcel.drop(sheetExcel.columns[[1, 3, 5, 6, 7, 8, 11, 12, 15, 17, 18, 21]], axis=1)
         # Renombrar las columnas como en la DB
         sheetExcel.columns = ['nrc', 'departamento', 'curso_nombre',  'cupo', 'alumnos_registrados', 'horario', 'dia', 'area', 'codigo', 'profesor', 'nivel']
         sheetExcel['ciclo'] = ciclo
@@ -23,7 +24,7 @@ class ImportExcel:
         sheetExcel = self.change_day_value(sheetExcel)
         # return sheetExcel
         # Exportamos los datos a la base de datos.
-        dbConecction = db('localhost', 'root', '', 'sige')
+        dbConecction = db('localhost', 'root', '', 'cursos')
         sheetExcel=dbConecction.mergeAreasWithExcel(sheetExcel)
         # Retornamos el unico en formato dataframe para asignarlo en el constructor
         return sheetExcel
@@ -134,5 +135,5 @@ class ImportExcel:
         return days
 
 
-    # rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
-    # importExcel = ImportExcel(rute2, '2023A')
+rute2 = r"C:\Users\Soporte\Downloads\4490cursos 2023A.xlsx"
+importExcel = ImportExcel(rute2, '2023A')
