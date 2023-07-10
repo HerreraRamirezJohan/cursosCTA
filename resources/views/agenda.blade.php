@@ -67,13 +67,15 @@
                 <tr>
                     <th></th>
                     @foreach ($aulas as $aula)
-                        @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
-                            <th class="fw-normal">
-                                @if (preg_match('/\d+/', $aula->area, $matches))
-                                {{ $matches[0] }}
-                                @else
-                                {{ $aula->area }}
-                                @endif
+                    @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG' && $aula->area != 'Sala de Juntas Norte' && $aula->area != 'Sala de Juicios Orales' && $aula->area !=  'Auditorio Edificio H')
+                        <th class="fw-normal">
+                            @php
+                            $aulaArea = $aula->area;
+                            if (strpos($aulaArea, 'FB') !== false) {
+                                $aulaArea = preg_replace('/^\w+\s*/', '', $aulaArea);
+                            }
+                            @endphp
+                            {{ $aulaArea }}
                             </th>
                         @endif
                     @endforeach
@@ -85,8 +87,8 @@
                     <tr>
                         <td>{{ sprintf('%02d', $hour) }}:00{{'-' . sprintf('%02d', $hour) }}:55</td>
                         @foreach ($aulas as $aula)
-                            @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG')
-                                @php
+                        @if ($aula->area != 'Aula Virtual' && $aula->area != 'CAG' && $aula->area != 'Sala de Juntas Norte' && $aula->area != 'Sala de Juicios Orales' && $aula->area !=  'Auditorio Edificio H')
+                        @php
                                     $flag = null;
                                     $dia = null;
                                     $content = ''; // Variable para almacenar el contenido de la celda
