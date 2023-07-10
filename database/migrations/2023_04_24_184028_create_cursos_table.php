@@ -20,13 +20,13 @@ class CreateCursosTable extends Migration
             $table->string('cupo',5);
             $table->string('ciclo', 6);
             $table->text('observaciones')->nullable();
-            $table->string('departamento', 250);
+            $table->string('departamento', 250)->nullable();
             $table->integer('alumnos_registrados');
             $table->integer('cupo');
             $table->boolean('activo')->default(1);
-            $table->enum('nivel', ['licenciatura', 'maestria', 'doctorado']);
-            $table->string('profesor', 150);
-            $table->string('codigo', 20);
+            $table->enum('nivel', ['licenciatura', 'maestria', 'doctorado'])->nullable();
+            $table->string('profesor', 150)->nullable();
+            $table->string('codigo', 20)->nullable();
 
             $table->timestamps();
         });

@@ -24,7 +24,8 @@
             </div>
             <div class="card-body">
                 <h5 class="card-title">Importación de cursos</h5>
-                <p class="card-text">Selecciona tu archivo excel, digita el ciclo correspondiente y luego presiona el botón 'Enviar'.</p>
+                <p class="card-text mb-0">Selecciona tu archivo excel, digita el ciclo correspondiente y luego presiona el botón 'Enviar'.</p>
+                {{-- <p>El proceso puede demorar, espere un momento.</p> --}}
                 {{-- <p class="card-text">Presiona solo una vez el botón de "Cargar horarios" y espera hasta que salga la alerta de éxito.</p> --}}
                 {{-- <form action="{{route('importSeeder')}}" method="post" id="importSeeder"> --}}
                 <form method="POST" action="{{ route('process.api') }}" enctype="multipart/form-data" id="importCursos">
