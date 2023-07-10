@@ -40,17 +40,19 @@ class ImportExcel extends Controller
         // Ruta completa del archivo
         $rutaCompletaArchivo = storage_path('app/' . $rutaArchivo);
 
-        $horarioNew = new HorariosNew();
+        // $horarioNew = new HorariosNew();
         // Con exists, devuelve un true si hay al menos un registro en la tabla
-        if (HorariosNew::exists()) {
-            $horarioNew->update(['id_curso' => null, 'status', 0]);
-            // Tiempo: 36 seg
-        } else {
-            Artisan::call('db:seed', ['--class' => 'HorariosSeeder']);
+        // if (HorariosNew::exists()) {
+        // $horarioNew->update(['id_curso' => null, 'status', 0]);
+        // Tiempo: 36 seg
+        Artisan::call('db:seed', ['--class' => 'HorariosSeeder']);
+        // Tiempo 1:24 min
+        // } 
+        // else {
             // Tiempo: 1:27 min
             // return view('cursos.imports.import');
             // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
-        }
+        // }
         // Ejecuta el script de Python
         $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $variable]);
         $process->setTimeout(120);
