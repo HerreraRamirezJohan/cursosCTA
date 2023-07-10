@@ -17,16 +17,16 @@ class CursosValidacion {
         $errors = [];
         self::validateFilledInputs($request, $action);
         /* Validar el input del ciclo. */
-        // if($action != 'update'){
-        //     $validacionCiclo = self::validarCiclo($request->ciclo);
-        //     if ($validacionCiclo !== null) {
-        //         $errors['ciclo'] = $validacionCiclo;
-        //     }
-        // }
+        if($action != 'update'){
+            $validacionCiclo = self::validarCiclo($request->ciclo);
+            if ($validacionCiclo !== null) {
+                $errors['ciclo'] = $validacionCiclo;
+            }
+        }
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
-        // $vallidationNrcName = self::validateNrc($request);
-        // if($vallidationNrcName !== null)
-        //     $errors['uniqueNrc'] = $vallidationNrcName;
+        $vallidationNrcName = self::validateNrc($request);
+        if($vallidationNrcName !== null)
+            $errors['uniqueNrc'] = $vallidationNrcName;
 
         /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
         if ($request->alumnos_registrados > $request->cupo) {
@@ -150,7 +150,7 @@ class CursosValidacion {
             'cupo' => 'required|numeric|between:1,60',
             'nivel' => 'required',
             'profesor' => 'required',
-            'codigo' => 'required|between:8,8',
+            'codigo' => 'required|between:5,8',
             // 'dia.0' => 'required',
             // 'hora_inicio.0' => 'required',
             // 'hora_final.0' => 'required',
@@ -171,7 +171,7 @@ class CursosValidacion {
             'nivel.required' => 'El :attribute es obligatorio',
             'profesor.required' => 'El nombre del :attribute es obligatorio',
             'codigo.required' => 'El :attribute es obligatorio',
-            'codigo.between' => 'El :attribute debe ser de 8 caracteres.',
+            'codigo.between' => 'El :attribute debe ser de 5 a 8 caracteres.',
             // 'dia.0.required' => 'El día es obligatorio',
             // 'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             // 'hora_final.0.required' => 'La hora final es obligatorio',
@@ -193,34 +193,34 @@ class CursosValidacion {
         $request->validate($validationRules, $customMessages);
     }
 
-    // private static function validarCiclo($ciclo){
-    //     $year = intval(substr($ciclo, 0, 4));//obtenemos el año
-    //     if(!$year)
-    //         return 'Formato de ciclo registrado inválido debe ser YYYY[A-B]';  
-    //     $letra = substr($ciclo, 4, 1);//obtenemos la letra
-    //     $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-    //     $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
-    //     $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
+    private static function validarCiclo($ciclo){
+        $year = intval(substr($ciclo, 0, 4));//obtenemos el año
+        if(!$year)
+            return 'Formato de ciclo registrado inválido debe ser YYYY[A-B]';  
+        $letra = substr($ciclo, 4, 1);//obtenemos la letra
+        $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+        $year_actual = intval(substr($ciclo_actual, 0, 4));//obtenemos el año
+        $letra_actual = substr($ciclo_actual, 4, 1);//obtenemos la letra
 
-    //     if(strcmp(self::getCiclo(), $ciclo) !== 0){
-    //         if($letra === 'A' || $letra === 'B'){
-    //             if($letra_actual === 'A'){
-    //                 if($year_actual !== $year)
-    //                     return 'El ciclo siguiente debe ser: ' . $year_actual . 'B';
-    //                 if($letra === $letra_actual)
-    //                     return 'El ciclo debe ser B';
-    //             }elseif($letra_actual === 'B'){
-    //                 if($year !== $year_actual+1)
-    //                     return 'El ciclo siguiente debe ser: '. (string)($year_actual+1) . 'A';
-    //                 if($letra === $letra_actual)
-    //                     return 'El ciclo debe ser A';
-    //             }
-    //         }else
-    //             return 'El ciclo ingresado es inválido, debe ser un año vigente y tener el ciclo A o B correspondiente';
-    //     }
+        if(strcmp(self::getCiclo(), $ciclo) !== 0){
+            if($letra === 'A' || $letra === 'B'){
+                if($letra_actual === 'A'){
+                    if($year_actual !== $year)
+                        return 'El ciclo siguiente debe ser: ' . $year_actual . 'B';
+                    if($letra === $letra_actual)
+                        return 'El ciclo debe ser B';
+                }elseif($letra_actual === 'B'){
+                    if($year !== $year_actual+1)
+                        return 'El ciclo siguiente debe ser: '. (string)($year_actual+1) . 'A';
+                    if($letra === $letra_actual)
+                        return 'El ciclo debe ser A';
+                }
+            }else
+                return 'El ciclo ingresado es inválido, debe ser un año vigente y tener el ciclo A o B correspondiente';
+        }
 
-    //     return null;
-    // }
+        return null;
+    }
 
     public static function getCiclo(){
         $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');

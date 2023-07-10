@@ -1,8 +1,8 @@
 <script>
-    // In your Javascript (external .js resource or <script> tag)
     $(document).ready(function() {
-        $('.js-example-basic-single').select2();
-    });
+        $('.js-example-basic-single').select2({
+            theme: 'bootstrap-5'});
+        });
 </script>
 <form action="{{ route('mostrar') }}" id="form">
 

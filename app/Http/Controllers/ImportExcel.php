@@ -21,6 +21,17 @@ class ImportExcel extends Controller
 
     public function store(Request $request)
     {
+        $messages = [
+            'ciclo.required' => 'El campo ciclo es obligatorio.',
+            'fileExcel.required' => 'Debe seleccionar un archivo.',
+            'fileExcel.mimes' => 'El archivo debe ser de tipo XLSX o XLS.',
+        ];
+
+        $request->validate([
+            'ciclo' => 'required',
+            'fileExcel' => 'required|mimes:xlsx,xls',
+        ], $messages);
+    
         $variable = $request->input('ciclo');
         $archivo = $request->file('fileExcel');
         // Mueve el archivo a una ubicación temporal
@@ -46,7 +57,9 @@ class ImportExcel extends Controller
         $process->run();
 
         if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+            session()->flash('alert', 'Ha ocurrido un error en el proceso. Verifica que el archivo sea el correcto e intenta de nuevo.');
+            return redirect()->route('indexImport');
+            // throw new ProcessFailedException($process);
         }
         // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
         $response = $process->getOutput();
@@ -58,7 +71,8 @@ class ImportExcel extends Controller
         $coleccion = new Collection($importacionExcel);
         // dd($coleccion);
         $msgSuccess = 'Los datos fueron importados correctamente.';
-        return view('cursos.import', compact('coleccion', 'msgSuccess'));
+        return redirect()->back()->with(['coleccion' => $coleccion, 'msgSuccess' => $msgSuccess]);
+        // return view('cursos.import', compact('coleccion', 'msgSuccess'));
         // dd($coleccion);
         // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
     }
