@@ -6,12 +6,11 @@ use App\Models\HorariosNew;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Collection;
 
 
 use App\Http\Controllers\CursosFunctions\CursosValidacion;
-
+use App\Models\Cursos;
 
 class ImportExcel extends Controller
 {
@@ -43,9 +42,9 @@ class ImportExcel extends Controller
         // Ruta completa del archivo
         $rutaCompletaArchivo = URL('storage/excelSaved/' . $name );
 
-        // $errors = CursosValidacion::validateCicloExcel($request, "store");
-        // if (!empty($errors))
-        //     return back()->withInput()->with(['errorsHorario' => $errors]);
+        $errors = CursosValidacion::validateCicloExcel($request, "store");
+        if (!empty($errors))
+            return back()->withInput()->with(['errorsHorario' => $errors]);
         // $horarioNew = new HorariosNew();
         // Con exists, devuelve un true si hay al menos un registro en la tabla
         // if (HorariosNew::exists()) {
