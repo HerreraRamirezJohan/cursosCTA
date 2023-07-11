@@ -32,7 +32,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <select id="area" class="form-select w-100 js-example-basic-single" name="edificio">
+                            <select id="area" id="validationDefault04" class="form-select w-100 js-example-basic-single" name="edificio" required>
                                 <option selected value="">Selecciona el edificio</option>
                                 @foreach ($edificios->unique('edificio') as $item)
                                     @if ($item->edificio != '-')
