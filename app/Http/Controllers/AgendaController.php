@@ -7,6 +7,7 @@ use App\Models\HorariosNew;
 
 use Illuminate\Http\Request;
 use App\Models\Areas;
+use App\Models\Cursos;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +22,10 @@ class AgendaController extends Controller
 
     public function index(Request $request)
     {
-        $diaS = $request->dia;
-        // dd($diaS);
+        //Traer todos los ciclos
+        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
 
-        // dd($diaS);
+        $diaS = $request->dia;
         $edificioRequest = $request->edificio;
 
         $edificios = Areas::select('id', 'edificio', 'piso')
@@ -34,7 +35,6 @@ class AgendaController extends Controller
             })->where('activo', 1)
             ->where('sede', 'belenes')->orderBy('edificio', 'asc')->get();
 
-        // dd($edificios);
 
         $aulas = Areas::select('id', 'area', 'edificio')->where('edificio', $request->edificio)
             ->where(function ($query) {
@@ -42,8 +42,7 @@ class AgendaController extends Controller
                     ->orWhere('tipo_espacio', 'Aula');
             })->where('activo', 1)->where('sede', 'belenes')->orderBy('area', 'asc')->get();
 
-        // Función de comparación personalizada
-        // if ($aulas !== null) {
+        // Función de comparación personalizada para separar el nombre de las aulas
             $aulas = $aulas->sortBy(function ($a) {
                 $segundaPalabraA = null;
                 if ($a['area'] !== null) {
@@ -55,29 +54,16 @@ class AgendaController extends Controller
                 return $segundaPalabraA;
             });
             
-        // }
-
-        // dd($aulas);
-
         //Datos del aula que estan ocupados
         $horasFiltradas = [];
-        /*Edificio A FBA 3 excel viejo*/
-        // foreach ($aulas as $key => $value) {
-            // print_r($value->area . ':'. $value->id);
-        // }
 
         foreach ($aulas as $key => $aula) {
-                $horas = HorariosNew::with('curso', 'area')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')->where('id_area', $aula->id)->where('dia', $diaS)->
-                where('status', 1)->get();
+                $horas = HorariosNew::with('curso', 'area')->select('id', 'id_area', 'id_curso', 'dia', 'hora', 'status')
+                ->whereHas('curso', function ($query) use ($request) {
+                        $query->where('ciclo', $request->ciclo);}
+                )->where('id_area', $aula->id)->where('dia', $diaS)->where('status', 1)->get();
                 foreach ($horas as $key2 => $hora) {
-                // dd($horas);
-                // if ($aula->id == 176) {
-                //     print_r($hora->id . '-' );
-                // }
-                // print_r($hora->curso->id . '-');
                 // Guaradamos en el arreglo el id y la hora de todas las aulas del edificio seleccionado
-                // print_r($hora);
-                // print_r($hora['curso']['id'] . '-');
                 array_push($horasFiltradas, [
                     'id' => $hora['curso']->id,
                     'id_area' => $hora->id_area,
@@ -96,7 +82,7 @@ class AgendaController extends Controller
 
         // sort($horasFiltradas, SORT_NUMERIC);
 
-        return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest'));
+        return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest', 'cursos_ciclo'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));
         // return view('agenda')->with('horarios', $horarios)->with('cantidadDias', $cantidadDias);

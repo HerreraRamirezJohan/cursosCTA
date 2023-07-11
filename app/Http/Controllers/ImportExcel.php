@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Collection;
 
 
+use App\Http\Controllers\CursosFunctions\CursosValidacion;
+
+
 class ImportExcel extends Controller
 {
     public function index()
@@ -32,21 +35,24 @@ class ImportExcel extends Controller
             'fileExcel' => 'required|mimes:xlsx,xls',
         ], $messages);
     
-        $variable = $request->input('ciclo');
+        $name = 'cursos_' . $request->input('ciclo') . '.xlsx';
         $archivo = $request->file('fileExcel');
         // Mueve el archivo a una ubicación temporal
-        $rutaArchivo = $archivo->store('temp');
+        \Storage::disk('importExcel')->put($name, \File::get($archivo));
 
         // Ruta completa del archivo
-        $rutaCompletaArchivo = storage_path('app/' . $rutaArchivo);
+        $rutaCompletaArchivo = URL('storage/excelSaved/' . $name );
 
+        // $errors = CursosValidacion::validateCicloExcel($request, "store");
+        // if (!empty($errors))
+        //     return back()->withInput()->with(['errorsHorario' => $errors]);
         // $horarioNew = new HorariosNew();
         // Con exists, devuelve un true si hay al menos un registro en la tabla
         // if (HorariosNew::exists()) {
         // $horarioNew->update(['id_curso' => null, 'status', 0]);
         // Tiempo: 36 seg
-        Artisan::call('db:seed', ['--class' => 'HorariosSeeder']);
-        // Tiempo 1:24 min
+        // Artisan::call('db:seed', ['--class' => 'HorariosSeeder']);
+        // Tiempo 1:17 min
         // } 
         // else {
             // Tiempo: 1:27 min
@@ -54,18 +60,18 @@ class ImportExcel extends Controller
             // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
         // }
         // Ejecuta el script de Python
-        $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $variable]);
-        $process->setTimeout(120);
+        $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $request->input('ciclo')]);
+        $process->setTimeout(240);
         $process->run();
 
         if (!$process->isSuccessful()) {
-            session()->flash('alert', 'Ha ocurrido un error en el proceso. Verifica que el archivo sea el correcto e intenta de nuevo.');
-            return redirect()->route('indexImport');
-            // throw new ProcessFailedException($process);
+            // session()->flash('alert', 'Ha ocurrido un error en el proceso. Verifica que el archivo sea el correcto e intenta de nuevo.');
+            // return redirect()->route('indexImport');
+            throw new ProcessFailedException($process);
         }
         // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
         $response = $process->getOutput();
-
+        
         //return(explode(",",$response));
         // $response[0] = explode(",",$response[0]);
         $importacionExcel = json_decode($response, true);

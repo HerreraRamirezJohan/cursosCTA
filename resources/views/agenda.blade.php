@@ -16,12 +16,22 @@
     <div class="container">
         <div class="table-responsive">
             <div class="row mt-1 mb-4">
+                
                 <div class="col-sm-12 col-md-12 col-lg-6 offset-lg-3">
+                    
                     {{-- <div class="text-sm-start text-md-start text-lg-center">
                     <label for="area">Área</label>
                 </div> --}}
                     <form action="{{ route('agenda') }}" method="GET" id="form">
                         <div class="d-flex gap-3 align-items-center my-0">
+                            <div class="w-25">
+                                <select class="form-select" id="validationDefault04" name="ciclo" required>
+                                    <option selected disabled value="">Elegir</option>
+                                    @foreach ($cursos_ciclo as $item)
+                                        <option value="{{ $item }}">{{ $item }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <select id="area" class="form-select w-100 js-example-basic-single" name="edificio">
                                 <option selected value="">Selecciona el edificio</option>
                                 @foreach ($edificios->unique('edificio') as $item)

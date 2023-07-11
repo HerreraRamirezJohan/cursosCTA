@@ -2,7 +2,6 @@
 @section('content')
     @php
         $horarioErrors = collect(session('errorsHorario'));
-        // dd($horarioErrors);
     @endphp
     <div class="container">
         @if (session('alert'))

@@ -13,6 +13,19 @@ use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\returnSelf;
 
 class CursosValidacion {
+    public static function validateCicloExcel($request, $action = null){
+        $errors = [];
+        /* Validar el input del ciclo. */
+        if($action != 'update'){
+            $validacionCiclo = self::validarCiclo($request->ciclo);
+            if ($validacionCiclo !== null) {
+                $errors['ciclo'] = $validacionCiclo;
+            }
+        }
+        return $errors;
+  
+    }
+
     public static function validateHoursAndDays($request, $action = null){
         $errors = [];
         self::validateFilledInputs($request, $action);

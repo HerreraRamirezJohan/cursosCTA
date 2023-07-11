@@ -91,7 +91,10 @@ class DBareasMerge:
         
         #exportar horarios
         dataHorario = dfHorarios[['id_curso', 'id_area', 'dia', 'hora']].values.tolist()
-        query = "UPDATE horarios_news SET id_curso = %s, status = 1 WHERE id_area=%s and dia=%s and hora=%s"
+        
+        query = "INSERT INTO horarios_news(id_curso, id_area, dia, hora, status) VALUES(%s, %s, %s, %s, 1)"
+        
+        # query = "UPDATE horarios_news SET id_curso = %s, status = 1 WHERE id_area=%s and dia=%s and hora=%s"
         
         cursor = self.connection.cursor()
         # Insertar los registros en lotes
