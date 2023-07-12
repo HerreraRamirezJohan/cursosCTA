@@ -43,9 +43,9 @@ class ImportExcel extends Controller
         // Ruta completa del archivo
         $rutaCompletaArchivo = URL('storage/excelSaved/' . $name );
 
-        // $errors = CursosValidacion::validateCicloExcel($request, "store");
-        // if (!empty($errors))
-        //     return back()->withInput()->with(['errorsHorario' => $errors]);
+        $errors = CursosValidacion::validateCicloExcel($request, "store");
+        if (!empty($errors))
+            return back()->withInput()->with(['errorsHorario' => $errors]);
         // $horarioNew = new HorariosNew();
         // Con exists, devuelve un true si hay al menos un registro en la tabla
         // if (HorariosNew::exists()) {

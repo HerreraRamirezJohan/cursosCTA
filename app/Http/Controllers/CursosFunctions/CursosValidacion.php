@@ -262,15 +262,17 @@ class CursosValidacion {
         ->latest()//Obtenemos el ultimo registrado en la DB
         ->first();
 
-
-        // dd($cursoRepetido->curso_nombre, $curso);
         
         /* No existe ningun curso que coincida */
-        if ($curso != null) {
-            if (!isset($cursoRepetido) || $cursoRepetido->id == $curso->id) {
-                return null;
-            }
+        if ($curso == null || !isset($cursoRepetido) || $cursoRepetido->id == $curso->id) {
+            return null;
         }
+        // if ($curso != null) {
+        //     if (!isset($cursoRepetido) || $cursoRepetido->id == $curso->id) {
+        //         return null;
+        //     }
+        // }
+        
         
         //Obtenemos el ciclo actual
         $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
