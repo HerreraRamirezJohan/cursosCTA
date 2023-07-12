@@ -8,6 +8,8 @@ use App\Models\Cursos;
 use App\Models\HorariosNew;
 use DateTime;
 use Exception;
+use Carbon\Carbon;
+
 
 use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\returnSelf;
@@ -83,9 +85,16 @@ class CursosValidacion {
         self::validateFilledInputs($request, $action);
         foreach ($request->dia as $key => $value) {
             $start = (int) $request->hora_inicio[$key];
-            $end = (int) $request->hora_final[$key];
+
+            /*Validamos que si los minutos son igual a cero que les reste 5 minutos*/
+            if (Carbon::parse($request->hora_final[$key])->minute === 0) {
+                $newEndTime = Carbon::parse($request->hora_final[$key])->subMinutes(5)->format('H:i');
+                // dd($newEndTime);
+                $end = (int) $newEndTime;
+            } else {
+                $end = (int) $request->hora_final[$key];
+            }
             // dd($start == $end);
-            // dd($start, $end);
             while ($start <= $end) {
                 // dd($value, $request->area, $start, $curso->id);
                 $horaOcupada = HorariosNew::with('curso', 'area')
@@ -157,7 +166,7 @@ class CursosValidacion {
     private static function validateFilledInputs($request, $action){
         $validationRules = [
             'curso_nombre' => 'required',
-            'nrc' => 'required|string|between:5,10',
+            'nrc' => 'required|string|between:4,10',
             'ciclo' => 'required',
             'area' => 'required',
             'departamento' => 'required',
@@ -165,7 +174,7 @@ class CursosValidacion {
             'cupo' => 'required|numeric|between:1,60',
             'nivel' => 'required',
             'profesor' => 'required',
-            'codigo' => 'required|between:5,8',
+            'codigo' => 'required|between:4,8',
             // 'dia.0' => 'required',
             // 'hora_inicio.0' => 'required',
             // 'hora_final.0' => 'required',
@@ -181,12 +190,12 @@ class CursosValidacion {
             'departamento.required' => 'El :attribute es obligatorio',
             'alumnos_registrados.required' => 'El campo alumnos registrados es obligatorio',
             'alumnos_registrados.between' => 'Los alumnos registrados debe ser entre 1 al limite de cupos regitrado',
-            'cupo.between' => 'El :attribute debe ser entre 1 a 60.',
+            'cupo.between' => 'El :attribute debe ser entre 1 y 60.',
             'cupo.required' => 'El campo :attribute es obligatorio',
             'nivel.required' => 'El :attribute es obligatorio',
             'profesor.required' => 'El nombre del :attribute es obligatorio',
-            'codigo.required' => 'El :attribute es obligatorio',
-            'codigo.between' => 'El :attribute debe ser de 5 a 8 caracteres.',
+            'codigo.required' => 'El código es obligatorio',
+            'codigo.between' => 'El código debe ser de 5 a 8 caracteres.',
             // 'dia.0.required' => 'El día es obligatorio',
             // 'hora_inicio.0.required' => 'La hora de inicio es obligatorio',
             // 'hora_final.0.required' => 'La hora final es obligatorio',
@@ -194,14 +203,16 @@ class CursosValidacion {
             // 'hora_inicio.1.required' => 'La hora de inicio es obligatorio',
             // 'hora_final.1.required' => 'La hora final es obligatorio',
         ];
-        foreach ($request->dia as $key => $value) {
-            if(isset($request->dia[$key]) || isset($request->hora_inicio[$key]) || isset($request->hora_final[$key])){
-                $validationRules['dia.' . $key] = 'required';
-                $validationRules['hora_inicio.' . $key] = 'required';
-                $validationRules['hora_final.'. $key] = 'required';
-                $customMessages['dia.' . $key . '.required'] = 'El día es obligatorio';
-                $customMessages['hora_inicio.' . $key .  '.required'] = 'La hora de inicio es obligatoria';
-                $customMessages['hora_final.'. $key . '.required'] = 'La hora final es obligatoria';
+        if($request->dia){
+            foreach ($request->dia as $key => $value) {
+                if(isset($request->dia[$key]) || isset($request->hora_inicio[$key]) || isset($request->hora_final[$key])){
+                    $validationRules['dia.' . $key] = 'required';
+                    $validationRules['hora_inicio.' . $key] = 'required';
+                    $validationRules['hora_final.'. $key] = 'required';
+                    $customMessages['dia.' . $key . '.required'] = 'El día es obligatorio';
+                    $customMessages['hora_inicio.' . $key .  '.required'] = 'La hora de inicio es obligatoria';
+                    $customMessages['hora_final.'. $key . '.required'] = 'La hora final es obligatoria';
+                }
             }
         }
         // dd($customMessages);
@@ -258,13 +269,15 @@ class CursosValidacion {
         $cursoRepetido = Cursos::select('cursos.*')
         // ->where('ciclo', $request->ciclo)
         ->where('nrc', $request->nrc)
-        ->orWhere('curso_nombre', $request->curso_nombre)
+        // ->orWhere('curso_nombre', $request->curso_nombre)
         ->latest()//Obtenemos el ultimo registrado en la DB
         ->first();
 
+        // dd($cursoRepetido, $curso);
+
         
         /* No existe ningun curso que coincida */
-        if ($curso == null || !isset($cursoRepetido) || $cursoRepetido->id == $curso->id) {
+        if ((!isset($cursoRepetido)) || (!empty($curso) && $cursoRepetido->id == $curso->id)) {
             return null;
         }
         // if ($curso != null) {
@@ -273,12 +286,13 @@ class CursosValidacion {
         //     }
         // }
         
-        
+        // dd($cursoRepetido);
+
         //Obtenemos el ciclo actual
         $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         // dd(!strcmp($request->ciclo, $ciclo_actual));
         if(!strcmp($request->ciclo, $ciclo_actual))
-            return ['Ya existe un curso con el nombre o NRC registrado en el ciclo actual ', $cursoRepetido, 'Favor de ingresar valores únicos.'];
+            return ['Ya existe un curso con el NRC registrado en el ciclo actual ', $cursoRepetido, 'Favor de ingresar valores únicos.'];
         
         // dd(strcmp($request->nrc, $cursoRepetido->nrc));
         if(strcmp($request->curso_nombre, $cursoRepetido->curso_nombre) != 0 || strcmp($request->nrc, $cursoRepetido->nrc) != 0)

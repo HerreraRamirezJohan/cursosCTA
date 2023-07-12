@@ -65,7 +65,7 @@
         </div>
         {{-- InputTime para buscar por hora de inicio del curso --}}
         <div>
-            <label for="horario" class="validationDefault04">Inicio de Curso</label>
+            <label for="horario" class="validationDefault04">Hora del curso</label>
             <input id="hora_inicio" type="time" name="hora_inicio" class="form-control" min="07:00"
                 max="21:00">
         </div>

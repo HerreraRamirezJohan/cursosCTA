@@ -23,7 +23,7 @@
                 <div class="card-header text-center">
                     <h1>{{ __('Cursos') }}</h1>
                 </div>
-                {{-- @auth
+                {{-- @auth  
                     <div class="row mt-4 mx-2">
                         <div class="col-12 text-end">
                             <a href="{{ route('importExcel') }}" class="btn btn-success text-light">Importar</a>

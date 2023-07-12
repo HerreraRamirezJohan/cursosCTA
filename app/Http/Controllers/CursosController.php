@@ -53,10 +53,13 @@ class CursosController extends Controller
 
     public function store(Request $request)
     {
+        $curso = new Cursos();
+
         /* Validamos los campos del horario */
         $errors = CursosValidacion::validateHoursAndDays($request, "store");
-        if (!empty($errors))
+        if (!empty($errors)){
             return back()->withInput()->with(['errorsHorario' => $errors]);
+        }
 
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
         $vallidationNrcName = CursosValidacion::validateNrc($request, null);
@@ -144,6 +147,7 @@ class CursosController extends Controller
                 $query->where('ciclo', $request->ciclo);
             }
         );
+        // dd($cursos->get());
         
         foreach ($conditions as $condition) {
             if ($condition['value']) {
@@ -169,7 +173,7 @@ class CursosController extends Controller
                 $query->where('curso_nombre', 'LIKE', '%' . $request->curso_nombre . '%');
             });
         }
-
+        
         /* Verificamos si el usuario ingreso una hora de inicio  y se  aplica el filtro where */
         if ($request['hora_inicio']) {
             $cursos->where('hora', '>=', $request->hora_inicio);
@@ -191,9 +195,10 @@ class CursosController extends Controller
                 $horas = HorariosNew::with('curso', 'area')->where('id_curso', $idCurso)->pluck('hora')->toArray();
                 $cursoExistente['dias'][] = $dia; // Agregar el día al arreglo de días sin comprobar duplicados
                 // Filtrar las horas correspondientes al día específico
-                $horasPorDia = array_filter($horas, function ($hora) use ($dia) {
-                    return $hora['dia'] === $dia;
+                $horasPorDia = array_filter($horas, function ($hora) use (&$dia) {
+                    return is_array($hora) && isset($hora['dia']) && $hora['dia'] === $dia;
                 });
+                
                 // Obtener solo los valores de las horas filtradas
                 $horasPorDia = array_column($horasPorDia, 'hora');
                 // Evitamos datos duplicados
@@ -270,6 +275,7 @@ class CursosController extends Controller
         $cursos = CursosValidacion::validateHorario($request);
         foreach ($cursos[0] as $item)
             if ($item !== null && $item['id_curso'] !== $curso->id)
+                // dd($cursos[0]);
                 return back()->withInput()->with(['cursosExistentes' => $cursos]);
 
         /* Actualizamos el curso despues de sus validacoines */
@@ -317,7 +323,7 @@ class CursosController extends Controller
             // dd($horario);
             $horarioNew = new HorariosNew();
             // $eliminar_horario = HorariosNew::findOrFail($id);
-            $horarioNew->where('dia', $dia)->where('id_curso', $id_curso)->update(['id_curso' => null, 'status' => 0]);
+            $horarioNew->where('dia', $dia)->where('id_curso', $id_curso)->update(['status' => 0]);
 
             return back()->with('success', 'Horario eliminado correctamente');
         }
