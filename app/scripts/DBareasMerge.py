@@ -25,6 +25,32 @@ class DBareasMerge:
         self.cursosTable = pd.DataFrame()
         self.horariosTable = pd.DataFrame()
 
+    def getAreasSaved(self, ciclo):
+        # Crear un cursor para ejecutar consultas
+        cursor = self.connection.cursor()
+        
+        # Crear la consulta SQL
+        consulta = """
+            SELECT DISTINCT a.area
+            FROM cursos c
+            JOIN horarios_news h ON c.id = h.id_curso
+            JOIN areas a ON h.id_area = a.id
+            WHERE c.ciclo = %s
+        """
+        
+        # Ejecutar la consulta con el parámetro proporcionado
+        cursor.execute(consulta, (ciclo,))
+        
+        # Obtener los resultados de la consulta
+        resultados = cursor.fetchall()
+        # Obtener solo los valores de la posición 0 de cada tupla
+        areas = [resultado[0] for resultado in resultados]
+        # Cerrar el cursor y la conexión
+        cursor.close()
+    
+        # Devolver los resultados
+        return areas
+    
     def disconnect(self):
         if self.connection:
             self.connection.close()
@@ -52,6 +78,12 @@ class DBareasMerge:
         # Eliminar el carácter "-" de la columna "area"
         dfExcelClean['area'] = dfExcelClean['area'].str.replace('-', ' ')
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')
+        areasYaAgregadas = self.getAreasSaved(dfExcelClean['ciclo'][0])
+        
+        if areasYaAgregadas:#Regresa un array de las areas que faltaron del import.
+            dfMergeCompleate = dfMergeCompleate[~dfMergeCompleate['area'].isin(areasYaAgregadas)]
+            
+        # print(f'# de Cursos de las areas no agregadas: {len(dfMergeCompleate)}')
         dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
         # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
         tableCursos = self.create_CursosTable(dfMergeCompleate)
@@ -111,7 +143,7 @@ class DBareasMerge:
         areas_relacionadas = dfMergeCompleate['area'].unique().tolist()
     
         # Obtener las áreas no relacionadas
-        areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
+        areas_no_relacionadas = set(dfExcelClean['area']).difference(areas_relacionadas, areasYaAgregadas)
         areas_no_relacionadas.discard(float('nan'))
         areas_no_relacionadas.discard(None)
         

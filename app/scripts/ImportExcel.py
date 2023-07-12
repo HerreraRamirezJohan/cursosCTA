@@ -136,5 +136,5 @@ class ImportExcel:
         return days
 
 
-# rute2 = r"D:\CTA\Oferta academiaca 4635 cursos.xlsx"
+# rute2 = "http://localhost/cursosCTA2/public/storage/excelSaved/cursos_2023B.xlsx"
 # importExcel = ImportExcel(rute2, '2023A')
