@@ -47,7 +47,7 @@
                             <td class="fw-normal">{{$horario['curso']['alumnos_registrados']}}</td>
                         </tr>
                         {{-- @dd($item['curso']->observaciones) --}}
-                        @if($horario['curso']['observaciones'] != null )
+                        @if($horario['curso']['observaciones'] != 'Ninguna' )
                             <tr>
                                 <th scope="row">Observaciones:</th>
                                 <td class="fw-normal">{{$horario['curso']['observaciones']}}</td>

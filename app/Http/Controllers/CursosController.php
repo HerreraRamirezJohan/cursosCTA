@@ -59,7 +59,7 @@ class CursosController extends Controller
             return back()->withInput()->with(['errorsHorario' => $errors]);
 
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
-        $vallidationNrcName = CursosValidacion::validateNrc($request);
+        $vallidationNrcName = CursosValidacion::validateNrc($request, null);
         if ($vallidationNrcName !== null)
             return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
@@ -260,6 +260,10 @@ class CursosController extends Controller
         if (!empty($errors)) {
             return back()->withInput()->with(['errorsHorario' => $errors]);
         }
+        /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
+        $vallidationNrcName = CursosValidacion::validateNrc($request, $curso);
+        if ($vallidationNrcName !== null)
+            return back()->withInput()->with(['cursoMismoCiclo' => $vallidationNrcName]);
         /* Validamos si hay algun curso solapado con otro horario. */
         $cursos = CursosValidacion::validateHorario($request);
         foreach ($cursos[0] as $item)

@@ -8,6 +8,7 @@
         $contador = 0;
         $horarioErrors = collect(session('errorsHorario'));
         $cursoMismoCiclo = collect(session('cursoMismoCiclo'));
+        // dd($cursoMismoCiclo);
         if (!empty($cursoMismoCiclo->all())) {
             $item = $cursoMismoCiclo[1];
         }
@@ -39,8 +40,7 @@
                         <!-- Button trigger modal -->
                         <div class="alert alert-danger" role="alert">
                             <p class="d-inline-block my-0 me-3">{{ $cursoMismoCiclo[0] }}</p>
-
-                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#modal{{ $item->id }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
                                     class="bi bi-info-circle" viewBox="0 0 16 16">
@@ -51,7 +51,7 @@
                             </button>
 
                             <p class="">{{ $cursoMismoCiclo[2] }}</p>
-                            @include('cursos.layouts.cursosModalCiclo')
+                                @include('cursos.layouts.cursosModalCiclo')
                         </div>
                     @endif
                     <form action="{{ route('guardar') }}" method="post" id="guardarCurso">

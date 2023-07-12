@@ -46,6 +46,12 @@
                             <th scope="row">Ciclo:</th>
                             <td class="fw-normal">{{$item->ciclo}}</td>
                         </tr>
+                        @if($item->observaciones != 'Ninguna' )
+                            <tr>
+                                <th scope="row">Observaciones:</th>
+                                <td class="fw-normal">{{$item->observaciones}}</td>
+                            </tr>
+                        @endif 
                     </tbody>
 
                 </table>

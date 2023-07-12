@@ -3,7 +3,10 @@
     @php
         $url = session('url'); // Obtener la URL de la variable de sesión
         $horarioErrors = collect(session('errorsHorario'));  //Obtenemos los errores de los horarios
-        // dd($horarioErrors);
+        $cursoMismoCiclo = collect(session('cursoMismoCiclo'));
+        // dd($horarioErrors, $cursoMismoCiclo);
+        if(!empty($cursoMismoCiclo->all()))
+            $item = $cursoMismoCiclo[1];
     @endphp
     {{-- @dd($horarios) --}}
 
@@ -35,8 +38,26 @@
             <div class="col-md-12 mx-auto">
                 <h1 class="text-center text-muted mb-5">Editar curso</h1>
                 <div class="col-md-5 w-100">
-                    {{-- @dd($curso) --}}
-                    <form action="{{ route('actualizar', $curso->id) }}" method="post" id="guardarCurso">
+                    @if(!empty($cursoMismoCiclo->all()))
+                        <!-- Button trigger modal -->
+                        <div class="alert alert-danger" role="alert">
+                            <p class="d-inline-block my-0 me-3">{{$cursoMismoCiclo[0]}}</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#modal{{ $item->id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                <path
+                                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path
+                                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                </svg>
+                            </button>
+                            
+                            <p class="">{{$cursoMismoCiclo[2]}}</p>
+                            @include('cursos.layouts.cursosModalCiclo')
+                        </div>
+                    @endif
+                        <form action="{{ route('actualizar', $curso->id) }}" method="post" id="guardarCurso">
                         @csrf
                         @method('put')
                         <div class="mb-3">
@@ -181,8 +202,8 @@
                         {{-- [Inicio] Alerts de validaciones de horario --}}
                         @if (session('errorsHorario'))
                                 @foreach ($horarioErrors as $key => $item)
-                                    @if($key !== 'ciclo' && $key !== 'alumnosMayor')
-                                        <div class="alert alert-danger mt-2" role="alert">
+                                @if($key !== 'ciclo' && $key !== 'alumnosMayor' && $key !== 'uniqueNrc')
+                                <div class="alert alert-danger mt-2" role="alert">
                                             <p>{{ $item }}</p>
                                         </div>
                                     @endif

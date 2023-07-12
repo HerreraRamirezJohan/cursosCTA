@@ -24,6 +24,7 @@ class AgendaController extends Controller
     {
         //Traer todos los ciclos
         $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->distinct()->pluck('ciclo');
+        $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
         $diaS = $request->dia;
         $edificioRequest = $request->edificio;
@@ -82,7 +83,7 @@ class AgendaController extends Controller
 
         // sort($horasFiltradas, SORT_NUMERIC);
 
-        return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest', 'cursos_ciclo'));
+        return view('agenda', compact('edificios', 'aulas', 'horasFiltradas', 'edificioRequest', 'cursos_ciclo', 'lastCiclo'));
 
         // return view('agenda', compact('edificios', 'aulas', 'resultados', 'allNrc', 'edificioRequest'));
         // return view('agenda')->with('horarios', $horarios)->with('cantidadDias', $cantidadDias);

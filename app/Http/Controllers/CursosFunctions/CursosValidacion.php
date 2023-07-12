@@ -37,9 +37,9 @@ class CursosValidacion {
             }
         }
         /* Validamos que NRC y nombre sean unicos en el ciclo actual. */
-        $vallidationNrcName = self::validateNrc($request);
-        if($vallidationNrcName !== null)
-            $errors['uniqueNrc'] = $vallidationNrcName;
+        // $vallidationNrcName = self::validateNrc($request);
+        // if($vallidationNrcName !== null)
+        //     $errors['uniqueNrc'] = $vallidationNrcName;
 
         /*Validamos que los alumnos registrados no puedan ser mayor al cupo del curso*/
         if ($request->alumnos_registrados > $request->cupo) {
@@ -89,7 +89,9 @@ class CursosValidacion {
             while ($start <= $end) {
                 // dd($value, $request->area, $start, $curso->id);
                 $horaOcupada = HorariosNew::with('curso', 'area')
-                ->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
+                ->whereHas('curso', function ($query) use ($request) {
+                    $query->where('ciclo', $request->ciclo);
+                })->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
             
                 if (isset($horaOcupada->curso->id) && !in_array($horaOcupada->curso->nrc, $nrcs)) {
                         $nrcs[] = $horaOcupada->curso->nrc;
@@ -236,40 +238,49 @@ class CursosValidacion {
     }
 
     public static function getCiclo(){
-        $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-        /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
-        $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
-        $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
-        $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
-
-        /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
-        lo que permitira poder ingresar un ciclo manualmente
-        en caso contrario mando el ciclo actual que se cursa */
-        return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
+        if(Cursos::exists()){
+            $cursos_ciclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
+            /*Consulta para ver la diferencia de tiempos desde el ultimno curso creado*/
+            $primerCursoDelCiclo = Cursos::where('ciclo', $cursos_ciclo)->where('created_at', '!=', null)->orderBy('created_at', 'asc')->first();
+            $primerCursoDelCiclo = $primerCursoDelCiclo->created_at;
+            $tiempoTranscurrido = $primerCursoDelCiclo->diff()->m;
+    
+            /* Si ya pasaron 4 meses del primer curso del ciclo actual manda null
+            lo que permitira poder ingresar un ciclo manualmente
+            en caso contrario mando el ciclo actual que se cursa */
+            return $tiempoTranscurrido < 4 ? $cursos_ciclo : null;
+        }
+        return null;
     }
 
-    public static function validateNrc($request){
+    public static function validateNrc($request, $curso){
         /* validamos si el curso ya existe */
-        $curso = Cursos::select('cursos.*')
+        $cursoRepetido = Cursos::select('cursos.*')
+        // ->where('ciclo', $request->ciclo)
         ->where('nrc', $request->nrc)
         ->orWhere('curso_nombre', $request->curso_nombre)
         ->latest()//Obtenemos el ultimo registrado en la DB
         ->first();
 
-        // dd($curso, isset($curso));
+
+        // dd($cursoRepetido->curso_nombre, $curso);
         
         /* No existe ningun curso que coincida */
-        if(isset($curso) == null)
-            return null;
-
+        if ($curso != null) {
+            if (!isset($cursoRepetido) || $cursoRepetido->id == $curso->id) {
+                return null;
+            }
+        }
+        
         //Obtenemos el ciclo actual
         $ciclo_actual = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
-        // dd(strcmp($request->ciclo, $ciclo_actual));
+        // dd(!strcmp($request->ciclo, $ciclo_actual));
         if(!strcmp($request->ciclo, $ciclo_actual))
-            return ['Ya existe un curso con el nombre o NRC registrado en el ciclo actual ', $curso, 'Favor de ingresar valores únicos.'];
+            return ['Ya existe un curso con el nombre o NRC registrado en el ciclo actual ', $cursoRepetido, 'Favor de ingresar valores únicos.'];
         
-        if(strcmp($request->curso_nombre, $curso->curso_nombre) != 0 || strcmp($request->nrc, $curso->nrc) != 0)
-            return ['El nombre o NRC no coincide con el siguiente curso: ', $curso, 'Se requiere que el nombre y el NRC coincida con el curso para agregarlo al nuevo ciclo.'];
+        // dd(strcmp($request->nrc, $cursoRepetido->nrc));
+        if(strcmp($request->curso_nombre, $cursoRepetido->curso_nombre) != 0 || strcmp($request->nrc, $cursoRepetido->nrc) != 0)
+            return ['El nombre o NRC no coincide con el siguiente curso: ', $cursoRepetido, 'Se requiere que el nombre y el NRC coincida con el curso para agregarlo al nuevo ciclo.'];
         return null;
     }
 }
