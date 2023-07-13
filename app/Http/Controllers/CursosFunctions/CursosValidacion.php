@@ -100,7 +100,7 @@ class CursosValidacion {
                 $horaOcupada = HorariosNew::with('curso', 'area')
                 ->whereHas('curso', function ($query) use ($request) {
                     $query->where('ciclo', $request->ciclo);
-                })->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->first();
+                })->where('id_area', $request->area)->where('dia', $request->dia[$key])->where('hora', $start)->where('status', 1)->first();
             
                 if (isset($horaOcupada->curso->id) && !in_array($horaOcupada->curso->nrc, $nrcs)) {
                         $nrcs[] = $horaOcupada->curso->nrc;

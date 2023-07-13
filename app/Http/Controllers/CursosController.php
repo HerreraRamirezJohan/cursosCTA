@@ -252,6 +252,7 @@ class CursosController extends Controller
             DB::raw("TIME_FORMAT(CONCAT(MIN(hora), ':00'), '%H:%i') AS hora_inicio"),
             DB::raw("TIME_FORMAT(CONCAT(MAX(hora), ':00'), '%H:%i') AS hora_final")
         )
+            ->where('status', 1)
             ->where('id_curso', $curso->id)
             ->groupBy('dia')->get();
             // dd($horarios);
@@ -294,6 +295,12 @@ class CursosController extends Controller
         // dd($request->hora_final);
         // dd((int)$horarioCurso[1]['hora_final'] - 1); 
         // 2->where('id_curso', $curso->id)->update(['id_curso' => null, 'status' => 0]);
+
+        $horario->where('id_curso', $curso->id)->update(['status' => 0]);
+        // return redirect()->back()->with('cursoModificado', 'Curso modificado correctamente.');
+
+
+
         foreach ($request->dia as $key => $value) {
             // dd($request->hora_final[$key]);
             $start = (int) $request->hora_inicio[$key];
@@ -316,9 +323,10 @@ class CursosController extends Controller
                 //     ''
                 // ])
                 /*Agrega o actuliza el horario */
-                $horario->updateOrCreate(['id_curso' => $curso->id, 'id_area' => $request->area,
+                $horario->updateOrCreate(['id_area' => $request->area,
+                                    'dia' =>$value, 'hora' => $start, 'status' => 1],
+                                    ['id_curso' => $curso->id, 'id_area' => $request->area,
                                     'dia' =>$value, 'hora' => $start, 'status' => 1]);
-
                 // $horario->where('dia', $value)->where('id_area', $request->area)->where('hora', $start)->update([
                 //     'id_curso' => $curso->id,
                 //     'status' => 1,
@@ -330,21 +338,21 @@ class CursosController extends Controller
             // Se pone un foreach debido a que hay cursos que tienen mas de un horario
             // dd($end);
         }
-        foreach ($horarioCurso as $key2 => $value2) {
+        // foreach ($horarioCurso as $key2 => $value2) {
             
-            // Va
-            // dd($end, (int)$horarioCurso[$key2]['hora_final']);
-            if ($end <= (int)$horarioCurso[$key2]['hora_final'] ) {
-                // if((int)$horarioCurso[$key2]['hora_final'] == $start){
-                //     $horario->updateOrCreate(['id_curso' => $curso->id, 'id_area' => $request->area,
-                //     'dia' =>$value2['dia'], 'hora' => $start, 'status' => 1]);
-                // }else{
-                    $horario->where('dia', $value)->where('id_area', $request->area)->where('hora',(int)$horarioCurso[$key2]['hora_final'] )->update([
-                    'id_curso' => null,
-                    'status' => 0 ]);
-                // }
-            }
-        }
+        //     // Va
+        //     // dd($end, (int)$horarioCurso[$key2]['hora_final']);
+        //     if ($end <= (int)$horarioCurso[$key2]['hora_final'] ) {
+        //         // if((int)$horarioCurso[$key2]['hora_final'] == $start){
+        //         //     $horario->updateOrCreate(['id_curso' => $curso->id, 'id_area' => $request->area,
+        //         //     'dia' =>$value2['dia'], 'hora' => $start, 'status' => 1]);
+        //         // }else{
+        //             $horario->where('dia', $value)->where('id_area', $request->area)->where('hora',(int)$horarioCurso[$key2]['hora_final'] )->update([
+        //             'id_curso' => null,
+        //             'status' => 0 ]);
+        //         // }
+        //     }
+        // }
 
         return redirect()->back()->with('cursoModificado', 'Curso modificado correctamente.');
     }
