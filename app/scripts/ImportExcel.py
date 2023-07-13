@@ -137,4 +137,4 @@ class ImportExcel:
 
 
 # rute2 = "http://localhost/cursosCTA2/public/storage/excelSaved/cursos_2023B.xlsx"
-# importExcel = ImportExcel(rute2, '2024B')
+# importExcel = ImportExcel(rute2, '2026A')

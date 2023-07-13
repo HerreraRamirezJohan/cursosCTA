@@ -83,21 +83,7 @@ class DBareasMerge:
         if areasYaAgregadas:#Regresa un array de las areas que faltaron del import.
             dfMergeCompleate = dfMergeCompleate[~dfMergeCompleate['area'].isin(areasYaAgregadas)]
             
-        # Obtener las áreas relacionadas
-        areas_relacionadas = dfMergeCompleate['area'].unique().tolist()
-    
-        # Obtener las áreas no relacionadas
-        areas_no_relacionadas = set(dfExcelClean['area']).difference(areas_relacionadas, areasYaAgregadas)
-        areas_no_relacionadas.discard(float('nan'))
-        areas_no_relacionadas.discard(None)
-        
 
-        # Imprimir las áreas relacionadas en formato JSON
-        # print("areas relacionadas:")
-        self.response.setAreasReg(areas_relacionadas)
-        self.response.setAreasOcup(list(areas_no_relacionadas))
-
-        self.response.printJSON()
         # print(f'# de Cursos de las areas no agregadas: {len(dfMergeCompleate)}')
         dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
         # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
@@ -156,6 +142,21 @@ class DBareasMerge:
 
             # Cerrar la conexión
             cursor.close()
+        # Obtener las áreas relacionadas
+        areas_relacionadas = dfMergeCompleate['area'].unique().tolist()
+    
+        # Obtener las áreas no relacionadas
+        areas_no_relacionadas = set(dfExcelClean['area']).difference(areas_relacionadas, areasYaAgregadas)
+        areas_no_relacionadas.discard(float('nan'))
+        areas_no_relacionadas.discard(None)
+        
+
+        # Imprimir las áreas relacionadas en formato JSON
+        # print("areas relacionadas:")
+        self.response.setAreasReg(areas_relacionadas)
+        self.response.setAreasOcup(list(areas_no_relacionadas))
+        self.response.setCursosImportados(len(data))
+        self.response.printJSON()
         # print(json.dumps(areas_relacionadas))
 
         # Imprimir las áreas no relacionadas en formato JSON

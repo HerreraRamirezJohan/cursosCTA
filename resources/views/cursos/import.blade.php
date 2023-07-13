@@ -57,7 +57,7 @@
                             @endif
                         </div>
                         <div class="mt-4 align-self">
-                            <button type="button" class="btn btn-primary">Enviar</button>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
                         </div>
                     </div>
                     @if (session()->has('coleccion'))
