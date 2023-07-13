@@ -1,6 +1,6 @@
 function importarHorarios() {
     let horarios = document.querySelector('#importCursos');
-
+    horarios.addEventListener()
     Swal.fire({
             title: '¿Deseas importar nuevos cursos?',
             showDenyButton: true,

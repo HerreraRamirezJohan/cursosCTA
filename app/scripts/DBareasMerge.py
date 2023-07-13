@@ -25,6 +25,32 @@ class DBareasMerge:
         self.cursosTable = pd.DataFrame()
         self.horariosTable = pd.DataFrame()
 
+    def getAreasSaved(self, ciclo):
+        # Crear un cursor para ejecutar consultas
+        cursor = self.connection.cursor()
+        
+        # Crear la consulta SQL
+        consulta = """
+            SELECT DISTINCT a.area
+            FROM cursos c
+            JOIN horarios_news h ON c.id = h.id_curso
+            JOIN areas a ON h.id_area = a.id
+            WHERE c.ciclo = %s
+        """
+        
+        # Ejecutar la consulta con el parámetro proporcionado
+        cursor.execute(consulta, (ciclo,))
+        
+        # Obtener los resultados de la consulta
+        resultados = cursor.fetchall()
+        # Obtener solo los valores de la posición 0 de cada tupla
+        areas = [resultado[0] for resultado in resultados]
+        # Cerrar el cursor y la conexión
+        cursor.close()
+    
+        # Devolver los resultados
+        return areas
+    
     def disconnect(self):
         if self.connection:
             self.connection.close()
@@ -52,66 +78,16 @@ class DBareasMerge:
         # Eliminar el carácter "-" de la columna "area"
         dfExcelClean['area'] = dfExcelClean['area'].str.replace('-', ' ')
         dfMergeCompleate = pd.merge(dfExcelClean, dfAreas, on='area', how='inner')
-        dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
-        # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
-        tableCursos = self.create_CursosTable(dfMergeCompleate)
-        self.response.setCursosImportados(len(tableCursos))
-        # print(f"Cursos unicos: {len(tableCursos)}")
-        tableCursos['profesor'] = tableCursos['profesor'].fillna(value='')
+        areasYaAgregadas = self.getAreasSaved(dfExcelClean['ciclo'][0])
         
-        #exportar cursos
-        data = tableCursos[['nrc', 'curso_nombre', 'departamento', 'alumnos_registrados', 'cupo', 'ciclo' , 'nivel', 'profesor' ,'codigo']].values.tolist()
-        # print(f"Registros del query: {len(data)}")
-        query = "INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, ciclo , nivel, profesor ,codigo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
-        # Array para almacenar los IDs y correos electrónicos generados
-        id_nrc_array = []
-        
-        cursor = self.connection.cursor()
-        # Insertar los registros en lotes
-        batch_size = 1000
-        for i in range(0, len(data), batch_size):
-            batch = data[i:i+batch_size]
-            cursor.executemany(query, batch)
-            self.connection.commit()
+        if areasYaAgregadas:#Regresa un array de las areas que faltaron del import.
+            dfMergeCompleate = dfMergeCompleate[~dfMergeCompleate['area'].isin(areasYaAgregadas)]
             
-            # Obtener los IDs y correos electrónicos generados
-            last_insert_id = cursor.lastrowid
-            generated_nrc = [row[0] for row in batch]
-            
-            # Almacenar los pares de ID y correo electrónico en el array
-            id_nrc_array.extend(zip(range(last_insert_id, last_insert_id + len(batch)), generated_nrc))
-
-        # Cerrar la conexión
-        cursor.close()
-        
-        # Convertir id_nrc_array en un DataFrame
-        df_id_nrc = pd.DataFrame(id_nrc_array, columns=['id_curso', 'nrc'])
-        dfIdCursos = pd.merge(dfMergeCompleate, df_id_nrc, on='nrc', how='inner')
-        dfHorarios = self.create_HorariosTable(dfIdCursos)
-        
-        #exportar horarios
-        dataHorario = dfHorarios[['id_curso', 'id_area', 'dia', 'hora']].values.tolist()
-        
-        query = "INSERT INTO horarios_news(id_curso, id_area, dia, hora, status) VALUES(%s, %s, %s, %s, 1)"
-        
-        # query = "UPDATE horarios_news SET id_curso = %s, status = 1 WHERE id_area=%s and dia=%s and hora=%s"
-        
-        cursor = self.connection.cursor()
-        # Insertar los registros en lotes
-        batch_size = 500
-        for i in range(0, len(dataHorario), batch_size):
-            batch = dataHorario[i:i+batch_size]
-            cursor.executemany(query, batch)
-            self.connection.commit()
-
-        # Cerrar la conexión
-        cursor.close()
-        
         # Obtener las áreas relacionadas
         areas_relacionadas = dfMergeCompleate['area'].unique().tolist()
     
         # Obtener las áreas no relacionadas
-        areas_no_relacionadas = set(dfExcelClean['area']) - set(areas_relacionadas)
+        areas_no_relacionadas = set(dfExcelClean['area']).difference(areas_relacionadas, areasYaAgregadas)
         areas_no_relacionadas.discard(float('nan'))
         areas_no_relacionadas.discard(None)
         
@@ -122,6 +98,64 @@ class DBareasMerge:
         self.response.setAreasOcup(list(areas_no_relacionadas))
 
         self.response.printJSON()
+        # print(f'# de Cursos de las areas no agregadas: {len(dfMergeCompleate)}')
+        dfMergeCompleate['nrc'] = dfMergeCompleate['nrc'].astype(str).replace('\.0', '', regex=True)
+        # print(f"Cursos con merge y dias duplicados: {len(dfMergeCompleate)}")
+        tableCursos = self.create_CursosTable(dfMergeCompleate)
+        self.response.setCursosImportados(len(tableCursos))
+        # print(f"Cursos unicos: {len(tableCursos)}")
+        tableCursos['profesor'] = tableCursos['profesor'].fillna(value='')
+        
+        #exportar cursos
+        data = tableCursos[['nrc', 'curso_nombre', 'departamento', 'alumnos_registrados', 'cupo', 'ciclo' , 'nivel', 'profesor' ,'codigo']].values.tolist()
+        # print(len(data))
+        # return 
+        if data:
+            # print(f"Registros del query: {len(data)}")
+            query = "INSERT INTO cursos (nrc, curso_nombre, departamento, alumnos_registrados, cupo, ciclo , nivel, profesor ,codigo) VALUES (%s, %s, %s, %s, %s, %s,%s, %s, %s)"
+            # Array para almacenar los IDs y correos electrónicos generados
+            id_nrc_array = []
+            
+            cursor = self.connection.cursor()
+            # Insertar los registros en lotes
+            batch_size = 1000
+            for i in range(0, len(data), batch_size):
+                batch = data[i:i+batch_size]
+                cursor.executemany(query, batch)
+                self.connection.commit()
+                
+                # Obtener los IDs y correos electrónicos generados
+                last_insert_id = cursor.lastrowid
+                generated_nrc = [row[0] for row in batch]
+                
+                # Almacenar los pares de ID y correo electrónico en el array
+                id_nrc_array.extend(zip(range(last_insert_id, last_insert_id + len(batch)), generated_nrc))
+
+            # Cerrar la conexión
+            cursor.close()
+            
+            # Convertir id_nrc_array en un DataFrame
+            df_id_nrc = pd.DataFrame(id_nrc_array, columns=['id_curso', 'nrc'])
+            dfIdCursos = pd.merge(dfMergeCompleate, df_id_nrc, on='nrc', how='inner')
+            dfHorarios = self.create_HorariosTable(dfIdCursos)
+            
+            #exportar horarios
+            dataHorario = dfHorarios[['id_curso', 'id_area', 'dia', 'hora']].values.tolist()
+            
+            query = "INSERT INTO horarios_news(id_curso, id_area, dia, hora, status) VALUES(%s, %s, %s, %s, 1)"
+            
+            # query = "UPDATE horarios_news SET id_curso = %s, status = 1 WHERE id_area=%s and dia=%s and hora=%s"
+            
+            cursor = self.connection.cursor()
+            # Insertar los registros en lotes
+            batch_size = 500
+            for i in range(0, len(dataHorario), batch_size):
+                batch = dataHorario[i:i+batch_size]
+                cursor.executemany(query, batch)
+                self.connection.commit()
+
+            # Cerrar la conexión
+            cursor.close()
         # print(json.dumps(areas_relacionadas))
 
         # Imprimir las áreas no relacionadas en formato JSON
@@ -131,7 +165,7 @@ class DBareasMerge:
         
         self.disconnect()
                 
-        return dfHorarios
+        return
         
 
 # print(df.columns)

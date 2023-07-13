@@ -63,7 +63,7 @@
                     @if (session()->has('coleccion'))
                         @php
                             // $coleccion = collect(session('coleccion'));
-                            $areasReg = explode(',', session('coleccion')['areasRegistradas']);
+                            // $areasReg = explode(',', session('coleccion')['areasRegistradas']);
                             $areasOcup = explode(',', session('coleccion')['areasOcupadas']);
                             $caracteresNoDeseados = ['[', ']', "\""];
                         @endphp

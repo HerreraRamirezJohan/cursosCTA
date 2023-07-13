@@ -41,7 +41,7 @@ class ImportExcel extends Controller
 
         // Ruta completa del archivo
         $rutaCompletaArchivo = URL('storage/excelSaved/' . $name );
-
+        // dd($rutaCompletaArchivo);
         $errors = CursosValidacion::validateCicloExcel($request, "store");
         if (!empty($errors))
             return back()->withInput()->with(['errorsHorario' => $errors]);
