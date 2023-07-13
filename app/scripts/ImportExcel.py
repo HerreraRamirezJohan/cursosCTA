@@ -6,7 +6,7 @@ from DBareasMerge import DBareasMerge as db
 class ImportExcel:
     def __init__(self, file, ciclo) -> None:
         self.ciclo = ciclo
-        self.df = self.importFromExcelFile(file, ciclo)
+        self.importFromExcelFile(file, ciclo)
         # print('Exito.')
        
         
@@ -137,4 +137,4 @@ class ImportExcel:
 
 
 # rute2 = "http://localhost/cursosCTA2/public/storage/excelSaved/cursos_2023B.xlsx"
-# importExcel = ImportExcel(rute2, '2023A')
+# importExcel = ImportExcel(rute2, '2024B')

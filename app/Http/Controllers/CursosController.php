@@ -189,8 +189,8 @@ class CursosController extends Controller
                 $horas = HorariosNew::with('curso', 'area')->where('id_curso', $idCurso)->pluck('hora')->toArray();
                 $cursoExistente['dias'][] = $dia; // Agregar el día al arreglo de días sin comprobar duplicados
                 // Filtrar las horas correspondientes al día específico
-                $horasPorDia = array_filter($horas, function ($hora) use ($dia) {
-                    return $hora['dia'] === $dia;
+                $horasPorDia = array_filter($horas, function ($hora) use (&$dia) {
+                    return is_array($hora) && isset($hora['dia']) && $hora['dia'] === $dia;
                 });
                 // Obtener solo los valores de las horas filtradas
                 $horasPorDia = array_column($horasPorDia, 'hora');
