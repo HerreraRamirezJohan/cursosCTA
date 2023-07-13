@@ -129,10 +129,15 @@
                         <div class="d-md-flex d-lg-flex justify-content-between gap-5">
                             <div class="mb-3 w-100">
                                 <label for="Area">Área:</label>
+                                {{-- @dd($cursos_area) --}}
                                 <select id="area" class="form-select js-example-basic-single" name="area" class="form-control" required>
-                                    @foreach ($cursos_area as $area)
+                                    @foreach ($cursos_area as $key => $area)
                                         <option value="{{ $area->id }}"
-                                            {{ $horarios[0]->id_area === $area->id ? 'selected' : '' }}>
+                                            @foreach ($horarios as $key => $horarioArea)
+                                            {{ $horarios[$key]->id_area === $area->id ? 'selected' : '' }}
+                                            @endforeach
+                                            >
+                                            {{-- {{ $horarios[0]->id_area === $area->id ? 'selected' : '' }}> --}}
                                             {{ $area->sede . ' - ' . $area->edificio . ' - ' . $area->area }}
                                         </option>
                                         {{-- Datos del DB --}}

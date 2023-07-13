@@ -46,7 +46,7 @@
                             <th scope="row">Ciclo:</th>
                             <td class="fw-normal">{{$item->ciclo}}</td>
                         </tr>
-                        @if($item->observaciones != null || $item->observaciones != 'Ninguna')
+                        @if($item->observaciones != 'Ninguna' || $item->observaciones != null  )
                             <tr>
                                 <th scope="row">Observaciones:</th>
                                 <td class="fw-normal">{{$item->observaciones}}</td>
