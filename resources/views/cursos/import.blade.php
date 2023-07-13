@@ -26,7 +26,7 @@
                 <p>El proceso puede demorar, espere un momento.</p>
                 {{-- <p class="card-text">Presiona solo una vez el botón de "Cargar horarios" y espera hasta que salga la alerta de éxito.</p> --}}
                 {{-- <form action="{{route('importSeeder')}}" method="post" id="importSeeder"> --}}
-                <form method="POST" action="{{ route('process.api') }}" enctype="multipart/form-data" id="importCursos">
+                <form method="POST" action="{{ route('process.api') }}" enctype="multipart/form-data" onsubmit=importarHorarios(event) id="importCursos">
                     @csrf
                     <div class="row row-cols-lg-auto align-items-start justify-content-center mt-4 d-flex"
                         style="gap:1rem 2rem">
@@ -57,7 +57,7 @@
                             @endif
                         </div>
                         <div class="mt-4 align-self">
-                            <button type="button" class="btn btn-primary" onclick="importarHorarios()">Enviar</button>
+                            <button type="button" class="btn btn-primary">Enviar</button>
                         </div>
                     </div>
                     @if (session()->has('coleccion'))

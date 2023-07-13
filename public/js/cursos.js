@@ -1,20 +1,23 @@
-function importarHorarios() {
+function importarHorarios(event) {
+    console.log(event);
     let horarios = document.querySelector('#importCursos');
-    horarios.addEventListener()
-    Swal.fire({
-            title: '¿Deseas importar nuevos cursos?',
-            showDenyButton: true,
-            confirmButtonText: 'Importar',
-            denyButtonText: `Cancelar`,
-        })
-        .then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                horarios.submit();
-            } else if (result.isDenied) {
-                Swal.fire('Datos no importados', '', 'info')
-            }
-        })
+    // horarios.addEventListener('submit', function (event) {
+        event.preventDefault();
+        Swal.fire({
+                title: '¿Deseas importar nuevos cursos?',
+                showDenyButton: true,
+                confirmButtonText: 'Importar',
+                denyButtonText: `Cancelar`,
+            })
+            .then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    horarios.submit();
+                } else if (result.isDenied) {
+                    Swal.fire('Datos no importados', '', 'info')
+                }
+            })
+    // })
 }
 
 
