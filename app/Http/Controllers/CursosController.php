@@ -357,7 +357,10 @@ class CursosController extends Controller
         // dd($id);
         $eliminar = Cursos::findOrFail($id);
         $eliminar->update(['activo' => 0]);
-
+        $eliminarHorarios = HorariosNew::where('id_curso', $id)->get();
+        foreach ($eliminarHorarios as $horario) {
+            $horario->update(['status' => 0]);
+        }
         return back()->with('success', 'Curso eliminado correctamente.');
     }
 
