@@ -45,7 +45,7 @@ class CursosController extends Controller
 
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'horarios', 'lastCiclo', 'cursos_ciclo'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'lastCiclo', 'cursos_ciclo'));
     }
 
     public function store(Request $request)
