@@ -254,8 +254,7 @@ class CursosController extends Controller
             // dd($horarios);
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
         /*Hacemos un count para ver si tiene un horario en el mismo curso*/
-        $validacion_horario = Horarios::where('id_curso', $curso->id)->where('estado', 1)->count();
-        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'validacion_horario', 'horarios', 'lastCiclo'));
+        return view('cursos.edit', compact('curso', 'cursos_departamento', 'cursos_area', 'horarios', 'lastCiclo'));
     }
 
     public function update(Request $request, Cursos $curso, HorariosNew $horario)
