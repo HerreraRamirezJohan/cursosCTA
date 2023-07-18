@@ -34,9 +34,6 @@ class CursosController extends Controller
 
     public function create(Request $request, $hour = null, $aula = null, $dia = null)
     {
-        /*Consulta para ver que cursos tienen 2 horarios*/
-        $horarios = CursosRequest::obtenerDoblesHorarios();
-
         $cursos_departamento = Cursos::select('departamento')->orderBy('departamento', 'asc')->distinct()->pluck('departamento');
 
         $cursos_ciclo = CursosValidacion::getCiclo();
@@ -48,7 +45,7 @@ class CursosController extends Controller
 
         $lastCiclo = Cursos::select('ciclo')->where('activo', 1)->orderBy('ciclo', 'desc')->value('ciclo');
 
-        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'horarios', 'lastCiclo', 'cursos_ciclo'));
+        return view('cursos.create', compact('cursos_departamento', 'curso', 'cursos_area', 'lastCiclo', 'cursos_ciclo'));
     }
 
     public function store(Request $request)
@@ -121,8 +118,6 @@ class CursosController extends Controller
         $rules = ['ciclo' => 'required'];
         $validarDatos = $request->validate($rules);
 
-        /*Consulta para ver que cursos tienen 2 horarios*/
-        // $horarios = CursosRequest::obtenerDoblesHorarios();
 
         /* Areglo que define los aributos mandados */
         $filtros = [
@@ -195,6 +190,7 @@ class CursosController extends Controller
                 $horas = HorariosNew::with('curso', 'area')->where('id_curso', $idCurso)->pluck('hora')->toArray();
                 $cursoExistente['dias'][] = $dia; // Agregar el día al arreglo de días sin comprobar duplicados
                 // Filtrar las horas correspondientes al día específico
+                // Verifica si cada elemento de $horas es un arreglo, si tiene una clave 'dia' definida y si su valor es igual a $dia
                 $horasPorDia = array_filter($horas, function ($hora) use (&$dia) {
                     return is_array($hora) && isset($hora['dia']) && $hora['dia'] === $dia;
                 });

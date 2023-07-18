@@ -59,25 +59,41 @@ class ImportExcel extends Controller
             // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
         // }
         // Ejecuta el script de Python
-        $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $request->input('ciclo')]);
-        $process->setTimeout(240);
-        $process->run();
+        // $process = new Process(['python', base_path('app/scripts/testpython.py'), $rutaCompletaArchivo, $request->input('ciclo')]);
+        // $process->setTimeout(240);
+        // $process->run();
+        $pythonScript = base_path('app/scripts/testpython.py'); //Ruta a ejecutar
+        $ciclo = $request->input('ciclo');
+        $command = "python $pythonScript $rutaCompletaArchivo $ciclo"; //construccion del comando
+        exec($command, $output, $returnCode); //Ejecuta el comando, manda salida y codigo
 
-        if (!$process->isSuccessful()) {
+        if($returnCode !== 0){
+            session()->flash('alert', 'Ha ocurrido un error en el proceso. Verifica que el archivo sea el correcto e intenta de nuevo.');
+            return redirect()->route('indexImport');
+        }
+        // El comando se ejecutó correctamente
+        $reponse = implode("\n", $output); // Combina las líneas de la salida en una cadena
+        $importacionExcel = json_decode($reponse, true);
+        $coleccion = new Collection($importacionExcel);
+        $msgSuccess = 'Los datos fueron importados correctamente.';
+        return redirect()->back()->with(['coleccion' => $coleccion, 'msgSuccess' => $msgSuccess]);
+
+
+        // if (!$process->isSuccessful()) {
             // session()->flash('alert', 'Ha ocurrido un error en el proceso. Verifica que el archivo sea el correcto e intenta de nuevo.');
             // return redirect()->route('indexImport');
-            throw new ProcessFailedException($process);
-        }
+            // throw new ProcessFailedException($process);
+        // }
         // return redirect()->back()->with('success', 'Los datos fueron importados correctamente.');
-        $response = $process->getOutput();
+        // $response = $process->getOutput();
         
         //return(explode(",",$response));
         // $response[0] = explode(",",$response[0]);
-        $importacionExcel = json_decode($response, true);
+        // $importacionExcel = json_decode($response, true);
         // return $importacionExcel;
-        $coleccion = new Collection($importacionExcel);
+        // $coleccion = new Collection($importacionExcel);
         // dd($coleccion);
-        $msgSuccess = 'Los datos fueron importados correctamente.';
-        return redirect()->back()->with(['coleccion' => $coleccion, 'msgSuccess' => $msgSuccess]);
+        // $msgSuccess = 'Los datos fueron importados correctamente.';
+        // return redirect()->back()->with(['coleccion' => $coleccion, 'msgSuccess' => $msgSuccess]);
     }
 }

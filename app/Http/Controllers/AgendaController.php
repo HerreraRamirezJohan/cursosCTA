@@ -29,15 +29,14 @@ class AgendaController extends Controller
         $diaS = $request->dia;
         $edificioRequest = $request->edificio;
 
+        // Traemos todos las areas que cumplen con los requisitos, espacio y sede
         $edificios = Areas::select('id', 'edificio', 'piso')
             ->where(function ($query) {
                 $query->where('tipo_espacio', 'Laboratorio')
                     ->orWhere('tipo_espacio', 'Aula');
             })->where('activo', 1)
             ->where('sede', 'belenes')->orderBy('edificio', 'asc')->get();
-
-
-        $aulas = Areas::select('id', 'area', 'edificio')->where('edificio', $request->edificio)
+        $aulas = Areas::select('id', 'area', 'edificio')->where('edificio', $edificioRequest)
             ->where(function ($query) {
                 $query->where('tipo_espacio', 'Laboratorio')
                     ->orWhere('tipo_espacio', 'Aula');
